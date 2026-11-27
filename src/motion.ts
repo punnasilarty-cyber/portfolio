@@ -16,41 +16,24 @@ export function useMotion(content: unknown) {
 
     function start() {
       const undo: (() => void)[] = [];
-      const listen = <K extends keyof WindowEventMap>(target: EventTarget, type: K, handler: (event: WindowEventMap[K]) => void) => {
-        target.addEventListener(type, handler as EventListener);
-        undo.push(() => target.removeEventListener(type, handler as EventListener));
-      };
-      const finePointer = matchMedia("(pointer: fine)").matches;
-
       const context = gsap.context(() => {
         gsap.fromTo(".fx-progress", { scaleX: 0 }, { scaleX: 1, ease: "none", scrollTrigger: { start: 0, end: "max", scrub: 0.3 } });
 
-        // the opening block falls away while the code wall behind it comes closer
+        // the opening block sinks and fades; only the text moves, the code wall behind it stays put
         const hero = { trigger: "#top > section:first-child", start: "top top", end: "bottom top", scrub: 0.6 };
-        gsap.to(".hero-content", { y: 180, scale: 0.78, opacity: 0, rotationX: 35, transformPerspective: 800, ease: "none", scrollTrigger: hero });
-        gsap.to("#top > section:first-child canvas", { scale: 1.35, transformOrigin: "50% 40%", ease: "none", scrollTrigger: hero });
+        gsap.to(".hero-content", { y: 120, opacity: 0, ease: "none", scrollTrigger: hero });
 
-        // the band of section names never stops, and scrolling pushes it faster
-        const band = gsap.to(".fx-track", { xPercent: -50, duration: 40, ease: "none", repeat: -1 });
-        ScrollTrigger.create({
-          onUpdate: (self) => {
-            const push = gsap.utils.clamp(-8, 8, self.getVelocity() / 250);
-            gsap.fromTo(band, { timeScale: 1 + Math.abs(push) }, { timeScale: 1, duration: 1, overwrite: true });
-          },
-        });
-
+        // the band of section names keeps drifting
+        gsap.to(".fx-track", { xPercent: -50, duration: 40, ease: "none", repeat: -1 });
         gsap.utils.toArray<HTMLElement>("main section[id]").forEach((section) => {
           const heading = section.querySelector("h2");
-          const number = section.querySelector(".fx-number");
           gsap.from(heading, {
             y: 90,
             scale: 0.55,
-            skewY: 8,
             opacity: 0,
             ease: "none",
             scrollTrigger: { trigger: heading, start: "top bottom", end: "top 65%", scrub: 0.5 },
           });
-          gsap.fromTo(number, { yPercent: 60, xPercent: -12 }, { yPercent: -60, xPercent: 12, ease: "none", scrollTrigger: { trigger: section, scrub: 1 } });
           // the menu lights up the section on screen
           ScrollTrigger.create({
             trigger: section,
@@ -97,8 +80,6 @@ export function useMotion(content: unknown) {
               },
             },
           );
-          // the map leans back further as the reader moves through the stages
-          gsap.fromTo(".edu-map", { rotationX: 30, rotationZ: -6 }, { rotationX: 48, rotationZ: 4, ease: "none", scrollTrigger: along });
 
           const popped = new Set<string>();
           gsap.utils.toArray<HTMLElement>(".edu-stop").forEach((stop) => {
@@ -112,33 +93,8 @@ export function useMotion(content: unknown) {
               tl.from(pin, { scale: 0, transformOrigin: "50% 50%", duration: 0.7, ease: "back.out(3)" }, 0);
             }
           });
-          gsap.to(".edu-pin-pulse", { attr: { r: 30 }, opacity: 0, duration: 1.8, ease: "power2.out", repeat: -1, stagger: 0.6 });
         }
 
-        if (!finePointer) return;
-        // a soft light that trails the pointer
-        const glow = document.body.appendChild(document.createElement("div"));
-        glow.className = "fx-glow";
-        glow.setAttribute("aria-hidden", "true");
-        undo.push(() => glow.remove());
-        const glowX = gsap.quickTo(glow, "x", { duration: 0.5, ease: "power3" });
-        const glowY = gsap.quickTo(glow, "y", { duration: 0.5, ease: "power3" });
-        listen(window, "pointermove", (event) => {
-          glowX(event.clientX);
-          glowY(event.clientY);
-          gsap.to(glow, { autoAlpha: 1, duration: 0.3, overwrite: "auto" });
-        });
-
-        // the main button leans toward the pointer and springs back
-        const magnet = document.querySelector<HTMLElement>(".hero-content .solx-btn-primary");
-        if (magnet) {
-          gsap.set(magnet, { transition: "none" });
-          listen(magnet, "pointermove", (event) => {
-            const box = magnet.getBoundingClientRect();
-            gsap.to(magnet, { x: (event.clientX - box.x - box.width / 2) * 0.4, y: (event.clientY - box.y - box.height / 2) * 0.6, duration: 0.3 });
-          });
-          listen(magnet, "pointerleave", () => gsap.to(magnet, { x: 0, y: 0, duration: 0.8, ease: "elastic.out(1, 0.35)" }));
-        }
       });
 
       // pictures change the page height after the triggers are measured

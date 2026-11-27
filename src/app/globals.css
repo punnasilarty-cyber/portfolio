@@ -171,9 +171,6 @@ body::before {
   color: transparent;
 }
 /* the shop name in the hero: red at the top of each letter, fading down into white */
-.solx-title-brand {
-  filter: drop-shadow(0 4px 10px #000);
-}
 .solx-title-brand .solx-gradient-text {
   background-image: linear-gradient(#c81e1e 20%, #f87171 40%, #ffffff 64%);
 }
@@ -490,13 +487,11 @@ html::before {
     radial-gradient(1px 1px at 90px 120px, #ffffff, transparent) 0 0 / 260px 240px,
     radial-gradient(2px 2px at 150px 60px, #f87171, transparent) 0 0 / 330px 370px;
   opacity: 0.55;
-  animation: fx-embers 40s linear infinite;
 }
 html::after {
   background:
     radial-gradient(34rem 24rem at 30% 35%, rgba(220, 38, 38, 0.16), transparent 70%),
     radial-gradient(30rem 22rem at 72% 70%, rgba(124, 58, 237, 0.12), transparent 70%);
-  animation: fx-aurora 14s ease-in-out infinite alternate;
 }
 body {
   background: transparent;
@@ -603,24 +598,8 @@ main li .solx-spotlight:hover::after {
 }
 
 /* the light that trails the pointer */
-.fx-glow {
-  position: fixed;
-  top: -14rem;
-  left: -14rem;
-  z-index: 35;
-  width: 28rem;
-  height: 28rem;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(248, 113, 113, 0.18), transparent 65%);
-  mix-blend-mode: screen;
-  pointer-events: none;
-  visibility: hidden;
-}
 
 /* a pulse on the main button and a glide under menu links */
-main .solx-btn-primary {
-  animation: fx-pulse 2.4s ease-out 3s infinite;
-}
 header nav a {
   background: linear-gradient(#f87171, #f87171) center bottom / 0 2px no-repeat;
   transition: background-size 0.3s ease, color 0.3s ease;
@@ -643,26 +622,6 @@ html:has(#calm:checked)::after {
   transition: none !important;
 }
 
-@keyframes fx-embers {
-  to {
-    translate: -190px -420px;
-  }
-}
-@keyframes fx-aurora {
-  to {
-    translate: 12% -8%;
-    scale: 1.15;
-  }
-}
-@keyframes fx-pulse {
-  0% {
-    box-shadow: 0 0 0 0 rgba(248, 113, 113, 0.7);
-  }
-  70%,
-  100% {
-    box-shadow: 0 0 0 16px rgba(248, 113, 113, 0);
-  }
-}
 
 /* schooling: a tilted map that stays in view beside the stage cards */
 .edu {
@@ -722,11 +681,9 @@ html:has(#calm:checked)::after {
   stroke-width: 3;
   stroke-linecap: round;
   stroke-dasharray: 1;
-  filter: drop-shadow(0 0 6px #facc15);
 }
 .edu-traveller {
   fill: #fff;
-  filter: drop-shadow(0 0 8px #fff) drop-shadow(0 0 14px #facc15);
 }
 .edu-list {
   display: grid;
@@ -750,7 +707,6 @@ html:has(#calm:checked)::after {
   background: #16a34a;
   color: #fff;
   font-weight: 700;
-  animation: fx-pulse 2s ease-out infinite;
 }
 /* each card carries its school's colours along the top and in its number */
 .edu-card {

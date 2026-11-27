@@ -48,7 +48,6 @@ export function Education() {
               const ring = stop.schoolColors?.[1]?.hex ?? "#f87171";
               return (
                 <g key={stop.school} className="edu-pin" data-school={stop.school} transform={`translate(${x} ${y})`}>
-                  <circle r="22" fill={ring} opacity="0.18" className="edu-pin-pulse" />
                   <circle r="17" fill="#fff" stroke={ring} strokeWidth="3" />
                   <clipPath id={`edu-clip-${stop.district}`}>
                     <circle r="15" />

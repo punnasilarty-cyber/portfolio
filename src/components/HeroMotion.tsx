@@ -63,7 +63,7 @@ export function HeroMotion({ still = false }: { still?: boolean }) {
     let cells: { x: number; y: number; u: number }[] = [];
 
     function layout() {
-      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      const dpr = Math.min(1.25, window.devicePixelRatio || 1);
       width = canvas!.clientWidth;
       height = canvas!.clientHeight;
       canvas!.width = width * dpr;
@@ -135,7 +135,6 @@ export function HeroMotion({ still = false }: { still?: boolean }) {
       }
 
       ctx!.font = font;
-      ctx!.shadowBlur = 8;
       // a band of light that keeps crossing the shape
       const sweep = ((time * 0.22) % 1.8) - 0.4;
       for (const cell of cells) {
@@ -154,7 +153,6 @@ export function HeroMotion({ still = false }: { still?: boolean }) {
         // kept low so the headline in front stays readable
         ctx!.globalAlpha = alpha * (0.38 + 0.45 * shine);
         ctx!.fillStyle = shine > 0.6 ? "#ffffff" : color;
-        ctx!.shadowColor = color;
         ctx!.fillText(glyph, cell.x * cw, cell.y * lh);
       }
       ctx!.globalAlpha = 1;
