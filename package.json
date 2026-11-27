@@ -5,7 +5,9 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "node --test test/github.test.ts",
+    "deploy": "node scripts/deploy.mjs"
   },
   "dependencies": {
     "next": "16.4.6",

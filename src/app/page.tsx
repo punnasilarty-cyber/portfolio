@@ -1,8 +1,9 @@
+import Link from "next/link";
 import { HeroMotion } from "@/components/HeroMotion";
 import { Reveal } from "@/components/Reveal";
-import { SpotlightCard } from "@/components/SpotlightCard";
 import { StaggerText } from "@/components/StaggerText";
-import { contacts, profile, skills, works, type Work } from "@/content";
+import { Works } from "@/components/Works";
+import { contacts, profile, skills } from "@/content";
 
 const menu = [
   { href: "#works", label: "ผลงาน" },
@@ -58,13 +59,7 @@ export default function HomePage() {
 
         <Reveal className="mx-auto max-w-6xl px-5 py-16">
           <Heading id="works" title="ผลงาน" />
-          <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {works.map((work) => (
-              <li key={work.title}>
-                <WorkCard work={work} />
-              </li>
-            ))}
-          </ul>
+          <Works />
         </Reveal>
 
         <Reveal className="mx-auto max-w-3xl px-5 py-16">
@@ -103,7 +98,10 @@ export default function HomePage() {
       </main>
 
       <footer className="bg-[#18181b] px-5 py-6 text-center text-xs text-[var(--muted)]">
-        © 2026 {profile.name} สงวนลิขสิทธิ์
+        © 2026 {profile.name} สงวนลิขสิทธิ์ ·{" "}
+        <Link href="/admin" className="underline hover:text-[var(--foreground)]">
+          แก้ไขผลงาน
+        </Link>
       </footer>
     </>
   );
@@ -115,28 +113,5 @@ function Heading({ id, title }: { id: string; title: string }) {
     <h2 id={id} aria-label={title} className="mb-10 scroll-mt-24 text-center text-3xl font-semibold sm:text-4xl">
       <StaggerText text={title} />
     </h2>
-  );
-}
-
-function WorkCard({ work }: { work: Work }) {
-  return (
-    <SpotlightCard className="flex h-full flex-col">
-      <div className="flex aspect-video items-center justify-center bg-[linear-gradient(135deg,#7f1d1d,#3b1113)]">
-        {work.image && (
-          // eslint-disable-next-line @next/next/no-img-element -- a static export serves images as they are
-          <img src={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}${work.image}`} alt={work.title} className="h-full w-full object-cover" />
-        )}
-      </div>
-      <div className="flex flex-1 flex-col gap-2 p-5">
-        <p className="text-xs text-[var(--accent-soft)]">{work.kind}</p>
-        <h3 className="font-bold">{work.title}</h3>
-        <p className="text-sm text-[var(--muted)]">{work.summary}</p>
-        {work.link && (
-          <a href={work.link} target="_blank" rel="noopener noreferrer" className="solx-btn-ghost mt-auto self-start px-4 py-2 text-sm">
-            ดูผลงาน
-          </a>
-        )}
-      </div>
-    </SpotlightCard>
   );
 }
