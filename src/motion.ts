@@ -58,43 +58,51 @@ export function useMotion(content: unknown) {
           });
         });
 
-        // schooling map: the route draws itself as the cards scroll past, a light rides it, and each pin pops up
-        // when its school's first card arrives
-        const list = document.querySelector(".edu-list");
-        if (list) {
-          const along = { trigger: list, start: "top 65%", end: "bottom 70%", scrub: 0.6 };
-          const route = document.querySelector<SVGPathElement>(".edu-route")!;
-          const traveller = document.querySelector(".edu-traveller")!;
-          const length = route.getTotalLength();
-          gsap.fromTo(route, { strokeDashoffset: 1 }, { strokeDashoffset: 0, ease: "none", scrollTrigger: along });
-          gsap.fromTo(
-            { at: 0 },
-            { at: 0 },
-            {
-              at: 1,
-              ease: "none",
-              scrollTrigger: along,
-              onUpdate() {
-                const point = route.getPointAtLength(this.targets()[0].at * length);
-                gsap.set(traveller, { attr: { cx: point.x, cy: point.y } });
-              },
-            },
-          );
-
-          const popped = new Set<string>();
+        // school scenes: each builds itself, floor by floor. On wide screens one stays in view and changes with the
+        // card being read; on narrow ones they are stacked and build as they scroll in
+        const stage = document.querySelector(".edu-stage");
+        if (stage) {
+          const wide = matchMedia("(min-width: 900px)").matches;
+          const scenes = gsap.utils.toArray<HTMLElement>(".edu-scene");
+          const builds = scenes.map((scene) => {
+            const part = (name: string) => scene.querySelectorAll(name);
+            return gsap
+              .timeline(wide ? { paused: true } : { scrollTrigger: { trigger: scene, start: "top 80%", toggleActions: "play none none reverse" } })
+              .from(part(".sc-floor"), { y: -80, opacity: 0, duration: 0.5, stagger: { amount: 0.9 }, ease: "power3.out" })
+              .from(part(".sc-roof"), { y: -60, opacity: 0, duration: 0.5, stagger: { amount: 0.3 }, ease: "power3.out" })
+              .from(part(".sc-door, .sc-sign"), { opacity: 0, duration: 0.4 })
+              .from(part(".sc-pop, .sc-pop-box"), { scale: 0, transformOrigin: "50% 100%", duration: 0.5, stagger: { amount: 0.6 }, ease: "back.out(2)" }, "-=0.5")
+              .from(part(".sc-flagpole"), { opacity: 0, duration: 0.3 }, "-=0.6")
+              .from(part(".sc-flag"), { y: 70, duration: 0.9, ease: "power2.out" });
+          });
+          let shown = -1;
+          const show = (school: string) => {
+            const next = scenes.findIndex((scene) => scene.dataset.school === school);
+            if (next === shown) return;
+            shown = next;
+            scenes.forEach((scene, i) => scene.classList.toggle("is-on", i === next));
+            builds[next].restart();
+          };
+          if (wide) {
+            stage.classList.add("edu-live");
+            undo.push(() => {
+              stage.classList.remove("edu-live");
+              scenes.forEach((scene) => scene.classList.remove("is-on"));
+            });
+            ScrollTrigger.create({ trigger: stage, start: "top 85%", once: true, onEnter: () => shown < 0 && show(scenes[0].dataset.school!) });
+          }
           gsap.utils.toArray<HTMLElement>(".edu-stop").forEach((stop) => {
             const school = stop.dataset.school!;
-            const pin = document.querySelector(`.edu-pin[data-school="${school}"]`);
-            const when = { trigger: stop, start: "top 75%", toggleActions: "play none none reverse" };
-            const tl = gsap.timeline({ scrollTrigger: when });
-            tl.from(stop.querySelector(".edu-card"), { y: 60, opacity: 0, duration: 0.8, ease: "power3.out" });
-            if (pin && !popped.has(school)) {
-              popped.add(school);
-              tl.from(pin, { scale: 0, transformOrigin: "50% 50%", duration: 0.7, ease: "back.out(3)" }, 0);
-            }
+            gsap.from(stop.querySelector(".edu-card"), {
+              y: 60,
+              opacity: 0,
+              duration: 0.8,
+              ease: "power3.out",
+              scrollTrigger: { trigger: stop, start: "top 75%", toggleActions: "play none none reverse" },
+            });
+            if (wide) ScrollTrigger.create({ trigger: stop, start: "top 60%", end: "bottom 60%", onEnter: () => show(school), onEnterBack: () => show(school) });
           });
         }
-
       });
 
       // pictures change the page height after the triggers are measured

@@ -1,70 +1,30 @@
+import { SchoolScene } from "@/components/SchoolScene";
 import { education } from "@/content";
 
 const base = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
-// the map's frame in degrees; north at the top
-const WEST = 103.0;
-const EAST = 104.3;
-const NORTH = 15.45;
-const SOUTH = 14.3;
-const W = 400;
-const H = 300;
-const project = ([lat, lon]: [number, number]) => [((lon - WEST) / (EAST - WEST)) * W, ((NORTH - lat) / (NORTH - SOUTH)) * H];
-
-// shortcut: a hand-drawn outline in the rough shape of Surin province, not real borders; use GeoJSON if accuracy matters
-const PROVINCE =
-  "M70 40 C120 18 190 20 238 34 C292 48 336 38 366 70 C390 98 372 140 382 178 C392 222 360 262 318 276 C270 292 222 280 180 286 C130 294 84 278 62 244 C36 204 48 166 40 128 C32 88 38 56 70 40 Z";
-
-/** where the schooling happened: a tilted map with a route drawn between schools, then a card per stage (see motion.ts) */
+/** where the schooling happened: a model of each school, then a card per stage (see motion.ts) */
 export function Education() {
-  // one pin per school, in the order first reached
-  const pins = education.filter((stop, i) => education.findIndex((other) => other.school === stop.school) === i);
-  const [from, to] = pins.map((stop) => project(stop.at));
-  const route = `M${from[0]} ${from[1]} C${from[0] - 10} ${from[1] - 60} ${to[0] + 70} ${to[1] + 40} ${to[0]} ${to[1]}`;
+  // one scene per school, in the order first reached
+  const schools = education.filter((stop, i) => education.findIndex((other) => other.school === stop.school) === i);
 
   return (
     <div className="edu">
-      <figure className="edu-map-wrap">
-        <div className="edu-map">
-          <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`แผนที่จำลอง จาก${pins.map((pin) => pin.school).join(" ไป")}`}>
-            <defs>
-              <pattern id="edu-grid" width="20" height="20" patternUnits="userSpaceOnUse">
-                <path d="M20 0H0V20" fill="none" stroke="rgba(255,255,255,0.06)" />
-              </pattern>
-              <radialGradient id="edu-land" cx="50%" cy="45%" r="60%">
-                <stop offset="0" stopColor="#2a1416" />
-                <stop offset="1" stopColor="#120a0b" />
-              </radialGradient>
-            </defs>
-            <rect width={W} height={H} fill="url(#edu-grid)" />
-            <path d={PROVINCE} fill="url(#edu-land)" stroke="rgba(248,113,113,0.45)" strokeWidth="1.5" />
-            <text x="80" y="70" className="edu-map-label">
-              จังหวัดสุรินทร์
-            </text>
-            <path d={route} className="edu-route-under" />
-            <path d={route} className="edu-route" pathLength={1} />
-            {pins.map((stop) => {
-              const [x, y] = project(stop.at);
-              const ring = stop.schoolColors?.[1]?.hex ?? "#f87171";
-              return (
-                <g key={stop.school} className="edu-pin" data-school={stop.school} transform={`translate(${x} ${y})`}>
-                  <circle r="17" fill="#fff" stroke={ring} strokeWidth="3" />
-                  <clipPath id={`edu-clip-${stop.district}`}>
-                    <circle r="15" />
-                  </clipPath>
-                  <image href={base + stop.logo} x="-15" y="-15" width="30" height="30" clipPath={`url(#edu-clip-${stop.district})`} />
-                  <text y="-26" textAnchor="middle" className="edu-pin-label">
-                    {stop.district}
-                  </text>
-                </g>
-              );
-            })}
-            <circle r="5" className="edu-traveller" cx={from[0]} cy={from[1]} />
-          </svg>
+      <figure className="edu-stage-wrap">
+        <div className="edu-stage">
+          {schools.map((stop) => (
+            <div key={stop.school} className="edu-scene" data-school={stop.school}>
+              <SchoolScene
+                school={stop.school}
+                logo={stop.logo}
+                wall={stop.schoolColors?.[0]?.hex ?? "#7f1d1d"}
+                trim={stop.schoolColors?.[1]?.hex ?? "#f87171"}
+              />
+              <p className="edu-scene-name">{stop.school}</p>
+            </div>
+          ))}
         </div>
-        <figcaption className="mt-2 text-center text-[11px] text-[var(--muted)]">
-          แผนที่จำลอง ตำแหน่งอำเภอโดยประมาณ ไม่ใช่เส้นแบ่งเขตจริง
-        </figcaption>
+        <figcaption className="mt-2 text-center text-[11px] text-[var(--muted)]">ผังจำลองจากแผนผังโรงเรียน ภาพมุมสูง และภาพถ่ายดาวเทียม ย่อส่วนและมีบางจุดเป็นการประมาณ</figcaption>
       </figure>
 
       <div className="edu-list">
