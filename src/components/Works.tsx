@@ -1,14 +1,15 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
-import { createPortal } from "react-dom";
+import { Reveal } from "@/components/Reveal";
 import { SpotlightCard } from "@/components/SpotlightCard";
-import { works as defaults, type Work } from "@/content";
+import { StaggerText } from "@/components/StaggerText";
+import { sectionOf, sections, works as defaults, type SectionId, type Work } from "@/content";
 import { checkToken, deleteFile, fromBase64, readFile, writeFile } from "@/github";
 import { seal, unseal } from "@/vault";
 
 const base = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
-const field = "mt-1 w-full rounded-lg border border-white/15 bg-black/40 px-3 py-2 text-sm text-[var(--foreground)]";
+const field = "editor-field mt-1 w-full rounded-lg border border-white/15 bg-black/40 px-3 py-2 text-sm text-[var(--foreground)]";
 const DATA = "works.json";
 const VAULT = "vault.txt"; // the encrypted token, public on the site
 
@@ -26,22 +27,23 @@ async function toJpeg(file: File) {
   return canvas.convertToBlob({ type: "image/jpeg", quality: 0.85 });
 }
 
-/** the works grid; the owner unlocks editing in place with a password */
+/** every category of the page; the owner unlocks editing in place with a password */
 export function Works() {
   const [works, setWorks] = useState<Work[] | null>(null);
   // the plain token stays in memory only
   const [token, setToken] = useState("");
-  // null: the panel is closed; saved is empty when a new password is being set up
+  // null: the dialog is closed; saved is empty when a new password is being set up
   const [panel, setPanel] = useState<{ saved: string } | null>(null);
   const [sha, setSha] = useState<string>();
-  const [editing, setEditing] = useState<number | "new" | null>(null);
+  // a number edits that item, a section id adds a new one there
+  const [editing, setEditing] = useState<number | SectionId | null>(null);
   // fresh uploads are not on the host for a minute or two
   const [previews, setPreviews] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   // the floating editor window; closed shows the page exactly as visitors see it
   const [open, setOpen] = useState(true);
-  const [opacity, setOpacity] = useState(90);
+  const [opacity, setOpacity] = useState(95);
 
   useEffect(() => {
     // the query string skips the host's cache, so a fresh save shows up
@@ -50,15 +52,6 @@ export function Works() {
       .then((data) => setWorks(Array.isArray(data) ? data : defaults))
       .catch(() => setWorks(defaults));
   }, []);
-
-  // the whole page changes look while editing; see html[data-ghost] in globals.css
-  useEffect(() => {
-    if (!token || !open) return;
-    document.documentElement.dataset.ghost = "on";
-    return () => {
-      delete document.documentElement.dataset.ghost;
-    };
-  }, [token, open]);
 
   async function run(task: () => Promise<void>) {
     setBusy(true);
@@ -116,7 +109,7 @@ export function Works() {
     setWorks(next);
   }
 
-  // an image goes away only once no work points at it
+  // an image goes away only once no item points at it
   async function dropImage(image: string | undefined, next: Work[]) {
     if (image?.startsWith("/works/") && !next.some((work) => work.image === image)) await deleteFile(token, image.slice(1));
   }
@@ -128,7 +121,7 @@ export function Works() {
     run(async () => {
       const old = typeof editing === "number" ? works![editing] : undefined;
       const link = text("link");
-      if (!text("title")) throw new Error("ใส่ชื่อผลงาน");
+      if (!text("title")) throw new Error("ใส่ชื่อรายการ");
       if (link && !/^https?:\/\//i.test(link)) throw new Error("ลิงก์ต้องขึ้นต้นด้วย http:// หรือ https://");
       let image = data.get("removeImage") ? undefined : old?.image;
       const file = data.get("image") as File;
@@ -139,7 +132,14 @@ export function Works() {
         image = `/${name}`;
         setPreviews((map) => ({ ...map, [`/${name}`]: URL.createObjectURL(jpeg) }));
       }
-      const work: Work = { title: text("title"), kind: text("kind"), summary: text("summary"), image, link: link || undefined };
+      const work: Work = {
+        section: text("section") as SectionId,
+        title: text("title"),
+        kind: text("kind"),
+        summary: text("summary"),
+        image,
+        link: link || undefined,
+      };
       const next = old ? works!.map((item, i) => (i === editing ? work : item)) : [work, ...works!];
       await publish(next);
       setEditing(null);
@@ -165,117 +165,65 @@ export function Works() {
       {busy ? "กำลังทำงาน…" : message}
     </p>
   );
+  // keeps each item's position in the saved list, which editing and deleting need
+  const inSection = (id: SectionId) => (works ?? []).map((work, index) => ({ work, index })).filter(({ work }) => sectionOf(work) === id);
 
   return (
-    <div className="space-y-5">
-      <ul className="grid min-h-64 gap-5 sm:grid-cols-2 lg:grid-cols-3" aria-busy={!works}>
-        {works?.map((work, index) => (
-          <li key={`${index}-${work.title}`}>
-            <WorkCard work={work} preview={work.image ? previews[work.image] : undefined} />
-          </li>
-        ))}
-      </ul>
-
-      {/* on document.body: an animated ancestor would otherwise pin "fixed" to this section */}
-      {token &&
-        createPortal(
-          <>
-          {!open && (
-            <button onClick={() => setOpen(true)} className="ghost-btn fixed right-4 bottom-4 z-40">
-              <Ghost />
-              เปิดหน้าต่างแก้ไข
-            </button>
+    <>
+      {sections.map((section) => (
+        <section key={section.id} id={section.id} className="mx-auto max-w-6xl scroll-mt-28 px-5 py-16 lg:scroll-mt-24">
+          {/* only the heading waits for scrolling: a tall grid might never be "visible enough" */}
+          <Reveal>
+            <h2 aria-label={section.title} className="mb-10 text-center text-2xl font-semibold sm:text-4xl">
+              <StaggerText text={section.title} />
+            </h2>
+          </Reveal>
+          {works && inSection(section.id).length === 0 ? (
+            <p className="text-center text-sm text-[var(--muted)]">ยังไม่มีข้อมูล</p>
+          ) : (
+            <ul className="grid min-h-40 gap-5 sm:grid-cols-2 lg:grid-cols-3" aria-busy={!works}>
+              {inSection(section.id).map(({ work, index }) => (
+                <li key={`${index}-${work.title}`}>
+                  <WorkCard work={work} preview={work.image ? previews[work.image] : undefined} />
+                </li>
+              ))}
+            </ul>
           )}
+        </section>
+      ))}
 
-          {/* kept mounted while hidden, so a half-filled form survives */}
-          <section aria-label="หน้าต่างแก้ไขผลงาน" hidden={!open} className="ghost-window" style={{ opacity: opacity / 100 }}>
-            <header className="flex items-center gap-2 border-b px-4 py-3">
-              <Ghost />
-              <h3 className="ghost-title text-sm font-bold">โหมดผี</h3>
-              <button onClick={() => setOpen(false)} className="solx-btn-ghost ml-auto px-3 py-1.5 text-xs">
-                ซ่อน ดูผลลัพธ์
-              </button>
-              <button disabled={busy} onClick={logout} className="solx-btn-ghost px-3 py-1.5 text-xs">
-                ออก
-              </button>
-            </header>
-            <label className="flex items-center gap-3 border-b px-4 py-2 text-xs text-[var(--muted)]">
-              ความทึบ
-              <input type="range" min={30} max={100} value={opacity} onChange={(event) => setOpacity(Number(event.target.value))} className="flex-1 accent-teal-300" />
-              {opacity}%
-            </label>
-            <div className="space-y-3 overflow-y-auto p-4">
-              {status}
-              {editing !== null ? (
-                <form
-                  key={editing}
-                  onSubmit={save}
-                  className="space-y-3"
-                >
-                  <h3 className="font-bold">{current ? `แก้ไข: ${current.title}` : "เพิ่มผลงาน"}</h3>
-                  <label className="block text-sm">
-                    ชื่อผลงาน
-                    <input name="title" required autoFocus defaultValue={current?.title} className={field} />
-                  </label>
-                  <label className="block text-sm">
-                    ประเภท
-                    <input name="kind" placeholder="เช่น ตัดต่อวิดีโอ" defaultValue={current?.kind} className={field} />
-                  </label>
-                  <label className="block text-sm">
-                    คำอธิบาย
-                    <textarea name="summary" rows={3} defaultValue={current?.summary} className={field} />
-                  </label>
-                  <label className="block text-sm">
-                    ลิงก์ผลงาน (ไม่บังคับ)
-                    <input name="link" type="url" placeholder="https://" defaultValue={current?.link} className={field} />
-                  </label>
-                  <label className="block text-sm">
-                    รูป (ไม่บังคับ)
-                    <input name="image" type="file" accept="image/*" className={field} />
-                  </label>
-                  {current?.image && (
-                    <label className="flex items-center gap-2 text-sm">
-                      <input name="removeImage" type="checkbox" /> เอารูปเดิมออก
-                    </label>
-                  )}
-                  <div className="flex gap-3">
-                    <button disabled={busy} className="solx-btn-primary px-5 py-2 text-sm">
-                      บันทึก
-                    </button>
-                    <button type="button" disabled={busy} onClick={() => setEditing(null)} className="solx-btn-ghost px-5 py-2 text-sm">
-                      ยกเลิก
-                    </button>
-                  </div>
-                </form>
-              ) : (
-                <>
-                  <button disabled={busy} onClick={() => setEditing("new")} className="solx-btn-primary w-full px-5 py-2 text-sm">
-                    + เพิ่มผลงาน
-                  </button>
-                  <ul aria-label="ผลงานทั้งหมด" className="space-y-2">
-                    {works?.map((work, index) => (
-                      <li key={`${index}-${work.title}`} className="flex items-center gap-2 rounded-lg border px-3 py-2">
-                        <span className="min-w-0 flex-1 truncate text-sm">{work.title}</span>
-                        <button disabled={busy} onClick={() => setEditing(index)} className="solx-btn-ghost px-3 py-1 text-xs">
-                          แก้ไข
-                        </button>
-                        <button disabled={busy} onClick={() => remove(index)} className="solx-btn-ghost px-3 py-1 text-xs">
-                          ลบ
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                </>
-              )}
-            </div>
-          </section>
-          </>,
-          document.body,
-        )}
+      {!token && (
+        <div className="fixed bottom-4 left-4 z-40">
+          <button disabled={!works || busy} onClick={openPanel} aria-label="เข้าสู่โหมดแก้ไข" className="secret-btn">
+            <Lock />
+            <span aria-hidden="true">แก้ไข</span>
+          </button>
+          {!panel && message && (
+            <p role="alert" className="solx-card mt-2 max-w-60 p-2 text-xs text-[var(--accent-soft)]">
+              {message}
+            </p>
+          )}
+        </div>
+      )}
 
-      {!token &&
-        (panel ? (
-          <form key={panel.saved} onSubmit={login} className="solx-panel mx-auto max-w-md space-y-4 p-6">
+      {!token && panel && (
+        <dialog
+          // a native modal: traps focus and closes on Escape
+          ref={(dialog) => {
+            if (dialog && !dialog.open) dialog.showModal();
+          }}
+          onClose={() => {
+            setPanel(null);
+            setMessage("");
+          }}
+          aria-label="เข้าสู่โหมดแก้ไข"
+          className="secret-dialog m-auto w-[min(24rem,calc(100vw-2rem))] text-[var(--foreground)]"
+        >
+          <form key={panel.saved} onSubmit={login} className="space-y-4 p-6">
+            <h2 className="flex items-center gap-2 font-bold">
+              <Lock />
+              พื้นที่เจ้าของเว็บ
+            </h2>
             {/* lets the browser's password manager save the password */}
             <input name="username" autoComplete="username" defaultValue="portfolio-admin" hidden readOnly />
             {!panel.saved && (
@@ -308,10 +256,12 @@ export function Works() {
               <button disabled={busy} className="solx-btn-primary px-5 py-2 text-sm">
                 เข้าแก้ไข
               </button>
-              <button type="button" disabled={busy} onClick={() => {
-                  setPanel(null);
-                  setMessage("");
-                }} className="solx-btn-ghost px-5 py-2 text-sm">
+              <button
+                type="button"
+                disabled={busy}
+                onClick={(event) => event.currentTarget.closest("dialog")!.close()}
+                className="solx-btn-ghost px-5 py-2 text-sm"
+              >
                 ยกเลิก
               </button>
               {panel.saved && (
@@ -322,48 +272,146 @@ export function Works() {
             </div>
             {status}
           </form>
-        ) : (
-          <p className="text-center">
-            <button disabled={!works || busy} onClick={openPanel} className="ghost-btn">
-              <Ghost />
-              โหมดผี · แก้ไขผลงาน
+        </dialog>
+      )}
+
+      {token && !open && (
+        <button onClick={() => setOpen(true)} className="solx-btn-primary fixed right-4 bottom-4 z-40 px-5 py-3 text-sm">
+          เปิดหน้าต่างแก้ไข
+        </button>
+      )}
+
+      {token && (
+        // kept mounted while hidden, so a half-filled form survives
+        <aside
+          aria-label="หน้าต่างแก้ไข"
+          hidden={!open}
+          className="editor-window"
+          style={{ opacity: opacity / 100, backdropFilter: `blur(${(opacity - 30) / 7}px)` }}
+        >
+          <header className="flex items-center gap-2 border-b px-4 py-3">
+            <h2 className="mr-auto font-bold">แก้ไขเนื้อหา</h2>
+            <button onClick={() => setOpen(false)} className="solx-btn-ghost px-3 py-1.5 text-xs">
+              ซ่อน ดูผลลัพธ์
             </button>
-            <span role="alert" className="mt-2 block text-sm text-[var(--accent-soft)]">
-              {message}
-            </span>
-          </p>
-        ))}
-    </div>
+            <button disabled={busy} onClick={logout} className="solx-btn-ghost px-3 py-1.5 text-xs">
+              ออก
+            </button>
+          </header>
+          <label className="flex items-center gap-3 border-b px-4 py-2 text-xs text-[var(--muted)]">
+            ความทึบ
+            <input type="range" min={30} max={100} value={opacity} onChange={(event) => setOpacity(Number(event.target.value))} className="flex-1 accent-red-500" />
+            {opacity}%
+          </label>
+          <div className="space-y-3 overflow-y-auto p-4">
+            {status}
+            {editing !== null ? (
+              <form key={editing} onSubmit={save} className="space-y-3">
+                <h3 className="font-bold">{current ? `แก้ไข: ${current.title}` : "เพิ่มรายการ"}</h3>
+                <label className="block text-sm">
+                  หมวด
+                  <select name="section" defaultValue={current ? sectionOf(current) : editing} className={field}>
+                    {sections.map((section) => (
+                      <option key={section.id} value={section.id}>
+                        {section.title}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="block text-sm">
+                  ชื่อรายการ
+                  <input name="title" required autoFocus defaultValue={current?.title} className={field} />
+                </label>
+                <label className="block text-sm">
+                  ปี หรือประเภท
+                  <input name="kind" placeholder="เช่น ปีการศึกษา 2569" defaultValue={current?.kind} className={field} />
+                </label>
+                <label className="block text-sm">
+                  คำอธิบาย
+                  <textarea name="summary" rows={3} defaultValue={current?.summary} className={field} />
+                </label>
+                <label className="block text-sm">
+                  ลิงก์ (ไม่บังคับ)
+                  <input name="link" type="url" placeholder="https://" defaultValue={current?.link} className={field} />
+                </label>
+                <label className="block text-sm">
+                  รูป (ไม่บังคับ)
+                  <input name="image" type="file" accept="image/*" className={field} />
+                </label>
+                {current?.image && (
+                  <label className="flex items-center gap-2 text-sm">
+                    <input name="removeImage" type="checkbox" /> เอารูปเดิมออก
+                  </label>
+                )}
+                <div className="flex gap-3">
+                  <button disabled={busy} className="solx-btn-primary px-5 py-2 text-sm">
+                    บันทึก
+                  </button>
+                  <button type="button" disabled={busy} onClick={() => setEditing(null)} className="solx-btn-ghost px-5 py-2 text-sm">
+                    ยกเลิก
+                  </button>
+                </div>
+              </form>
+            ) : (
+              sections.map((section) => (
+                <div key={section.id} className="space-y-2">
+                  <div className="flex items-center gap-2 pt-2">
+                    <h3 className="mr-auto text-sm font-bold text-[var(--accent-soft)]">{section.title}</h3>
+                    <button disabled={busy} onClick={() => setEditing(section.id)} className="solx-btn-primary shrink-0 px-3 py-1 text-xs">
+                      + เพิ่ม
+                    </button>
+                  </div>
+                  <ul aria-label={section.title} className="space-y-2">
+                    {inSection(section.id).map(({ work, index }) => (
+                      <li key={`${index}-${work.title}`} className="flex items-center gap-2 rounded-lg border px-3 py-2">
+                        <span className="min-w-0 flex-1 truncate text-sm">{work.title}</span>
+                        <button disabled={busy} onClick={() => setEditing(index)} className="solx-btn-ghost px-3 py-1 text-xs">
+                          แก้ไข
+                        </button>
+                        <button disabled={busy} onClick={() => remove(index)} className="solx-btn-ghost px-3 py-1 text-xs">
+                          ลบ
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))
+            )}
+          </div>
+        </aside>
+      )}
+    </>
   );
 }
 
-function Ghost({ className = "" }: { className?: string }) {
+function Lock() {
   return (
-    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true" className={className}>
-      <path
-        fillRule="evenodd"
-        d="M12 2a8 8 0 0 0-8 8v12l2.7-2 2.6 2 2.7-2 2.7 2 2.6-2 2.7 2V10a8 8 0 0 0-8-8ZM9 8.5a1.5 2 0 1 0 0 4 1.5 2 0 0 0 0-4Zm6 0a1.5 2 0 1 0 0 4 1.5 2 0 0 0 0-4Z"
-      />
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true" className="shrink-0">
+      <path d="M12 2 21 7v10l-9 5-9-5V7Z" />
+      <circle cx="12" cy="11" r="2" />
+      <path d="M12 13v3" />
     </svg>
   );
 }
 
 function WorkCard({ work, preview }: { work: Work; preview?: string }) {
+  // a certificate must show whole, other photos may be cropped to fill
+  const fit = sectionOf(work) === "certificates" ? "object-contain" : "object-cover";
   return (
     <SpotlightCard className="flex h-full flex-col">
-      <div className="work-media flex aspect-video items-center justify-center bg-[linear-gradient(135deg,#7f1d1d,#3b1113)]">
-        {work.image && (
-          // eslint-disable-next-line @next/next/no-img-element -- a static export serves images as they are
-          <img src={preview ?? `${base}${work.image}`} alt={work.title} className="h-full w-full object-cover" />
-        )}
-      </div>
+      {work.image && (
+        <div className="aspect-video bg-black/40">
+          {/* eslint-disable-next-line @next/next/no-img-element -- a static export serves images as they are */}
+          <img src={preview ?? `${base}${work.image}`} alt={work.title} className={`h-full w-full ${fit}`} />
+        </div>
+      )}
       <div className="flex flex-1 flex-col gap-2 p-5">
         <p className="text-xs text-[var(--accent-soft)]">{work.kind}</p>
         <h3 className="font-bold">{work.title}</h3>
-        <p className="text-sm text-[var(--muted)]">{work.summary}</p>
+        <p className="text-sm whitespace-pre-line text-[var(--muted)]">{work.summary}</p>
         {work.link && (
           <a href={work.link} target="_blank" rel="noopener noreferrer" className="solx-btn-ghost mt-auto self-start px-4 py-2 text-sm">
-            ดูผลงาน
+            เปิดดู
           </a>
         )}
       </div>

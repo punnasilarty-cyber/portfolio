@@ -392,109 +392,82 @@ body::before {
   }
 }
 
-/* the button into ghost (editing) mode */
-.ghost-btn {
-  display: inline-flex;
+/* the secret way in: a faint hexagon in the corner that wakes up on hover or focus */
+.secret-btn {
+  display: flex;
   align-items: center;
-  gap: 0.6rem;
-  padding: 0.7rem 1.5rem;
-  border: 1px solid rgba(94, 234, 212, 0.45);
+  height: 2.75rem;
+  min-width: 2.75rem;
+  padding: 0 0.8rem;
+  border: 1px solid rgba(248, 113, 113, 0.25);
   border-radius: 999px;
-  background: linear-gradient(135deg, #0c1a1d, #05080a);
-  color: #ccfbf1;
-  font-size: 0.875rem;
+  background: rgba(8, 9, 10, 0.7);
+  color: var(--accent-soft);
+  font-size: 0.8rem;
   font-weight: 700;
-  box-shadow: 0 0 18px -6px rgba(94, 234, 212, 0.7), 0 0 14px -8px rgba(94, 234, 212, 0.9) inset;
-  transition: box-shadow 0.25s ease, transform 0.25s ease;
+  opacity: 0.45;
+  transition: opacity 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
-.ghost-btn:hover,
-.ghost-btn:focus-visible {
-  transform: translateY(-2px);
-  box-shadow: 0 0 34px -4px rgba(94, 234, 212, 0.9), 0 0 18px -6px rgba(94, 234, 212, 1) inset;
+.secret-btn svg {
+  transition: rotate 0.5s ease;
 }
-.ghost-btn:disabled {
-  opacity: 0.5;
+.secret-btn span {
+  max-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: max-width 0.4s ease, margin 0.4s ease;
 }
-.ghost-btn:hover svg {
-  animation: ghost-bob 1.2s ease-in-out infinite;
+.secret-btn:hover,
+.secret-btn:focus-visible {
+  opacity: 1;
+  border-color: #f87171;
+  box-shadow: 0 0 24px -4px #dc2626;
+}
+.secret-btn:hover svg,
+.secret-btn:focus-visible svg {
+  rotate: 180deg;
+}
+.secret-btn:hover span,
+.secret-btn:focus-visible span {
+  max-width: 5rem;
+  margin-left: 0.5rem;
+}
+.secret-dialog {
+  border: 1px solid rgba(248, 113, 113, 0.45);
+  border-radius: 16px;
+  background: #0d0e10;
+  box-shadow: 0 0 60px -12px #dc2626;
+}
+.secret-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
 }
 
-/* ghost mode: cold spectral colours over the whole page */
-html[data-ghost] {
-  --background: #04090b;
-  --surface: rgba(13, 31, 35, 0.6);
-  --surface-2: #0d2226;
-  --border: rgba(94, 234, 212, 0.25);
-  --foreground: #ecfeff;
-  --muted: #8fb8b8;
-  --accent: #0f766e;
-  --accent-soft: #5eead4;
-  --shadow-btn: 0 0 22px -6px rgba(94, 234, 212, 0.8);
-}
-/* drifting fog, never in the way of clicks */
-html[data-ghost] body::after {
-  content: "";
-  position: fixed;
-  inset: -20%;
-  z-index: 30;
-  pointer-events: none;
-  background:
-    radial-gradient(40rem 22rem at 20% 90%, rgba(153, 246, 228, 0.12), transparent 70%),
-    radial-gradient(34rem 20rem at 85% 30%, rgba(165, 243, 252, 0.09), transparent 70%);
-  animation: ghost-fog 14s ease-in-out infinite alternate;
-}
-/* the reds that are written into artwork turn teal */
-html[data-ghost] canvas,
-html[data-ghost] .solx-title-brand,
-html[data-ghost] .work-media {
-  filter: hue-rotate(170deg) saturate(0.8);
-}
-html[data-ghost] .solx-card {
-  border: 1px dashed rgba(94, 234, 212, 0.55);
-  box-shadow: 0 0 26px -10px rgba(94, 234, 212, 0.6);
-}
-html[data-ghost] .solx-btn-primary:hover {
-  box-shadow: 0 0 30px -4px rgba(94, 234, 212, 0.9);
-}
-.ghost-title {
-  color: var(--accent-soft);
-  letter-spacing: 0.08em;
-  text-shadow: 0 0 12px rgba(94, 234, 212, 0.9);
-}
-/* the floating editor: above the fog, small enough to leave the page in view */
-.ghost-window {
+/* the editor: a floating window that leaves the page in view */
+.editor-window {
   position: fixed;
   right: 0.75rem;
   bottom: 0.75rem;
   z-index: 50;
   display: flex;
   flex-direction: column;
-  width: min(23rem, calc(100vw - 1.5rem));
-  max-height: min(34rem, calc(100dvh - 6rem));
-  border: 1px solid rgba(94, 234, 212, 0.45);
+  width: min(25rem, calc(100vw - 1.5rem));
+  max-height: min(40rem, calc(100dvh - 7rem));
+  border: 1px solid rgba(248, 113, 113, 0.35);
   border-radius: 16px;
-  background: #07161a;
-  box-shadow: 0 0 40px -10px rgba(94, 234, 212, 0.7);
+  background: rgba(13, 14, 16, 0.96);
+  box-shadow: 0 24px 60px -20px #000;
 }
-.ghost-window[hidden] {
+.editor-window[hidden] {
   display: none;
 }
-@keyframes ghost-bob {
-  50% {
-    transform: translateY(-8px) rotate(-6deg);
-  }
-}
-@keyframes ghost-fog {
-  to {
-    transform: translate(6%, -4%);
-  }
+.editor-field option {
+  background: #0d0e10;
 }
 @media (prefers-reduced-motion: reduce) {
-  html[data-ghost] body::after,
-  .ghost-btn:hover svg {
-    animation: none;
-  }
-  .ghost-btn {
+  .secret-btn,
+  .secret-btn svg,
+  .secret-btn span {
     transition: none;
   }
 }

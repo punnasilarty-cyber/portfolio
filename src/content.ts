@@ -1,35 +1,39 @@
-// ทุกข้อความของเว็บอยู่ที่ไฟล์นี้ แก้ที่นี่ที่เดียว
-// ข้อความที่ขึ้นต้นว่า "ตัวอย่าง" เป็นของสมมติ ต้องเปลี่ยนก่อนเผยแพร่
+// ชื่อ คำแนะนำตัว และหมวดของเว็บแก้ที่ไฟล์นี้ ส่วนรายการในแต่ละหมวดแก้จากหน้าเว็บ
+// ข้อความที่ขึ้นต้นว่า "ตัวอย่าง" เป็นของสมมติ
 
 export const profile = {
   name: "Punnasin Namwat",
   intro: "ตัวอย่างคำแนะนำตัว: ทำคลิป ออกแบบ และสร้างเว็บไซต์",
-  about: [
-    "ตัวอย่างประวัติย่อ: เล่าว่าคุณเป็นใคร ถนัดงานแบบไหน และทำมานานเท่าไร",
-    "ตัวอย่างย่อหน้าที่สอง: บอกว่าตอนนี้รับงานแบบไหน และลูกค้าจะได้อะไรกลับไป",
-  ],
 };
 
+/** หมวดของหน้าเว็บ เรียงตามนี้ ต่อจากหน้าแรก */
+export const sections = [
+  { id: "education", title: "ประวัติการศึกษา" },
+  { id: "is2", title: "การสื่อสารและการนำเสนอ (IS2)" },
+  { id: "activities", title: "กิจกรรม" },
+  { id: "certificates", title: "เกียรติบัตร" },
+] as const;
+
+export type SectionId = (typeof sections)[number]["id"];
+
 export type Work = {
+  section?: SectionId;
   title: string;
   kind: string;
   summary: string;
-  /** รูปในโฟลเดอร์ public เช่น "/works/cover-1.jpg" ถ้าไม่ใส่จะเป็นปกสีแดง */
+  /** รูปในโฟลเดอร์ works/ ของเว็บ */
   image?: string;
-  /** ลิงก์ดูผลงานจริง */
+  /** ลิงก์ดูของจริง */
   link?: string;
 };
 
+/** items saved before categories existed, or with an unknown one, count as activities */
+export const sectionOf = (work: Work): SectionId => sections.find((section) => section.id === work.section)?.id ?? "activities";
+
+/** แสดงจนกว่าจะมีการบันทึกจากหน้าเว็บ */
 export const works: Work[] = [
-  { title: "ตัวอย่างผลงาน 1", kind: "ตัดต่อวิดีโอ", summary: "อธิบายโจทย์ สิ่งที่คุณทำ และผลที่ได้" },
-  { title: "ตัวอย่างผลงาน 2", kind: "ออกแบบกราฟิก", summary: "อธิบายโจทย์ สิ่งที่คุณทำ และผลที่ได้" },
-  { title: "ตัวอย่างผลงาน 3", kind: "เว็บไซต์", summary: "อธิบายโจทย์ สิ่งที่คุณทำ และผลที่ได้" },
-];
-
-export const skills = ["ตัวอย่างทักษะ 1", "ตัวอย่างทักษะ 2", "ตัวอย่างทักษะ 3", "ตัวอย่างทักษะ 4"];
-
-/** ช่องทางติดต่อ: ใส่ href จริง เช่น "mailto:you@example.com" หรือลิงก์ LINE ถ้าเว้นว่างจะไม่เป็นลิงก์ */
-export const contacts: { label: string; value: string; href?: string }[] = [
-  { label: "อีเมล", value: "ตัวอย่าง: ใส่อีเมลของคุณ" },
-  { label: "LINE", value: "ตัวอย่าง: ใส่ LINE ID ของคุณ" },
+  { section: "education", title: "ตัวอย่าง: ชื่อโรงเรียน", kind: "ปีการศึกษา", summary: "ระดับชั้นและแผนการเรียน" },
+  { section: "is2", title: "ตัวอย่าง: หัวข้อการนำเสนอ", kind: "IS2", summary: "สรุปเรื่องที่ศึกษาและวิธีนำเสนอ" },
+  { section: "activities", title: "ตัวอย่าง: ชื่อกิจกรรม", kind: "ปีที่ทำ", summary: "บทบาทและสิ่งที่ได้เรียนรู้" },
+  { section: "certificates", title: "ตัวอย่าง: ชื่อเกียรติบัตร", kind: "ปีที่ได้รับ", summary: "หน่วยงานที่มอบให้" },
 ];
