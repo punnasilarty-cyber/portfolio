@@ -540,6 +540,11 @@ main section[id] h2::after {
   animation-range: entry 20% cover 35%;
 }
 
+/* cards start off to the side, which must not widen the page */
+main {
+  overflow-x: clip;
+}
+
 /* cards swing up out of the dark, alternating sides */
 main section[id] li {
   animation: fx-card linear both;
