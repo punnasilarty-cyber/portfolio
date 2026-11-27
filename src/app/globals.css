@@ -957,7 +957,50 @@ html:has(#calm:checked)::after {
   background: var(--accent);
 }
 /* narrow screens: the journey stays in view, compact, while the cards pass under it */
+.edu-project {
+  display: grid;
+  grid-template-columns: 7rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 14px;
+  line-height: 1.4;
+}
+.edu-project:hover,
+.edu-project:focus-visible {
+  border-color: var(--accent-soft);
+}
+.edu-project img {
+  width: 100%;
+  border-radius: 8px;
+}
+.edu-project span {
+  display: grid;
+}
+.edu-project b {
+  font-size: 0.875rem;
+}
+.edu-project small {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+.edu-project em {
+  color: var(--accent-soft);
+  font-size: 0.75rem;
+  font-style: normal;
+}
+
 @media (max-width: 899px) {
+  /* the pinned panel stays short on phones: only the link remains */
+  .edu--route .edu-project {
+    display: block;
+    padding: 0.35rem 0.6rem;
+    text-align: center;
+  }
+  .edu--route .edu-project :is(img, b, small) {
+    display: none;
+  }
   .edu--route {
     display: block;
   }

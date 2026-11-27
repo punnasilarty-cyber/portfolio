@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Student } from "@/components/Student";
-import { education } from "@/content";
+import { education, type Work } from "@/content";
 import { yearAt, yearsOf } from "@/journey";
 import { MAP_HEIGHT, MAP_WIDTH, PINS, PROVINCE, ROAD, ROAD_KM } from "@/map-data";
 
@@ -9,7 +9,7 @@ const years = yearsOf(education);
 const STATUS = { past: "เรียนจบแล้ว", now: "กำลังเรียน", ahead: "ยังมาไม่ถึง (คาดว่า)" };
 
 /** the learning journey: a made-up student moves through the school years along the real road between the schools */
-export function LearningRoute() {
+export function LearningRoute({ project }: { project?: Work }) {
   // one pin per school, in the order first reached
   const pins = education.filter((stop, i) => education.findIndex((other) => other.school === stop.school) === i);
   const [step, setStep] = useState(0);
@@ -108,6 +108,19 @@ export function LearningRoute() {
           ))}
         </div>
       </div>
+
+      {/* the IS project belongs to the stage being studied now */}
+      {stage.current && project && (
+        <a href="#is2" className="edu-project">
+          {/* eslint-disable-next-line @next/next/no-img-element -- a static export serves images as they are */}
+          <img src={base + project.image} alt="" />
+          <span>
+            <b>ผลงาน IS ในช่วง ม.4</b>
+            <small>{project.title}</small>
+            <em>ดูผลงานและรายงานในหมวด IS2 →</em>
+          </span>
+        </a>
+      )}
 
       <div className="edu-progress" role="progressbar" aria-label="ความคืบหน้าบนเส้นทางการเรียน" aria-valuemin={1} aria-valuemax={years.length} aria-valuenow={step + 1} aria-valuetext={`${entry.year} ${entry.grade}`}>
         {years.map((item, i) => (

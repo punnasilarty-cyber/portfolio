@@ -2,21 +2,21 @@ import { useEffect, useState } from "react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { LearningRoute } from "@/components/LearningRoute";
 import { SchoolScene } from "@/components/SchoolScene";
-import { education } from "@/content";
+import { education, type Work } from "@/content";
 
 const base = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
 const VIEWS = [
-  { id: "model", label: "โมเดลโรงเรียน", note: "ผังจำลองจากแผนผังโรงเรียน ภาพมุมสูง และภาพถ่ายดาวเทียม ย่อส่วนและมีบางจุดเป็นการประมาณ" },
   { id: "route", label: "เส้นทางการเรียนรู้", note: "แผนที่ © OpenStreetMap contributors · เส้นทาง OSRM" },
+  { id: "model", label: "โมเดลโรงเรียน", note: "ผังจำลองจากแผนผังโรงเรียน ภาพมุมสูง และภาพถ่ายดาวเทียม ย่อส่วนและมีบางจุดเป็นการประมาณ" },
 ] as const;
 
-/** where the schooling happened: school models or the learning route, then a card per stage (see motion.ts) */
-export function Education() {
+/** where the schooling happened: the learning route or school models, then a card per stage (see motion.ts) */
+export function Education({ project }: { project?: Work }) {
   // one scene per school, in the order first reached
   const schools = education.filter((stop, i) => education.findIndex((other) => other.school === stop.school) === i);
 
-  const [view, setView] = useState<(typeof VIEWS)[number]["id"]>("model");
+  const [view, setView] = useState<(typeof VIEWS)[number]["id"]>("route");
   // the two views differ in height, so the scroll positions need measuring again
   useEffect(() => {
     ScrollTrigger.refresh();
@@ -46,7 +46,7 @@ export function Education() {
           ))}
         </div>
         {/* unmounted while away, so its drawing plays again on every visit */}
-        {view === "route" && <LearningRoute />}
+        {view === "route" && <LearningRoute project={project} />}
         <figcaption className="mt-2 text-center text-[11px] text-[var(--muted)]">{VIEWS.find(({ id }) => id === view)!.note}</figcaption>
       </figure>
 

@@ -188,7 +188,7 @@ export function Works() {
             </h2>
           </Reveal>
           {section.id === "education" ? (
-            <Education />
+            <Education project={inSection("is2").find(({ work }) => work.image)?.work} />
           ) : works && inSection(section.id).length === 0 ? (
             <p className="text-center text-sm text-[var(--muted)]">ยังไม่มีข้อมูล</p>
           ) : (
