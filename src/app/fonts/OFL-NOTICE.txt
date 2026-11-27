@@ -1,0 +1,4 @@
+LINE Seed Sans TH (version 1.003), Regular, Bold, ExtraBold and Heavy web fonts.
+Copyright LY Corporation. Licensed under the SIL Open Font License, Version 1.1:
+https://scripts.sil.org/OFL
+Source: https://seed.line.me/src/images/fonts/LINE_Seed_Sans_TH.zip

@@ -1,0 +1,393 @@
+@import "tailwindcss";
+
+/* design tokens: charcoal surfaces with a single red accent */
+:root {
+  --background: #08090a;
+  --surface: #111111;
+  --surface-2: #1b1c20;
+  --border: rgba(255, 255, 255, 0.1);
+  --foreground: #fafafa;
+  --muted: #a1a1aa;
+  --accent: #dc2626;
+  --accent-soft: #fca5a5;
+
+  --solx-ink: #ffffff;
+  --solx-ink-soft: #d4d4d4;
+  --solx-green: #4ade80;
+  --solx-amber: #fbbf24;
+  --solx-red: #f87171;
+
+  --radius-card: 10px;
+  --radius-button: 8px;
+
+  --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.08) inset, 0 24px 50px -28px rgba(0, 0, 0, 0.85);
+  --shadow-btn: 0 10px 24px -14px rgba(220, 38, 38, 0.9);
+  --holo: linear-gradient(100deg, #f87171 0%, #fca5a5 50%, #fee2e2 100%);
+}
+
+/* --font-seed comes from next/font in layout.tsx */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-seed), ui-sans-serif, system-ui, sans-serif;
+}
+
+* {
+  border-color: var(--border);
+}
+
+html {
+  color-scheme: dark;
+}
+
+/* charcoal surfaces with a single red accent */
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+/* faint light falling from the top-left corner */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -30;
+  pointer-events: none;
+  background:
+    radial-gradient(48rem 30rem at 8% -4%, rgba(255, 255, 255, 0.075), transparent 70%),
+    radial-gradient(40rem 28rem at 92% 8%, rgba(220, 38, 38, 0.1), transparent 70%);
+}
+
+.solx-gradient-text {
+  background: var(--holo);
+  -webkit-background-clip: text, border-box;
+  background-clip: text, border-box;
+  color: transparent;
+}
+
+.solx-gradient-bg {
+  background:
+    radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.12), transparent 55%),
+    linear-gradient(135deg, #1a1a1a 0%, #050505 70%);
+}
+
+/* headline letters. Without motion they fade in one after another; with motion
+   StaggerText shows changing symbols that resolve from left to right. */
+.solx-letter {
+  position: relative;
+  display: inline-block;
+}
+.solx-letter-real {
+  display: inline-block;
+  animation: solx-intro 0.35s ease var(--d) both;
+}
+.solx-letter::after {
+  content: attr(data-glyph);
+  position: absolute;
+  inset: 0;
+  text-align: center;
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  color: var(--c);
+  text-shadow: 0 0 10px var(--c);
+  opacity: 0;
+  pointer-events: none;
+}
+:root[data-motion="on"] .solx-letter-real {
+  animation: none;
+  opacity: 0;
+}
+:root[data-motion="on"] .solx-letter.is-scrambling::after {
+  opacity: 1;
+}
+:root[data-motion="on"] .solx-letter.is-settled .solx-letter-real {
+  opacity: 1;
+  animation: solx-settle 0.45s ease-out both;
+}
+
+/* a short flash as a letter resolves */
+@keyframes solx-settle {
+  from {
+    filter: brightness(2.2) drop-shadow(0 0 12px #f87171);
+  }
+}
+.solx-after-title {
+  animation-delay: 1.9s;
+}
+.solx-after-text {
+  animation-delay: 2.15s;
+}
+.solx-after-buttons {
+  animation-delay: 2.4s;
+}
+/* no end frame: each layer settles at its own opacity */
+@keyframes solx-intro {
+  from {
+    opacity: 0;
+  }
+}
+body::before {
+  animation: solx-intro 1.8s ease both;
+}
+/* reduced motion: keep the one-after-another order but only fade, nothing moves */
+@media (prefers-reduced-motion: reduce) {
+  .solx-animate-in.solx-after-title {
+    animation: solx-intro 0.6s ease 1.9s both;
+  }
+  .solx-animate-in.solx-after-text {
+    animation: solx-intro 0.6s ease 2.15s both;
+  }
+  .solx-animate-in.solx-after-buttons {
+    animation: solx-intro 0.6s ease 2.4s both;
+  }
+}
+
+/* waiting below the fold: nothing starts until Reveal removes this class */
+.solx-wait .solx-letter-real,
+.solx-wait .solx-animate-in {
+  opacity: 0;
+}
+:root .solx-wait .solx-letter-real,
+:root .solx-wait .solx-animate-in {
+  animation: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .solx-reveal .solx-animate-in {
+    animation: solx-intro 0.6s ease both;
+  }
+  .solx-reveal .solx-delay-2 {
+    animation-delay: 0.15s;
+  }
+  .solx-reveal .solx-delay-3 {
+    animation-delay: 0.3s;
+  }
+}
+
+/* hero title: each letter fades from gray at the top to white */
+.solx-title .solx-letter-real:not(.solx-gradient-text) {
+  background: linear-gradient(#85858f, #ffffff 55%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+/* the shop name in the hero: red at the top of each letter, fading down into white */
+.solx-title-brand {
+  filter: drop-shadow(0 4px 10px #000);
+}
+.solx-title-brand .solx-gradient-text {
+  background-image: linear-gradient(#c81e1e 20%, #f87171 40%, #ffffff 64%);
+}
+/* a framed area that holds other cards; unlike .solx-card it does not lift on hover.
+   Page-dark inside, with a faint light in the top-left corner */
+.solx-panel {
+  background: radial-gradient(36rem 24rem at 0% 0%, rgba(255, 255, 255, 0.07), transparent 70%), var(--background);
+  border: 1px solid #222325;
+  border-radius: 12px;
+}
+.solx-icon-badge {
+  display: flex;
+  height: 3rem;
+  width: 3rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-2);
+  color: var(--foreground);
+}
+/* text inputs with a visible keyboard focus */
+.solx-field {
+  width: 100%;
+  min-width: 0;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.7rem 0.85rem;
+  font-size: 0.875rem;
+}
+.solx-field:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+/* faint dot-grid texture, fades out toward the edges */
+.solx-grid-bg {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.14) 1px, transparent 1px);
+  background-size: 26px 26px;
+  -webkit-mask-image: radial-gradient(ellipse 65% 55% at 50% 0%, #000 55%, transparent 100%);
+  mask-image: radial-gradient(ellipse 65% 55% at 50% 0%, #000 55%, transparent 100%);
+}
+
+/* cards are opaque so the code backdrop never competes with their text */
+.solx-card {
+  background: var(--surface);
+  border: 1px solid #28292a;
+  border-radius: var(--radius-card);
+  transition: transform 0.25s ease, border-color 0.25s ease;
+}
+
+.solx-card:hover {
+  transform: translateY(-3px);
+  border-color: #3a3b3d;
+}
+
+/* mouse-follow spotlight highlight, set --spot-x/--spot-y via JS */
+.solx-spotlight {
+  position: relative;
+  overflow: hidden;
+}
+.solx-spotlight::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(260px circle at var(--spot-x, 50%) var(--spot-y, 0%), rgba(255, 255, 255, 0.1), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+}
+.solx-spotlight:hover::before {
+  opacity: 1;
+}
+
+/* mouse-tracked 3D tilt (transform is set inline via JS); this just
+   gives the card's contents real depth and a smooth return to flat */
+.solx-tilt {
+  transform-style: preserve-3d;
+  will-change: transform;
+  transition: transform 0.35s ease;
+}
+
+/* scrollable hero product carousel: --hero-tilt is set inline per
+   card (a small fixed rotation for depth); hover/focus lifts the
+   card and straightens it, drag-to-scroll still works underneath */
+.solx-hero-track {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.solx-hero-track::-webkit-scrollbar {
+  display: none;
+}
+
+.solx-hero-card {
+  cursor: pointer;
+  transform: rotate(var(--hero-tilt, 0deg));
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.solx-hero-card:hover,
+.solx-hero-card:focus-visible {
+  transform: translateY(-8px) rotate(0deg) scale(1.06);
+  z-index: 5;
+}
+
+.solx-btn-primary {
+  background: var(--accent);
+  color: #ffffff;
+  font-weight: 600;
+  border-radius: var(--radius-button);
+  box-shadow: var(--shadow-btn);
+  transition: filter 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.solx-btn-primary:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+  box-shadow: 0 14px 30px -14px rgba(220, 38, 38, 1);
+}
+
+.solx-btn-primary:active {
+  transform: translateY(0) scale(0.97);
+  box-shadow: 0 6px 16px -10px rgba(220, 38, 38, 0.9);
+}
+
+.solx-btn-ghost {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-button);
+  color: var(--foreground);
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+
+.solx-btn-ghost:hover {
+  background: #25262b;
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.solx-btn-ghost:active {
+  transform: translateY(0) scale(0.97);
+}
+
+::selection {
+  background: #ffffff;
+  color: #050505;
+}
+
+.solx-nav-link {
+  position: relative;
+  transition: color 0.15s ease;
+}
+.solx-nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  width: 0;
+  height: 1px;
+  background: var(--foreground);
+  transition: width 0.2s ease;
+}
+.solx-nav-link:hover {
+  color: var(--foreground);
+}
+.solx-nav-link:hover::after {
+  width: 100%;
+}
+
+.solx-scrollbar::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+.solx-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 999px;
+}
+
+/* entrance animation */
+@keyframes solx-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.solx-animate-in {
+  animation: solx-fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.solx-delay-1 {
+  animation-delay: 0.06s;
+}
+.solx-delay-2 {
+  animation-delay: 0.12s;
+}
+.solx-delay-3 {
+  animation-delay: 0.2s;
+}
+.solx-delay-4 {
+  animation-delay: 0.3s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .solx-animate-in {
+    animation: none;
+  }
+  .solx-card,
+  .solx-btn-primary,
+  .solx-btn-ghost {
+    transition: none;
+  }
+}
