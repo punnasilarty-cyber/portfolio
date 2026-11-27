@@ -1,16 +1,16 @@
 "use client";
 
-import { useEffect, useState, type FormEvent, type MouseEvent } from "react";
+import { Fragment, useEffect, useState, type FormEvent, type MouseEvent } from "react";
 import { Education } from "@/components/Education";
 import { Reveal } from "@/components/Reveal";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { StaggerText } from "@/components/StaggerText";
-import { sectionOf, sections, works as defaults, type SectionId, type Work } from "@/content";
+import { groupsOf, sectionOf, sections, works as defaults, type SectionId, type Work } from "@/content";
 import { Viewer, type Shown } from "@/components/Viewer";
 import { checkToken, deleteFile, fromBase64, readFile, writeFile } from "@/github";
 import { useMotion } from "@/motion";
 import { seal, unseal } from "@/vault";
-import { frameOf } from "@/viewer";
+import { viewOf } from "@/viewer";
 
 const base = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 const field = "editor-field mt-1 w-full rounded-lg border border-white/15 bg-black/40 px-3 py-2 text-sm text-[var(--foreground)]";
@@ -140,6 +140,7 @@ export function Works() {
       }
       const work: Work = {
         section: text("section") as SectionId,
+        group: text("group") || undefined,
         title: text("title"),
         kind: text("kind"),
         summary: text("summary"),
@@ -194,13 +195,19 @@ export function Works() {
           ) : works && inSection(section.id).length === 0 ? (
             <p className="text-center text-sm text-[var(--muted)]">ยังไม่มีข้อมูล</p>
           ) : (
-            <ul className="grid min-h-40 gap-5 sm:grid-cols-2 lg:grid-cols-3" aria-busy={!works}>
-              {inSection(section.id).map(({ work, index }) => (
-                <li key={`${index}-${work.title}`}>
-                  <WorkCard work={work} preview={work.image ? previews[work.image] : undefined} />
-                </li>
-              ))}
-            </ul>
+            // while loading, one empty list holds the space
+            (works ? groupsOf(inSection(section.id), ({ work }) => work.group) : [{ name: "", items: [] }]).map((group) => (
+              <Fragment key={group.name}>
+                {group.name && <h3 className="work-group">{group.name}</h3>}
+                <ul aria-label={group.name || undefined} className="grid min-h-40 gap-5 sm:grid-cols-2 lg:grid-cols-3" aria-busy={!works}>
+                  {group.items.map(({ work, index }) => (
+                    <li key={`${index}-${work.title}`}>
+                      <WorkCard work={work} preview={work.image ? previews[work.image] : undefined} />
+                    </li>
+                  ))}
+                </ul>
+              </Fragment>
+            ))
           )}
         </section>
       ))}
@@ -332,6 +339,10 @@ export function Works() {
                   </select>
                 </label>
                 <label className="block text-sm">
+                  หัวข้อย่อย (ไม่บังคับ)
+                  <input name="group" placeholder="รายการที่ใช้ชื่อเดียวกันจะอยู่ด้วยกัน" defaultValue={current?.group} className={field} />
+                </label>
+                <label className="block text-sm">
                   ชื่อรายการ
                   <input name="title" required autoFocus defaultValue={current?.title} className={field} />
                 </label>
@@ -416,16 +427,16 @@ function WorkCard({ work, preview }: { work: Work; preview?: string }) {
   // a plain press shows the file here; new-tab presses and files the page cannot draw follow the link
   function openFile(event: MouseEvent<HTMLAnchorElement>) {
     if (event.ctrlKey || event.metaKey || event.shiftKey) return;
-    const src = frameOf(work.link!, navigator.pdfViewerEnabled);
-    if (!src) return;
+    const view = viewOf(work.link!, navigator.pdfViewerEnabled);
+    if (!view) return;
     event.preventDefault();
-    setShown({ src, title: work.title, href: work.link! });
+    setShown({ ...view, title: work.title, href: work.link! });
   }
 
   return (
     <SpotlightCard className="flex h-full flex-col">
       {work.image && (
-        <button type="button" onClick={() => setShown({ src: picture, href: picture, title: work.title, image: true })} className="work-picture aspect-video bg-black/40">
+        <button type="button" onClick={() => setShown({ kind: "image", src: picture, href: picture, title: work.title })} className="work-picture aspect-video bg-black/40">
           {/* eslint-disable-next-line @next/next/no-img-element -- a static export serves images as they are */}
           <img src={picture} alt={work.title} className={`h-full w-full ${fit}`} />
           <span>ดูภาพเต็ม</span>

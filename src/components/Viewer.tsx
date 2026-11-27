@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { PdfPages } from "@/components/PdfPages";
+import type { View } from "@/viewer";
 
-export type Shown = { src: string; title: string; image?: boolean; /** where the file itself lives */ href: string };
+export type Shown = View & { title: string; /** where the file itself lives */ href: string };
 
 /** a full-screen window over the page for one picture or file */
 export function Viewer({ shown, onClose }: { shown: Shown; onClose: () => void }) {
@@ -25,7 +27,7 @@ export function Viewer({ shown, onClose }: { shown: Shown; onClose: () => void }
           ปิด
         </button>
       </header>
-      {shown.image ? (
+      {shown.kind === "image" ? (
         <div className="viewer-body">
           <button type="button" aria-pressed={full} onClick={() => setFull(!full)} className={full ? "viewer-picture is-full" : "viewer-picture"}>
             {/* eslint-disable-next-line @next/next/no-img-element -- a static export serves images as they are */}
@@ -33,6 +35,8 @@ export function Viewer({ shown, onClose }: { shown: Shown; onClose: () => void }
             <span className="sr-only">{full ? "ย่อให้พอดีจอ" : "ขยายเท่าขนาดจริง"}</span>
           </button>
         </div>
+      ) : shown.kind === "pages" ? (
+        <PdfPages src={shown.src} title={shown.title} />
       ) : (
         <iframe src={shown.src} title={shown.title} className="viewer-body" />
       )}

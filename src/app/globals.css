@@ -1113,3 +1113,29 @@ div.viewer-body {
   height: auto;
   max-width: none;
 }
+
+.work-group {
+  margin: 2.5rem 0 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.viewer-pages {
+  overflow: auto;
+  padding: 0.5rem;
+  text-align: center;
+}
+.viewer-pages canvas {
+  display: block;
+  width: 100%;
+  max-width: 60rem;
+  height: auto;
+  margin: 0 auto 0.5rem;
+  background: #fff;
+}
+.viewer-pages p {
+  padding: 0.5rem;
+  font-size: 0.875rem;
+}

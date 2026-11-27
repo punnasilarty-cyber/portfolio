@@ -26,6 +26,8 @@ export type SectionId = (typeof sections)[number]["id"];
 
 export type Work = {
   section?: SectionId;
+  /** หัวข้อย่อยในหมวด รายการที่ชื่อเดียวกันอยู่ด้วยกัน */
+  group?: string;
   title: string;
   kind: string;
   summary: string;
@@ -100,6 +102,16 @@ export const education: {
 
 /** items saved before categories existed, or with an unknown one, count as activities */
 export const sectionOf = (work: Work): SectionId => sections.find((section) => section.id === work.section)?.id ?? "activities";
+
+/** a section's items under their sub-headings: the ones without a heading first, then each heading as first met */
+export function groupsOf<T>(items: T[], nameOf: (item: T) => string | undefined): { name: string; items: T[] }[] {
+  const groups = new Map<string, T[]>([["", []]]);
+  for (const item of items) {
+    const name = nameOf(item) ?? "";
+    groups.set(name, [...(groups.get(name) ?? []), item]);
+  }
+  return Array.from(groups, ([name, list]) => ({ name, items: list })).filter((group) => group.items.length);
+}
 
 /** แสดงจนกว่าจะมีการบันทึกจากหน้าเว็บ เว้นว่างไว้เพื่อไม่ให้มีของสมมติขึ้นเว็บ */
 export const works: Work[] = [];
