@@ -1,17 +1,38 @@
+import { useEffect, useState } from "react";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { LearningRoute } from "@/components/LearningRoute";
 import { SchoolScene } from "@/components/SchoolScene";
 import { education } from "@/content";
 
 const base = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
-/** where the schooling happened: a model of each school, then a card per stage (see motion.ts) */
+const VIEWS = [
+  { id: "model", label: "โมเดลโรงเรียน", note: "ผังจำลองจากแผนผังโรงเรียน ภาพมุมสูง และภาพถ่ายดาวเทียม ย่อส่วนและมีบางจุดเป็นการประมาณ" },
+  { id: "route", label: "เส้นทางการเรียนรู้", note: "แผนที่ © OpenStreetMap contributors · เส้นทาง OSRM" },
+] as const;
+
+/** where the schooling happened: school models or the learning route, then a card per stage (see motion.ts) */
 export function Education() {
   // one scene per school, in the order first reached
   const schools = education.filter((stop, i) => education.findIndex((other) => other.school === stop.school) === i);
 
+  const [view, setView] = useState<(typeof VIEWS)[number]["id"]>("model");
+  // the two views differ in height, so the scroll positions need measuring again
+  useEffect(() => {
+    ScrollTrigger.refresh();
+  }, [view]);
+
   return (
-    <div className="edu">
+    <div className={view === "route" ? "edu edu--route" : "edu"}>
       <figure className="edu-stage-wrap">
-        <div className="edu-stage">
+        <div role="group" aria-label="เลือกมุมมอง" className="edu-tabs">
+          {VIEWS.map(({ id, label }) => (
+            <button key={id} type="button" aria-pressed={view === id} onClick={() => setView(id)}>
+              {label}
+            </button>
+          ))}
+        </div>
+        <div className="edu-stage" hidden={view !== "model"}>
           {schools.map((stop) => (
             <div key={stop.school} className="edu-scene" data-school={stop.school}>
               <SchoolScene
@@ -24,7 +45,9 @@ export function Education() {
             </div>
           ))}
         </div>
-        <figcaption className="mt-2 text-center text-[11px] text-[var(--muted)]">ผังจำลองจากแผนผังโรงเรียน ภาพมุมสูง และภาพถ่ายดาวเทียม ย่อส่วนและมีบางจุดเป็นการประมาณ</figcaption>
+        {/* unmounted while away, so its drawing plays again on every visit */}
+        {view === "route" && <LearningRoute />}
+        <figcaption className="mt-2 text-center text-[11px] text-[var(--muted)]">{VIEWS.find(({ id }) => id === view)!.note}</figcaption>
       </figure>
 
       <div className="edu-list">

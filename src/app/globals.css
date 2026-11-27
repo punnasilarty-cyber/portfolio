@@ -799,3 +799,195 @@ html:has(#calm:checked)::after {
     gap: 3rem;
   }
 }
+
+/* the switch between the school models and the learning route */
+.edu-tabs {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 0.75rem;
+  padding: 0.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+}
+.edu-tabs button {
+  flex: 1;
+  padding: 0.55rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--muted);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+.edu-tabs button[aria-pressed="true"] {
+  background: var(--accent);
+  color: #fff;
+}
+/* the display value above would otherwise beat the hidden attribute */
+.edu-stage[hidden] {
+  display: none;
+}
+.edu-route-view {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border: 1px solid rgba(248, 113, 113, 0.2);
+  border-radius: 18px;
+  background: radial-gradient(circle at 50% 30%, rgba(220, 38, 38, 0.1), transparent 70%), #0b0d12;
+}
+.edu-map-art {
+  display: block;
+  width: 100%;
+  height: auto;
+  /* the stages below must stay on screen with it while the column is sticky */
+  max-height: min(14rem, 24dvh);
+}
+.edu-province {
+  fill: #1a1012;
+  stroke: rgba(248, 113, 113, 0.6);
+  stroke-width: 1.5;
+}
+.edu-map-label {
+  fill: rgba(255, 255, 255, 0.3);
+  font-size: 14px;
+  font-weight: 700;
+}
+.edu-pin-label {
+  fill: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  paint-order: stroke;
+  stroke: #000;
+  stroke-width: 3px;
+}
+.edu-road-under {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.14);
+  stroke-width: 2;
+  stroke-dasharray: 4 6;
+}
+.edu-road {
+  fill: none;
+  stroke: #facc15;
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  transition: stroke-dashoffset 1.6s ease-in-out;
+}
+
+/* the journey: the traveller on the road, and the student beside this year's details */
+.edu-traveller {
+  offset-rotate: 0deg;
+  transition: offset-distance 1.6s ease-in-out;
+}
+.edu-journey {
+  display: grid;
+  grid-template-columns: 6.5rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 11rem;
+  padding: 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--a) 40%, transparent);
+  border-radius: 14px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--a) 10%, transparent), transparent);
+  line-height: 1.45;
+}
+.edu-year {
+  font-size: 1.75rem;
+  font-weight: 800;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.edu-year span {
+  margin-left: 0.35rem;
+  color: var(--a);
+}
+.edu-status {
+  display: inline-block;
+  margin: 0.2rem 0;
+  padding: 0 0.55rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  font-size: 0.75rem;
+}
+.edu-status.is-now {
+  background: #16a34a;
+  color: #fff;
+}
+.edu-status.is-ahead {
+  border: 1px dashed var(--muted);
+  background: none;
+}
+.edu-kid {
+  width: 100%;
+  height: auto;
+}
+.edu-kid-body {
+  transform-origin: 50px 143px;
+  transition: transform 0.8s ease;
+}
+.edu-kid-leg {
+  transform-origin: 50px 96px;
+}
+.edu-kid.is-walking .edu-kid-leg {
+  animation: edu-walk 0.7s ease-in-out infinite alternate;
+}
+.edu-kid.is-walking .edu-kid-leg-1 {
+  animation-delay: -0.7s;
+}
+@keyframes edu-walk {
+  from {
+    rotate: 9deg;
+  }
+  to {
+    rotate: -9deg;
+  }
+}
+.edu-progress {
+  display: flex;
+  gap: 3px;
+}
+.edu-progress span {
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.14);
+  transition: background-color 0.2s ease;
+}
+.edu-progress span.is-done {
+  background: var(--accent);
+}
+/* narrow screens: the journey stays in view, compact, while the cards pass under it */
+@media (max-width: 899px) {
+  .edu--route {
+    display: block;
+  }
+  .edu--route .edu-stage-wrap {
+    position: sticky;
+    top: 5.75rem;
+    z-index: 20;
+    margin-bottom: 2rem;
+    background: var(--background);
+  }
+  .edu--route .edu-route-view {
+    gap: 0.4rem;
+    padding: 0.5rem;
+  }
+  .edu--route .edu-map-art {
+    max-height: 13dvh;
+  }
+  .edu--route .edu-journey {
+    grid-template-columns: 4.5rem minmax(0, 1fr);
+    min-height: 0;
+    padding: 0.5rem;
+  }
+  .edu--route .edu-year {
+    font-size: 1.35rem;
+  }
+  .edu--route .edu-route-view > p,
+  .edu--route figcaption {
+    display: none;
+  }
+  .edu--route .edu-route-view > p:last-child {
+    display: block;
+  }
+}

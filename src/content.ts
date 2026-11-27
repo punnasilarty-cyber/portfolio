@@ -1,5 +1,4 @@
 // ชื่อ คำแนะนำตัว และหมวดของเว็บแก้ที่ไฟล์นี้ ส่วนรายการในแต่ละหมวดแก้จากหน้าเว็บ
-// ข้อความที่ขึ้นต้นว่า "ตัวอย่าง" เป็นของสมมติ
 
 /** Thai line breaking splits names mid-word, so these stay on one line */
 export const aboutWhole = /(นามวัฒน์ \(ตี้\)|ปุณณศิลป์|วิทย์–เทคโนโลยี|สุรวิทยาคาร)/;
@@ -102,9 +101,5 @@ export const education: {
 /** items saved before categories existed, or with an unknown one, count as activities */
 export const sectionOf = (work: Work): SectionId => sections.find((section) => section.id === work.section)?.id ?? "activities";
 
-/** แสดงจนกว่าจะมีการบันทึกจากหน้าเว็บ */
-export const works: Work[] = [
-  { section: "is2", title: "ตัวอย่าง: หัวข้อการนำเสนอ", kind: "IS2", summary: "สรุปเรื่องที่ศึกษาและวิธีนำเสนอ" },
-  { section: "activities", title: "ตัวอย่าง: ชื่อกิจกรรม", kind: "ปีที่ทำ", summary: "บทบาทและสิ่งที่ได้เรียนรู้" },
-  { section: "certificates", title: "ตัวอย่าง: ชื่อเกียรติบัตร", kind: "ปีที่ได้รับ", summary: "หน่วยงานที่มอบให้" },
-];
+/** แสดงจนกว่าจะมีการบันทึกจากหน้าเว็บ เว้นว่างไว้เพื่อไม่ให้มีของสมมติขึ้นเว็บ */
+export const works: Work[] = [];
