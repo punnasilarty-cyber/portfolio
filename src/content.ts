@@ -27,12 +27,79 @@ export type Work = {
   link?: string;
 };
 
+/** ประวัติการศึกษา แสดงเป็นไทม์ไลน์โมเดลอาคาร ไม่ได้แก้จากหน้าเว็บ */
+export const education: {
+  level: string;
+  school: string;
+  place: string;
+  period?: string;
+  current?: boolean;
+  website: string;
+  /** สีประจำโรงเรียน ใช้ทาอาคารจำลองด้วย ถ้าไม่รู้ให้เว้นไว้ อาคารจะใช้สีแดงของเว็บ */
+  schoolColors?: { name: string; hex: string }[];
+  floors: number;
+  stat?: { value: number; label: string };
+  facts: string[];
+  source: string;
+}[] = [
+  {
+    level: "ประถมศึกษาปีที่ 1–6",
+    school: "โรงเรียนสังขะวิทยาคม",
+    place: "ตำบลสังขะ อำเภอสังขะ จังหวัดสุรินทร์",
+    website: "https://skwsc.ac.th/2026/",
+    schoolColors: [
+      { name: "ดำ", hex: "#1c1917" },
+      { name: "เหลือง", hex: "#facc15" },
+    ],
+    floors: 2,
+    facts: ["สังกัดสำนักงานเขตพื้นที่การศึกษาประถมศึกษาสุรินทร์ เขต 3", "เปิดสอนตั้งแต่อนุบาลถึงประถมศึกษาปีที่ 6"],
+    source: "เว็บไซต์โรงเรียน skwsc.ac.th · สีจากเจ้าของเว็บ",
+  },
+  {
+    level: "มัธยมศึกษาปีที่ 1–3",
+    school: "โรงเรียนสุรวิทยาคาร",
+    place: "ถนนหลักเมือง อำเภอเมืองสุรินทร์ จังหวัดสุรินทร์",
+    website: "https://sura.ac.th/",
+    schoolColors: [
+      { name: "เขียว", hex: "#16a34a" },
+      { name: "เหลือง", hex: "#facc15" },
+    ],
+    floors: 4,
+    stat: { value: 2452, label: "ปีที่ก่อตั้ง (พ.ศ.)" },
+    facts: [
+      "โรงเรียนประจำจังหวัดสุรินทร์ ก่อตั้ง 6 เมษายน 2452",
+      "ต้นไม้ประจำโรงเรียน กันเกรา",
+      "คติพจน์ นตฺถิ ปญฺญาสมา อาภา: แสงสว่างเสมอด้วยปัญญาไม่มี",
+    ],
+    source: "วิกิพีเดีย",
+  },
+  {
+    level: "มัธยมศึกษาปีที่ 4–6",
+    school: "โรงเรียนสุรวิทยาคาร",
+    place: "ถนนหลักเมือง อำเภอเมืองสุรินทร์ จังหวัดสุรินทร์",
+    period: "2569 – ปัจจุบัน",
+    current: true,
+    website: "https://sura.ac.th/",
+    schoolColors: [
+      { name: "เขียว", hex: "#16a34a" },
+      { name: "เหลือง", hex: "#facc15" },
+    ],
+    floors: 6,
+    stat: { value: 3526, label: "นักเรียน (ปีการศึกษา 2569)" },
+    facts: [
+      "โรงเรียนมัธยมศึกษาขนาดใหญ่พิเศษ 93 ห้องเรียน",
+      "ตราพระพักตร์พระอินทร์ กับสามห่วง: พุทธิศึกษา จริยศึกษา พลศึกษา",
+      "คำขวัญ ความประพฤตินำหน้า วิชาตามหลัง",
+    ],
+    source: "วิกิพีเดีย",
+  },
+];
+
 /** items saved before categories existed, or with an unknown one, count as activities */
 export const sectionOf = (work: Work): SectionId => sections.find((section) => section.id === work.section)?.id ?? "activities";
 
 /** แสดงจนกว่าจะมีการบันทึกจากหน้าเว็บ */
 export const works: Work[] = [
-  { section: "education", title: "ตัวอย่าง: ชื่อโรงเรียน", kind: "ปีการศึกษา", summary: "ระดับชั้นและแผนการเรียน" },
   { section: "is2", title: "ตัวอย่าง: หัวข้อการนำเสนอ", kind: "IS2", summary: "สรุปเรื่องที่ศึกษาและวิธีนำเสนอ" },
   { section: "activities", title: "ตัวอย่าง: ชื่อกิจกรรม", kind: "ปีที่ทำ", summary: "บทบาทและสิ่งที่ได้เรียนรู้" },
   { section: "certificates", title: "ตัวอย่าง: ชื่อเกียรติบัตร", kind: "ปีที่ได้รับ", summary: "หน่วยงานที่มอบให้" },

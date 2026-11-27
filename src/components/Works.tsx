@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
+import { Education } from "@/components/Education";
 import { Reveal } from "@/components/Reveal";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { StaggerText } from "@/components/StaggerText";
@@ -169,6 +170,8 @@ export function Works() {
     </p>
   );
   // keeps each item's position in the saved list, which editing and deleting need
+  // education is a fixed timeline in content.ts
+  const editable = sections.filter((section) => section.id !== "education");
   const inSection = (id: SectionId) => (works ?? []).map((work, index) => ({ work, index })).filter(({ work }) => sectionOf(work) === id);
 
   return (
@@ -184,7 +187,9 @@ export function Works() {
               <StaggerText text={section.title} />
             </h2>
           </Reveal>
-          {works && inSection(section.id).length === 0 ? (
+          {section.id === "education" ? (
+            <Education />
+          ) : works && inSection(section.id).length === 0 ? (
             <p className="text-center text-sm text-[var(--muted)]">ยังไม่มีข้อมูล</p>
           ) : (
             <ul className="grid min-h-40 gap-5 sm:grid-cols-2 lg:grid-cols-3" aria-busy={!works}>
@@ -317,7 +322,7 @@ export function Works() {
                 <label className="block text-sm">
                   หมวด
                   <select name="section" defaultValue={current ? sectionOf(current) : editing} className={field}>
-                    {sections.map((section) => (
+                    {editable.map((section) => (
                       <option key={section.id} value={section.id}>
                         {section.title}
                       </option>
@@ -359,7 +364,7 @@ export function Works() {
                 </div>
               </form>
             ) : (
-              sections.map((section) => (
+              editable.map((section) => (
                 <div key={section.id} className="space-y-2">
                   <div className="flex items-center gap-2 pt-2">
                     <h3 className="mr-auto text-sm font-bold text-[var(--accent-soft)]">{section.title}</h3>

@@ -648,3 +648,222 @@ html:has(#calm:checked)::after {
     box-shadow: 0 0 0 16px rgba(248, 113, 113, 0);
   }
 }
+
+/* schooling timeline with small 3D building models */
+.edu {
+  position: relative;
+  display: grid;
+  gap: 4rem;
+  padding-left: 2.5rem;
+}
+.edu-spine {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0.75rem;
+  width: 3px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+}
+.edu-spine-fill {
+  position: absolute;
+  inset: 0;
+  transform-origin: top;
+  border-radius: inherit;
+  background: linear-gradient(#f87171, #facc15, #22c55e);
+  box-shadow: 0 0 14px #f87171;
+}
+.edu-dot {
+  position: absolute;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 0 5px rgba(248, 113, 113, 0.35), 0 0 24px 6px #f87171;
+}
+.edu-stop {
+  display: grid;
+  align-items: center;
+  gap: 1.5rem;
+}
+@media (min-width: 768px) {
+  .edu-stop {
+    grid-template-columns: 15rem 1fr;
+  }
+  .edu-stop:nth-of-type(even) {
+    grid-template-columns: 1fr 15rem;
+  }
+  .edu-stop:nth-of-type(even) .edu-model {
+    order: 2;
+  }
+}
+.edu-card {
+  padding: 1.5rem;
+}
+.edu-step {
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  font-weight: 800;
+}
+.edu-now {
+  padding: 0.1rem 0.6rem;
+  border-radius: 999px;
+  background: #16a34a;
+  color: #fff;
+  font-weight: 700;
+  animation: fx-pulse 2s ease-out infinite;
+}
+.edu-count {
+  background: linear-gradient(#fde68a, #f87171);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-variant-numeric: tabular-nums;
+}
+.edu-fact {
+  position: relative;
+  padding-left: 1.1rem;
+  color: #e4e4e7;
+}
+.edu-fact::before {
+  content: "";
+  position: absolute;
+  top: 0.55em;
+  left: 0;
+  width: 6px;
+  height: 6px;
+  rotate: 45deg;
+  background: var(--accent-soft);
+}
+
+/* the model: floors stacked in real 3D, seen from above at an angle */
+@property --turn {
+  syntax: "<angle>";
+  inherits: true;
+  initial-value: 0deg;
+}
+.edu-model {
+  --w: 92px;
+  --h: 22px;
+  display: grid;
+  place-items: center;
+  height: 15rem;
+  perspective: 900px;
+}
+.edu-iso {
+  position: relative;
+  width: var(--w);
+  height: var(--w);
+  transform-style: preserve-3d;
+  transform: rotateX(58deg) rotateZ(calc(45deg + var(--turn, 0deg)));
+}
+.edu-spin {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+}
+.edu-ground {
+  position: absolute;
+  inset: -60%;
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--a) 35%, transparent), transparent 65%);
+}
+.edu-floor {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+}
+.edu-top,
+.edu-side {
+  position: absolute;
+  backface-visibility: visible;
+}
+.edu-top {
+  inset: 0;
+  transform: translateZ(var(--h));
+  background: linear-gradient(135deg, var(--a), color-mix(in srgb, var(--a) 70%, #000));
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+}
+/* walls with rows of lit windows */
+.edu-side {
+  width: var(--w);
+  height: var(--h);
+  background:
+    repeating-linear-gradient(90deg, transparent 0 8px, rgba(255, 244, 200, 0.85) 8px 14px, transparent 14px 18px) 0 6px / 100% 8px no-repeat,
+    var(--b);
+}
+.edu-wall {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+}
+.edu-wall > .edu-side {
+  bottom: 0;
+  left: 0;
+  transform-origin: bottom;
+  transform: rotateX(-90deg);
+}
+/* the floor still being built */
+.edu-building .edu-top,
+.edu-building .edu-side {
+  background: transparent;
+  outline: 2px dashed var(--a);
+  outline-offset: -2px;
+  animation: edu-blink 1.2s steps(2) infinite;
+}
+@keyframes edu-blink {
+  50% {
+    opacity: 0.3;
+  }
+}
+.edu-swatch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.2rem 0.65rem 0.2rem 0.3rem;
+  border: 1px solid color-mix(in srgb, var(--c) 60%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--c) 14%, transparent);
+}
+.edu-swatch::before {
+  content: "";
+  width: 0.9rem;
+  height: 0.9rem;
+  border-radius: 50%;
+  background: var(--c);
+  box-shadow: 0 0 10px var(--c);
+}
+/* a black swatch needs a light ring to show on the dark page */
+.edu-swatch::before {
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.55), 0 0 10px var(--c);
+}
+.edu-swatch {
+  border-color: color-mix(in srgb, var(--c) 60%, rgba(255, 255, 255, 0.35));
+}
+/* each card carries its school's colours along the top and in its number */
+.edu-card {
+  position: relative;
+  overflow: hidden;
+  border-color: color-mix(in srgb, var(--a) 30%, #28292a);
+  background:
+    radial-gradient(28rem 14rem at 100% 0%, color-mix(in srgb, var(--a) 12%, transparent), transparent 70%),
+    var(--surface);
+}
+.edu-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 4px;
+  background: repeating-linear-gradient(90deg, var(--b) 0 22px, var(--a) 22px 44px);
+}
+.edu-step {
+  border-color: var(--a);
+  background: color-mix(in srgb, var(--a) 18%, transparent);
+  color: var(--a);
+}
