@@ -1,8 +1,7 @@
 // token ถูกเข้ารหัสด้วยรหัสผ่านของเจ้าของ แล้ววางเป็นไฟล์สาธารณะ เพื่อให้เข้าแก้ได้จากทุกเครื่อง
-// anyone can download it and guess offline, so the password has to be long (see isWeak)
+// anyone can download it and guess offline, so the password has to be long to be safe
+// shortcut: any length is accepted by the owner's choice; a short one can be cracked, giving write access to the site
 import { fromBase64, toBase64 } from "./github.ts";
-
-export const isWeak = (password: string) => password.length < 16 || new Set(password).size < 8;
 
 async function key(password: string, salt: Uint8Array<ArrayBuffer>) {
   const material = await crypto.subtle.importKey("raw", new TextEncoder().encode(password), "PBKDF2", false, ["deriveKey"]);

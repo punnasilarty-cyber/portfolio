@@ -4,7 +4,7 @@ import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { works as defaults, type Work } from "@/content";
 import { checkToken, deleteFile, fromBase64, readFile, writeFile } from "@/github";
-import { isWeak, seal, unseal } from "@/vault";
+import { seal, unseal } from "@/vault";
 
 const base = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 const field = "mt-1 w-full rounded-lg border border-white/15 bg-black/40 px-3 py-2 text-sm text-[var(--foreground)]";
@@ -65,7 +65,6 @@ export function Works() {
     const password = String(data.get("password"));
     const saved = panel!.saved;
     run(async () => {
-      if (!saved && isWeak(password)) throw new Error("รหัสสั้นหรือซ้ำเกินไป ใช้อย่างน้อย 16 ตัว เช่น คำสุ่ม 4–5 คำ");
       if (!saved && password !== data.get("confirm")) throw new Error("รหัสสองช่องไม่ตรงกัน");
       const value = saved ? await unseal(saved, password) : String(data.get("token")).trim();
       await checkToken(value);
@@ -247,12 +246,11 @@ export function Works() {
               </>
             )}
             <label className="block text-sm">
-              {panel.saved ? "รหัส" : "ตั้งรหัส (16 ตัวขึ้นไป เช่น คำสุ่ม 4–5 คำ)"}
+              {panel.saved ? "รหัส" : "ตั้งรหัส"}
               <input
                 name="password"
                 type="password"
                 autoComplete={panel.saved ? "current-password" : "new-password"}
-                minLength={panel.saved ? undefined : 16}
                 required
                 autoFocus={!!panel.saved}
                 className={field}
