@@ -11,7 +11,7 @@ import { checkToken, deleteFile, fromBase64, readFile, writeFile } from "@/githu
 import { addressOf, DOCUMENT_TYPES, MAX_DOCUMENT_BYTES, MAX_PICTURES, moved, picturesOf, safeName, unusedFiles } from "@/items";
 import { useMotion } from "@/motion";
 import { seal, unseal } from "@/vault";
-import { viewOf } from "@/viewer";
+import { fileKindOf, viewOf } from "@/viewer";
 
 const base = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 const field = "editor-field mt-1 w-full rounded-lg border border-white/15 bg-black/40 px-3 py-2 text-sm text-[var(--foreground)]";
@@ -210,7 +210,8 @@ export function Works() {
   return (
     <>
       {sections.map((section, order) => (
-        <section key={section.id} id={section.id} className="relative isolate mx-auto max-w-6xl scroll-mt-28 px-5 py-16 lg:scroll-mt-24">
+        // an empty section takes less room, so the page does not read as unfinished
+        <section key={section.id} id={section.id} className={`relative isolate mx-auto max-w-6xl scroll-mt-28 px-5 lg:scroll-mt-24 ${works && section.id !== "education" && inSection(section.id).length === 0 ? "py-10" : "py-16"}`}>
           <span aria-hidden="true" className="fx-number">
             {String(order + 1).padStart(2, "0")}
           </span>
@@ -223,7 +224,7 @@ export function Works() {
           {section.id === "education" ? (
             <Education project={inSection("is2").find(({ work }) => work.image)?.work} />
           ) : works && inSection(section.id).length === 0 ? (
-            <p className="text-center text-sm text-[var(--muted)]">ยังไม่มีข้อมูล</p>
+            <p className="work-empty">กำลังรวบรวม{section.title}</p>
           ) : (
             // while loading, one empty list holds the space
             (works ? groupsOf(inSection(section.id), ({ work }) => work.group) : [{ name: "", items: [] }]).map((group) => (
@@ -484,6 +485,7 @@ function WorkCard({ work, pictureUrl }: { work: Work; pictureUrl: (path: string)
   const fit = sectionOf(work) === "certificates" ? "object-contain" : "object-cover";
   const [shown, setShown] = useState<Shown | null>(null);
   const pictures = picturesOf(work).map(pictureUrl);
+  const kind = work.link ? fileKindOf(work.link) : null;
 
   // a plain press shows the file here; new-tab presses and files the page cannot draw follow the link
   function openFile(event: MouseEvent<HTMLAnchorElement>) {
@@ -502,6 +504,13 @@ function WorkCard({ work, pictureUrl }: { work: Work; pictureUrl: (path: string)
           <img src={pictures[0]} alt={work.title} className={`h-full w-full ${fit}`} />
           <span>{pictures.length > 1 ? `ดูรูปทั้งหมด ${pictures.length} รูป` : "ดูภาพเต็ม"}</span>
         </button>
+      )}
+      {pictures.length === 0 && kind && (
+        // a second way into the same file as the button below, so keyboards and screen readers skip it
+        <a href={work.link} onClick={openFile} target="_blank" rel="noopener noreferrer" tabIndex={-1} aria-hidden="true" className={`work-file work-file--${kind.toLowerCase()}`}>
+          <b>{kind}</b>
+          <span>กดเพื่อเปิดอ่าน</span>
+        </a>
       )}
       <div className="flex flex-1 flex-col gap-2 p-5">
         <p className="text-xs text-[var(--accent-soft)]">{work.kind}</p>

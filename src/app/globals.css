@@ -1202,3 +1202,45 @@ div.viewer-body {
 .editor-move:disabled {
   opacity: 0.3;
 }
+
+/* the cover of a card that holds a document and no picture */
+.work-file {
+  display: grid;
+  aspect-ratio: 16 / 7;
+  place-content: center;
+  justify-items: center;
+  gap: 0.25rem;
+  background: linear-gradient(135deg, var(--file), color-mix(in srgb, var(--file) 35%, #08090a));
+  color: #fff;
+}
+.work-file b {
+  font-size: 2rem;
+  font-weight: 900;
+  line-height: 1.2;
+}
+.work-file span {
+  font-size: 0.75rem;
+  opacity: 0.85;
+}
+.work-file--pdf {
+  --file: #b91c1c;
+}
+.work-file--word {
+  --file: #1d4ed8;
+}
+.work-file--powerpoint {
+  --file: #c2410c;
+}
+.work-file--excel {
+  --file: #15803d;
+}
+.work-empty {
+  max-width: 28rem;
+  margin: 0 auto;
+  padding: 1.25rem;
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+  border-radius: 14px;
+  color: var(--muted);
+  font-size: 0.875rem;
+  text-align: center;
+}

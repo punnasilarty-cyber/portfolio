@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { viewOf } from "../src/viewer.ts";
+import { fileKindOf, viewOf } from "../src/viewer.ts";
 
 test("each kind of file gets the way the page can show it", () => {
   assert.deepEqual(viewOf("https://a.test/r.pdf", true), { kind: "frame", src: "https://a.test/r.pdf" });
@@ -11,4 +11,8 @@ test("each kind of file gets the way the page can show it", () => {
   });
   assert.equal(viewOf("https://a.test/watch?file=r.pdf", true), null);
   assert.equal(viewOf("http://a.test/r.pdf", true), null);
+});
+
+test("a document link is named by its kind", () => {
+  assert.deepEqual(["r.PDF?v=3", "r.docx", "r.ppt", "r.xlsx#a", "watch?f=r.pdf"].map((name) => fileKindOf(`https://a.test/${name}`)), ["PDF", "Word", "PowerPoint", "Excel", null]);
 });
