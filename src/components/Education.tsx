@@ -83,37 +83,17 @@ export function Education() {
                 <span className="edu-level">{stop.level}</span>
                 {stop.current && <span className="edu-now">กำลังศึกษา</span>}
               </p>
+              {stop.program && <p className="edu-program">{stop.program}</p>}
               <p className="mt-1 text-sm text-[var(--muted)]">ปีการศึกษา {stop.period}</p>
               <div className="mt-4 flex items-center gap-4">
                 {/* eslint-disable-next-line @next/next/no-img-element -- a static export serves images as they are */}
                 <img src={base + stop.logo} alt={`ตรา${stop.school}`} className="edu-logo" />
                 <h3 className="text-xl font-bold sm:text-2xl">{stop.school}</h3>
               </div>
-              {stop.logoNote && <p className="edu-logo-note">ตราโรงเรียน: {stop.logoNote}</p>}
-              {stop.program && <p className="edu-program">{stop.program}</p>}
-              <p className="text-sm text-[var(--muted)]">{stop.place}</p>
-              {stop.schoolColors && (
-                <p className="mt-3 flex flex-wrap items-center gap-2 text-xs">
-                  สีประจำโรงเรียน
-                  {stop.schoolColors.map((color) => (
-                    <span key={color.hex} className="edu-swatch" style={{ "--c": color.hex } as React.CSSProperties}>
-                      {color.name}
-                    </span>
-                  ))}
-                </p>
-              )}
-              {stop.stat && (
-                <p className="mt-4 flex items-baseline gap-2">
-                  <span className="edu-count text-4xl font-black" data-to={stop.stat.value}>
-                    {stop.stat.value.toLocaleString("th-TH")}
-                  </span>
-                  <span className="text-sm text-[var(--muted)]">{stop.stat.label}</span>
-                </p>
-              )}
               <ul className="mt-4 space-y-1.5 text-sm">
-                {stop.facts.map((fact) => (
-                  <li key={fact} className="edu-fact">
-                    {fact}
+                {stop.mottos.map((motto) => (
+                  <li key={motto.text} className="edu-fact">
+                    {motto.label} {motto.text}
                   </li>
                 ))}
               </ul>
@@ -121,7 +101,6 @@ export function Education() {
                 <a href={stop.website} target="_blank" rel="noopener noreferrer" className="solx-btn-ghost px-4 py-2 text-sm">
                   เว็บไซต์โรงเรียน <span aria-hidden="true">↗</span>
                 </a>
-                <p className="text-[11px] text-[var(--muted)]">ข้อมูล: {stop.source}</p>
               </div>
             </div>
           </article>

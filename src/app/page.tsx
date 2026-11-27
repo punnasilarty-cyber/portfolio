@@ -1,7 +1,7 @@
 import { HeroMotion } from "@/components/HeroMotion";
 import { StaggerText } from "@/components/StaggerText";
 import { Works } from "@/components/Works";
-import { profile, sections } from "@/content";
+import { aboutWhole, profile, sections } from "@/content";
 
 const menu = [{ id: "top", title: "หน้าแรก" }, ...sections];
 
@@ -50,6 +50,27 @@ export default function HomePage() {
                 ดูประวัติ <span aria-hidden="true">↓</span>
               </a>
             </div>
+          </div>
+        </section>
+
+        {/* part of the front page, so it has no id of its own and no menu entry */}
+        <section className="about">
+          <h2>เกี่ยวกับฉัน</h2>
+          <div>
+            {profile.about.map((paragraph) => (
+              <p key={paragraph}>
+                {/* split keeps the matched phrases at the odd positions */}
+                {paragraph.split(aboutWhole).map((part, i) =>
+                  i % 2 ? (
+                    <span key={i} className="whitespace-nowrap">
+                      {part}
+                    </span>
+                  ) : (
+                    part
+                  ),
+                )}
+              </p>
+            ))}
           </div>
         </section>
 

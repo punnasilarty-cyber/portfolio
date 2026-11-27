@@ -752,52 +752,6 @@ html:has(#calm:checked)::after {
   font-weight: 700;
   animation: fx-pulse 2s ease-out infinite;
 }
-.edu-count {
-  background: linear-gradient(#fde68a, #f87171);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  font-variant-numeric: tabular-nums;
-}
-.edu-fact {
-  position: relative;
-  padding-left: 1.1rem;
-  color: #e4e4e7;
-}
-.edu-fact::before {
-  content: "";
-  position: absolute;
-  top: 0.55em;
-  left: 0;
-  width: 6px;
-  height: 6px;
-  rotate: 45deg;
-  background: var(--accent-soft);
-}
-.edu-swatch {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.2rem 0.65rem 0.2rem 0.3rem;
-  border: 1px solid color-mix(in srgb, var(--c) 60%, transparent);
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--c) 14%, transparent);
-}
-.edu-swatch::before {
-  content: "";
-  width: 0.9rem;
-  height: 0.9rem;
-  border-radius: 50%;
-  background: var(--c);
-  box-shadow: 0 0 10px var(--c);
-}
-/* a black swatch needs a light ring to show on the dark page */
-.edu-swatch::before {
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.55), 0 0 10px var(--c);
-}
-.edu-swatch {
-  border-color: color-mix(in srgb, var(--c) 60%, rgba(255, 255, 255, 0.35));
-}
 /* each card carries its school's colours along the top and in its number */
 .edu-card {
   position: relative;
@@ -850,8 +804,58 @@ html:has(#calm:checked)::after {
   object-fit: contain;
   box-shadow: 0 0 16px -6px var(--a);
 }
-.edu-logo-note {
-  margin-top: 0.5rem;
-  font-size: 0.75rem;
-  color: var(--muted);
+.edu-fact {
+  position: relative;
+  padding-left: 1.1rem;
+  color: #e4e4e7;
+}
+.edu-fact::before {
+  content: "";
+  position: absolute;
+  top: 0.55em;
+  left: 0;
+  width: 6px;
+  height: 6px;
+  rotate: 45deg;
+  background: var(--accent-soft);
+}
+
+/* about me: set like a printed page, no box; the title sits in the margin on wide screens */
+.about {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.5rem;
+  max-width: 54rem;
+  margin: 0 auto;
+  padding: 5rem 1.5rem;
+}
+.about h2 {
+  align-self: start;
+  padding-top: 0.75rem;
+  border-top: 2px solid var(--accent);
+  justify-self: start;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+.about p {
+  max-width: 34em;
+  font-size: 1.0625rem;
+  line-height: 1.95;
+  color: #d4d4d8;
+  text-wrap: pretty;
+}
+.about p + p {
+  margin-top: 1.25rem;
+}
+/* the greeting reads first */
+.about p:first-child {
+  font-size: 1.3rem;
+  line-height: 1.8;
+  color: var(--foreground);
+}
+@media (min-width: 768px) {
+  .about {
+    grid-template-columns: 11rem minmax(0, 1fr);
+    gap: 3rem;
+  }
 }

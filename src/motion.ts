@@ -106,33 +106,10 @@ export function useMotion(content: unknown) {
             const pin = document.querySelector(`.edu-pin[data-school="${school}"]`);
             const when = { trigger: stop, start: "top 75%", toggleActions: "play none none reverse" };
             const tl = gsap.timeline({ scrollTrigger: when });
-            tl.from(stop.querySelector(".edu-card"), { y: 60, opacity: 0, duration: 0.8, ease: "power3.out" }).from(
-              stop.querySelectorAll(".edu-fact"),
-              { x: 30, opacity: 0, duration: 0.4, stagger: 0.1 },
-              0.4,
-            );
+            tl.from(stop.querySelector(".edu-card"), { y: 60, opacity: 0, duration: 0.8, ease: "power3.out" });
             if (pin && !popped.has(school)) {
               popped.add(school);
               tl.from(pin, { scale: 0, transformOrigin: "50% 50%", duration: 0.7, ease: "back.out(3)" }, 0);
-            }
-            const count = stop.querySelector<HTMLElement>(".edu-count");
-            if (count) {
-              const target = Number(count.dataset.to);
-              const shown = { value: 0 };
-              // reverting the animation does not restore text, so put the real number back
-              undo.push(() => (count.textContent = target.toLocaleString("th-TH")));
-              tl.to(
-                shown,
-                {
-                  value: target,
-                  duration: 1.4,
-                  ease: "power2.out",
-                  onUpdate: () => {
-                    count.textContent = Math.round(shown.value).toLocaleString("th-TH");
-                  },
-                },
-                0.4,
-              );
             }
           });
           gsap.to(".edu-pin-pulse", { attr: { r: 30 }, opacity: 0, duration: 1.8, ease: "power2.out", repeat: -1, stagger: 0.6 });

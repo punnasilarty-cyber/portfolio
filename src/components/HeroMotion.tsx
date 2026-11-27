@@ -6,7 +6,7 @@ const GLYPHS = "01<>{}[]=+*#%$/\\|";
 // the code texture; ASCII only so every character fills exactly one cell
 const SOURCE = `type Cue = { text: string; start: number; end: number; style: Style }; export function highlight(words: Word[], active: number) { return words.map((word, i) => ({ ...word, scale: i === active ? 1.18 : 1, fill: i === active ? accent : white })); } export async function render(clip: Clip, preset: Preset) { const cues = await transcribe(clip.audio, { lang: "th", maxChars: 18 }); for (const cue of cues) { const frames = timeline(cue.start, cue.end, 30); preset.apply(frames, { font: "thai-display", stroke: 4, shadow: true, safeArea: "9:16" }); } return exportVideo(clip, { format: "mp4", codec: "h264", height: 1920 }); } function timeline(start: number, end: number, fps: number) { const count = Math.max(1, Math.round((end - start) * fps)); return Array.from({ length: count }, (_, i) => ({ at: start + i / fps, ease: 1 - Math.pow(1 - i / count, 3) })); } `;
 const ROWS_PER_SECOND = 1.1;
-const SHAPE = "S";
+const SHAPE = "</>";
 // one round: the shape assembles and the light crosses it once; also the resting frame
 const ROUND_SECONDS = 1.8 / 0.22;
 
@@ -28,7 +28,7 @@ const mix = (u: number) => {
   return `rgb(${c.join(",")})`;
 };
 
-/** A wall of code with a large S lit out of it. It moves for one round, then rests; `still` only rests. */
+/** A wall of code with a large code tag lit out of it. It moves for one round, then rests; `still` only rests. */
 export function HeroMotion({ still = false }: { still?: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   // one round on every visit, by the owner's choice even where the system asks for less motion
@@ -89,6 +89,10 @@ export function HeroMotion({ still = false }: { still?: boolean }) {
       g.textAlign = "center";
       g.textBaseline = "middle";
       g.fillText(SHAPE, width / 2, height / 2);
+      // the symbols have thin strokes, so thicken them until they read through the code
+      g.lineWidth = big * 0.05;
+      g.lineJoin = "round";
+      g.strokeText(SHAPE, width / 2, height / 2);
       const span = g.measureText(SHAPE).width;
       const data = g.getImageData(0, 0, width, height).data;
       cells = [];
