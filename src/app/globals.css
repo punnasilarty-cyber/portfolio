@@ -471,3 +471,176 @@ body::before {
     transition: none;
   }
 }
+
+/* full motion. Plays even where the system asks for less, by the owner's choice like the hero;
+   the checkbox in the footer stops it. Scroll-driven parts stay still in browsers without view(). */
+
+/* drifting embers and two slow glows behind everything */
+html::before,
+html::after {
+  content: "";
+  position: fixed;
+  inset: -20%;
+  z-index: -25;
+  pointer-events: none;
+}
+html::before {
+  background:
+    radial-gradient(1.5px 1.5px at 20px 30px, #fca5a5, transparent) 0 0 / 190px 210px,
+    radial-gradient(1px 1px at 90px 120px, #ffffff, transparent) 0 0 / 260px 240px,
+    radial-gradient(2px 2px at 150px 60px, #f87171, transparent) 0 0 / 330px 370px;
+  opacity: 0.55;
+  animation: fx-embers 40s linear infinite;
+}
+html::after {
+  background:
+    radial-gradient(34rem 24rem at 30% 35%, rgba(220, 38, 38, 0.16), transparent 70%),
+    radial-gradient(30rem 22rem at 72% 70%, rgba(124, 58, 237, 0.12), transparent 70%);
+  animation: fx-aurora 14s ease-in-out infinite alternate;
+}
+body {
+  background: transparent;
+}
+html {
+  background: var(--background);
+}
+
+/* reading progress along the top edge */
+header::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto;
+  height: 3px;
+  transform-origin: left;
+  background: linear-gradient(90deg, #dc2626, #f87171, #fecaca);
+  box-shadow: 0 0 14px #dc2626;
+  animation: fx-progress linear both;
+  animation-timeline: scroll(root);
+}
+
+/* the opening block sinks and fades as the page moves on */
+#top > section:first-child > div {
+  animation: fx-hero linear both;
+  animation-timeline: scroll(root);
+  animation-range: 0 520px;
+}
+
+/* each heading gets a line that draws itself */
+main section[id] h2::after {
+  content: "";
+  display: block;
+  width: 7rem;
+  height: 3px;
+  margin: 0.9rem auto 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, #f87171, transparent);
+  box-shadow: 0 0 16px #dc2626;
+  animation: fx-line linear both;
+  animation-timeline: view();
+  animation-range: entry 20% cover 35%;
+}
+
+/* cards swing up out of the dark, alternating sides */
+main section[id] li {
+  animation: fx-card linear both;
+  animation-timeline: view();
+  animation-range: entry 0% entry 90%;
+}
+main section[id] li:nth-child(even) {
+  animation-name: fx-card-alt;
+}
+
+/* on hover a card leans forward, glows, and a sheen crosses it */
+main li .solx-spotlight {
+  transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+}
+main li .solx-spotlight:hover {
+  transform: perspective(700px) rotateX(5deg) translateY(-10px) scale(1.03);
+  border-color: #f87171;
+  box-shadow: 0 24px 50px -18px rgba(220, 38, 38, 0.75);
+}
+main li .solx-spotlight::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(115deg, transparent 35%, rgba(255, 255, 255, 0.22) 50%, transparent 65%);
+  translate: -120% 0;
+}
+main li .solx-spotlight:hover::after {
+  translate: 120% 0;
+  transition: translate 0.8s ease;
+}
+
+/* a pulse on the main button and a glide under menu links */
+main .solx-btn-primary {
+  animation: fx-pulse 2.4s ease-out 3s infinite;
+}
+header nav a {
+  background: linear-gradient(#f87171, #f87171) center bottom / 0 2px no-repeat;
+  transition: background-size 0.3s ease, color 0.3s ease;
+}
+header nav a:hover,
+header nav a:focus-visible {
+  background-size: 80% 2px;
+}
+
+body:has(#calm:checked) *,
+body:has(#calm:checked) *::before,
+body:has(#calm:checked) *::after,
+html:has(#calm:checked)::before,
+html:has(#calm:checked)::after {
+  animation: none !important;
+  transition: none !important;
+}
+
+@keyframes fx-embers {
+  to {
+    translate: -190px -420px;
+  }
+}
+@keyframes fx-aurora {
+  to {
+    translate: 12% -8%;
+    scale: 1.15;
+  }
+}
+@keyframes fx-progress {
+  from {
+    transform: scaleX(0);
+  }
+}
+@keyframes fx-hero {
+  to {
+    opacity: 0.1;
+    translate: 0 140px;
+    scale: 0.86;
+  }
+}
+@keyframes fx-line {
+  from {
+    width: 0;
+    opacity: 0;
+  }
+}
+@keyframes fx-card {
+  from {
+    opacity: 0;
+    transform: perspective(900px) translate(-60px, 80px) rotateY(28deg) scale(0.85);
+  }
+}
+@keyframes fx-card-alt {
+  from {
+    opacity: 0;
+    transform: perspective(900px) translate(60px, 80px) rotateY(-28deg) scale(0.85);
+  }
+}
+@keyframes fx-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(248, 113, 113, 0.7);
+  }
+  70%,
+  100% {
+    box-shadow: 0 0 0 16px rgba(248, 113, 113, 0);
+  }
+}

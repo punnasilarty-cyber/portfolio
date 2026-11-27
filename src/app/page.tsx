@@ -58,6 +58,10 @@ export default function HomePage() {
       {/* the extra bottom room keeps the corner button off the text */}
       <footer className="bg-[#18181b] px-5 pt-6 pb-20 text-center text-xs text-[var(--muted)]">
         © 2026 {profile.name} สงวนลิขสิทธิ์
+        {/* globals.css stops every animation while this is ticked */}
+        <label className="mt-3 flex items-center justify-center gap-2">
+          <input id="calm" type="checkbox" /> หยุดแอนิเมชัน
+        </label>
       </footer>
     </>
   );
