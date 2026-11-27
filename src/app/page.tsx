@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { HeroMotion } from "@/components/HeroMotion";
 import { Reveal } from "@/components/Reveal";
 import { StaggerText } from "@/components/StaggerText";
@@ -98,10 +97,7 @@ export default function HomePage() {
       </main>
 
       <footer className="bg-[#18181b] px-5 py-6 text-center text-xs text-[var(--muted)]">
-        © 2026 {profile.name} สงวนลิขสิทธิ์ ·{" "}
-        <Link href="/admin" className="underline hover:text-[var(--foreground)]">
-          แก้ไขผลงาน
-        </Link>
+        © 2026 {profile.name} สงวนลิขสิทธิ์
       </footer>
     </>
   );
