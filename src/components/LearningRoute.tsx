@@ -101,7 +101,8 @@ export function LearningRoute({ project }: { project?: Work }) {
             ปีที่ {step + 1} จาก {years.length} บนเส้นทางการเรียน
           </p>
           {stage.program && <p className="text-sm text-[#e4e4e7]">{stage.program}</p>}
-          {stage.mottos.map((motto) => (
+          {/* the owner keeps the คำขวัญ on the stage card only */}
+          {stage.mottos.filter((motto) => motto.label !== "คำขวัญ").map((motto) => (
             <p key={motto.text} className="text-xs text-[#d4d4d8]">
               {motto.label} {motto.text}
             </p>

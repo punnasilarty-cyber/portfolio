@@ -1034,3 +1034,82 @@ html:has(#calm:checked)::after {
     display: block;
   }
 }
+
+.work-picture {
+  position: relative;
+  display: block;
+  width: 100%;
+  cursor: zoom-in;
+}
+.work-picture span {
+  position: absolute;
+  right: 0.5rem;
+  bottom: 0.5rem;
+  padding: 0.1rem 0.6rem;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  font-size: 0.75rem;
+}
+.viewer[open] {
+  display: flex;
+  flex-direction: column;
+  width: min(80rem, calc(100vw - 1rem));
+  max-width: none;
+  height: calc(100dvh - 1rem);
+  max-height: none;
+  margin: auto;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 14px;
+  background: #111113;
+  color: var(--foreground);
+}
+.viewer::backdrop {
+  background: rgba(0, 0, 0, 0.85);
+}
+.viewer header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.75rem;
+}
+.viewer header p {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 0.875rem;
+  font-weight: 700;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.viewer-body {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  border: 0;
+}
+div.viewer-body {
+  overflow: auto;
+}
+.viewer-picture {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: zoom-in;
+}
+.viewer-picture img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.viewer-picture.is-full {
+  width: max-content;
+  height: auto;
+  cursor: zoom-out;
+}
+.viewer-picture.is-full img {
+  width: auto;
+  height: auto;
+  max-width: none;
+}

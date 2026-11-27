@@ -1,14 +1,16 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent, type MouseEvent } from "react";
 import { Education } from "@/components/Education";
 import { Reveal } from "@/components/Reveal";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { StaggerText } from "@/components/StaggerText";
 import { sectionOf, sections, works as defaults, type SectionId, type Work } from "@/content";
+import { Viewer, type Shown } from "@/components/Viewer";
 import { checkToken, deleteFile, fromBase64, readFile, writeFile } from "@/github";
 import { useMotion } from "@/motion";
 import { seal, unseal } from "@/vault";
+import { frameOf } from "@/viewer";
 
 const base = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 const field = "editor-field mt-1 w-full rounded-lg border border-white/15 bg-black/40 px-3 py-2 text-sm text-[var(--foreground)]";
@@ -408,24 +410,38 @@ function Lock() {
 function WorkCard({ work, preview }: { work: Work; preview?: string }) {
   // a certificate must show whole, other photos may be cropped to fill
   const fit = sectionOf(work) === "certificates" ? "object-contain" : "object-cover";
+  const [shown, setShown] = useState<Shown | null>(null);
+  const picture = preview ?? `${base}${work.image}`;
+
+  // a plain press shows the file here; new-tab presses and files the page cannot draw follow the link
+  function openFile(event: MouseEvent<HTMLAnchorElement>) {
+    if (event.ctrlKey || event.metaKey || event.shiftKey) return;
+    const src = frameOf(work.link!, navigator.pdfViewerEnabled);
+    if (!src) return;
+    event.preventDefault();
+    setShown({ src, title: work.title, href: work.link! });
+  }
+
   return (
     <SpotlightCard className="flex h-full flex-col">
       {work.image && (
-        <div className="aspect-video bg-black/40">
+        <button type="button" onClick={() => setShown({ src: picture, href: picture, title: work.title, image: true })} className="work-picture aspect-video bg-black/40">
           {/* eslint-disable-next-line @next/next/no-img-element -- a static export serves images as they are */}
-          <img src={preview ?? `${base}${work.image}`} alt={work.title} className={`h-full w-full ${fit}`} />
-        </div>
+          <img src={picture} alt={work.title} className={`h-full w-full ${fit}`} />
+          <span>ดูภาพเต็ม</span>
+        </button>
       )}
       <div className="flex flex-1 flex-col gap-2 p-5">
         <p className="text-xs text-[var(--accent-soft)]">{work.kind}</p>
         <h3 className="font-bold">{work.title}</h3>
         <p className="text-sm whitespace-pre-line text-[var(--muted)]">{work.summary}</p>
         {work.link && (
-          <a href={work.link} target="_blank" rel="noopener noreferrer" className="solx-btn-ghost mt-auto self-start px-4 py-2 text-sm">
+          <a href={work.link} onClick={openFile} target="_blank" rel="noopener noreferrer" className="solx-btn-ghost mt-auto self-start px-4 py-2 text-sm">
             เปิดดู
           </a>
         )}
       </div>
+      {shown && <Viewer shown={shown} onClose={() => setShown(null)} />}
     </SpotlightCard>
   );
 }
