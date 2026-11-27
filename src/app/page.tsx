@@ -1,8 +1,11 @@
+import { CopyButton } from "@/components/CopyButton";
 import { HeroMotion } from "@/components/HeroMotion";
 import { StaggerText } from "@/components/StaggerText";
+import { ToTop } from "@/components/ToTop";
 import { Works } from "@/components/Works";
-import { aboutWhole, contacts, profile, sections } from "@/content";
+import { aboutWhole, contacts, profile, sections, siteUrl } from "@/content";
 
+const base = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 const menu = [{ id: "top", title: "หน้าแรก" }, ...sections, { id: "contact", title: "ติดต่อ" }];
 
 export default function HomePage() {
@@ -106,13 +109,24 @@ export default function HomePage() {
                   <div className="solx-card contact-card">
                     <span>{contact.name}</span>
                     <b className="select-all">{contact.value}</b>
+                    <CopyButton value={contact.value} />
                   </div>
                 )}
               </li>
             ))}
           </ul>
+          <figure className="site-qr">
+            {/* eslint-disable-next-line @next/next/no-img-element -- a static export serves images as they are */}
+            <img src={`${base}/qr.svg`} alt={`QR Code ไปที่ ${siteUrl}`} width="180" height="180" />
+            <figcaption>สแกนเพื่อเปิดเว็บนี้</figcaption>
+            <a href={`${base}/qr.svg`} download="punnasin-portfolio-qr.svg" className="solx-btn-ghost px-4 py-1.5 text-xs">
+              ดาวน์โหลด QR
+            </a>
+          </figure>
         </section>
       </main>
+
+      <ToTop />
 
       {/* the extra bottom room keeps the corner button off the text */}
       <footer className="bg-[#18181b] px-5 pt-6 pb-20 text-center text-xs text-[var(--muted)]">

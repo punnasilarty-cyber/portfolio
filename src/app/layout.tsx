@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import { profile } from "@/content";
+import { profile, siteUrl } from "@/content";
+
+const base = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
 // LINE Seed Sans TH for the whole site; see fonts/OFL-NOTICE.txt
 const siteFont = localFont({
@@ -14,9 +16,16 @@ const siteFont = localFont({
   ],
 });
 
+const title = `${profile.name} | Portfolio`;
+// chat apps fetch this from outside, so it needs the full address
+const card = { url: `${siteUrl}og.png`, width: 1200, height: 630, alt: title };
+
 export const metadata: Metadata = {
-  title: `${profile.name} | Portfolio`,
+  title,
   description: profile.intro,
+  icons: { icon: `${base}/icon.svg`, apple: `${base}/apple-icon.png` },
+  openGraph: { type: "website", locale: "th_TH", url: siteUrl, siteName: title, title, description: profile.intro, images: [card] },
+  twitter: { card: "summary_large_image", title, description: profile.intro, images: [card] },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

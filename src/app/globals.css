@@ -1114,9 +1114,40 @@ div.viewer-body {
   max-width: none;
 }
 
+.to-top {
+  position: fixed;
+  right: 1rem;
+  bottom: 5rem;
+  z-index: 30;
+  display: grid;
+  width: 2.75rem;
+  height: 2.75rem;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  background: rgba(23, 23, 23, 0.92);
+  font-size: 1.25rem;
+}
+.to-top:hover,
+.to-top:focus-visible {
+  border-color: var(--accent-soft);
+}
+
+.site-qr {
+  display: grid;
+  justify-items: center;
+  gap: 0.6rem;
+  margin-top: 2.5rem;
+  font-size: 0.875rem;
+}
+.site-qr img {
+  border-radius: 10px;
+}
+
 .contact-card {
   display: grid;
   height: 100%;
+  align-content: center;
   gap: 0.25rem;
   padding: 1.25rem;
   text-align: center;

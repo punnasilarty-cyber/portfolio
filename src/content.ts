@@ -14,6 +14,9 @@ export const profile = {
   ],
 };
 
+/** ที่อยู่จริงของเว็บ ใช้ตอนแชร์ลิงก์ */
+export const siteUrl = "https://punnasilarty-cyber.github.io/portfolio/";
+
 /** ช่องทางติดต่อท้ายหน้า เจ้าของเว็บเลือกให้เปิดสาธารณะ ไม่มีลิงก์ก็แสดงเป็นข้อความให้คัดลอก */
 export const contacts: { name: string; value: string; href?: string }[] = [
   { name: "อีเมล", value: "punnasilarty@gmail.com", href: "mailto:punnasilarty@gmail.com" },
