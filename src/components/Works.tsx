@@ -8,6 +8,7 @@ import { StaggerText } from "@/components/StaggerText";
 import { groupsOf, sectionOf, sections, works as defaults, type SectionId, type Work } from "@/content";
 import { Viewer, type Shown } from "@/components/Viewer";
 import { checkToken, deleteFile, fromBase64, readFile, writeFile } from "@/github";
+import { addressOf, DOCUMENT_TYPES, MAX_DOCUMENT_BYTES, MAX_PICTURES, moved, picturesOf, safeName, unusedFiles } from "@/items";
 import { useMotion } from "@/motion";
 import { seal, unseal } from "@/vault";
 import { viewOf } from "@/viewer";
@@ -115,10 +116,12 @@ export function Works() {
     setWorks(next);
   }
 
-  // an image goes away only once no item points at it
-  async function dropImage(image: string | undefined, next: Work[]) {
-    if (image?.startsWith("/works/") && !next.some((work) => work.image === image)) await deleteFile(token, image.slice(1));
+  // a stored file goes away only once no item points at it
+  async function dropFiles(old: Work | undefined, next: Work[]) {
+    if (old) for (const path of unusedFiles(old, next)) await deleteFile(token, path);
   }
+
+  const pictureUrl = (path: string) => previews[path] ?? `${base}${path}`;
 
   function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -129,14 +132,33 @@ export function Works() {
       const link = text("link");
       if (!text("title")) throw new Error("ใส่ชื่อรายการ");
       if (link && !/^https?:\/\//i.test(link)) throw new Error("ลิงก์ต้องขึ้นต้นด้วย http:// หรือ https://");
-      let image = data.get("removeImage") ? undefined : old?.image;
-      const file = data.get("image") as File;
-      if (file.size) {
-        const name = `works/${Date.now()}.jpg`;
-        const jpeg = await toJpeg(file);
+      const dropped = data.getAll("drop");
+      const pictures = (old ? picturesOf(old) : []).filter((path) => !dropped.includes(path));
+      const added = (data.getAll("pictures") as File[]).filter((file) => file.size);
+      const doc = data.get("document") as File;
+      // everything is checked before the first upload, so a refusal leaves nothing behind
+      if (pictures.length + added.length > MAX_PICTURES) throw new Error(`ใส่รูปได้ไม่เกิน ${MAX_PICTURES} รูปต่อรายการ`);
+      if (doc.size && !DOCUMENT_TYPES.test(doc.name)) throw new Error("ไฟล์เอกสารต้องเป็น PDF, Word, PowerPoint หรือ Excel");
+      if (doc.size > MAX_DOCUMENT_BYTES) throw new Error("ไฟล์เอกสารต้องไม่เกิน 20 MB");
+      // all pictures are opened first for the same reason
+      const jpegs: Blob[] = [];
+      for (const file of added) jpegs.push(await toJpeg(file));
+      const stamp = Date.now();
+      // shortcut: a failed save leaves already uploaded files in works/, clean them up by hand if it ever matters
+      for (const [i, jpeg] of jpegs.entries()) {
+        setMessage(`กำลังอัปโหลดรูป ${i + 1} จาก ${jpegs.length}…`);
+        const name = `works/${stamp + i}.jpg`;
         await writeFile(token, name, new Uint8Array(await jpeg.arrayBuffer()));
-        image = `/${name}`;
+        pictures.push(`/${name}`);
         setPreviews((map) => ({ ...map, [`/${name}`]: URL.createObjectURL(jpeg) }));
+      }
+      let address = link;
+      if (doc.size) {
+        setMessage("กำลังอัปโหลดไฟล์เอกสาร…");
+        // its own folder keeps the file's name for whoever downloads it
+        const path = `works/${stamp}/${safeName(doc.name)}`;
+        await writeFile(token, path, new Uint8Array(await doc.arrayBuffer()));
+        address = addressOf(path);
       }
       const work: Work = {
         section: text("section") as SectionId,
@@ -144,13 +166,14 @@ export function Works() {
         title: text("title"),
         kind: text("kind"),
         summary: text("summary"),
-        image,
-        link: link || undefined,
+        image: pictures[0],
+        more: pictures.length > 1 ? pictures.slice(1) : undefined,
+        link: address || undefined,
       };
       const next = old ? works!.map((item, i) => (i === editing ? work : item)) : [work, ...works!];
       await publish(next);
       setEditing(null);
-      await dropImage(old?.image, next);
+      await dropFiles(old, next);
       setMessage("บันทึกแล้ว คนอื่นจะเห็นในราว 1–2 นาที");
     });
   }
@@ -161,15 +184,22 @@ export function Works() {
       const next = works!.filter((_, i) => i !== index);
       await publish(next);
       setEditing(null);
-      await dropImage(works![index].image, next);
+      await dropFiles(works![index], next);
       setMessage("ลบแล้ว คนอื่นจะเห็นในราว 1–2 นาที");
+    });
+  }
+
+  function reorder(next: Work[]) {
+    run(async () => {
+      await publish(next);
+      setMessage("จัดลำดับแล้ว คนอื่นจะเห็นในราว 1–2 นาที");
     });
   }
 
   const current = typeof editing === "number" ? works?.[editing] : undefined;
   const status = (
     <p role="status" className="min-h-5 text-center text-sm text-[var(--accent-soft)]">
-      {busy ? "กำลังทำงาน…" : message}
+      {busy ? message || "กำลังทำงาน…" : message}
     </p>
   );
   // keeps each item's position in the saved list, which editing and deleting need
@@ -202,7 +232,7 @@ export function Works() {
                 <ul aria-label={group.name || undefined} className="grid min-h-40 gap-5 sm:grid-cols-2 lg:grid-cols-3" aria-busy={!works}>
                   {group.items.map(({ work, index }) => (
                     <li key={`${index}-${work.title}`}>
-                      <WorkCard work={work} preview={work.image ? previews[work.image] : undefined} />
+                      <WorkCard work={work} pictureUrl={pictureUrl} />
                     </li>
                   ))}
                 </ul>
@@ -359,13 +389,26 @@ export function Works() {
                   <input name="link" type="url" placeholder="https://" defaultValue={current?.link} className={field} />
                 </label>
                 <label className="block text-sm">
-                  รูป (ไม่บังคับ)
-                  <input name="image" type="file" accept="image/*" className={field} />
+                  ไฟล์ PDF หรือ Word (ไม่บังคับ ไม่เกิน 20 MB)
+                  <input name="document" type="file" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx" className={field} />
+                  <span className="text-xs text-[var(--muted)]">ถ้าเลือกไฟล์ จะใช้แทนลิงก์ด้านบน และใครก็ดาวน์โหลดได้</span>
                 </label>
-                {current?.image && (
-                  <label className="flex items-center gap-2 text-sm">
-                    <input name="removeImage" type="checkbox" /> เอารูปเดิมออก
-                  </label>
+                <label className="block text-sm">
+                  รูป (เลือกได้หลายรูป รูปแรกเป็นปก)
+                  <input name="pictures" type="file" accept="image/*" multiple className={field} />
+                </label>
+                {current && picturesOf(current).length > 0 && (
+                  <ul aria-label="รูปที่มีอยู่" className="grid grid-cols-3 gap-2">
+                    {picturesOf(current).map((path, i) => (
+                      <li key={path}>
+                        {/* eslint-disable-next-line @next/next/no-img-element -- a static export serves images as they are */}
+                        <img src={pictureUrl(path)} alt={`รูปที่ ${i + 1}`} className="aspect-square w-full rounded-lg object-cover" />
+                        <label className="mt-1 flex items-center gap-1 text-xs">
+                          <input name="drop" type="checkbox" value={path} /> เอาออก
+                        </label>
+                      </li>
+                    ))}
+                  </ul>
                 )}
                 <div className="flex gap-3">
                   <button disabled={busy} className="solx-btn-primary px-5 py-2 text-sm">
@@ -385,19 +428,37 @@ export function Works() {
                       + เพิ่ม
                     </button>
                   </div>
-                  <ul aria-label={section.title} className="space-y-2">
-                    {inSection(section.id).map(({ work, index }) => (
-                      <li key={`${index}-${work.title}`} className="flex items-center gap-2 rounded-lg border px-3 py-2">
-                        <span className="min-w-0 flex-1 truncate text-sm">{work.title}</span>
-                        <button disabled={busy} onClick={() => setEditing(index)} className="solx-btn-ghost px-3 py-1 text-xs">
-                          แก้ไข
-                        </button>
-                        <button disabled={busy} onClick={() => remove(index)} className="solx-btn-ghost px-3 py-1 text-xs">
-                          ลบ
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
+                  {/* listed in the same order as on the page */}
+                  {groupsOf(inSection(section.id), ({ work }) => work.group).map((group) => (
+                    <Fragment key={group.name}>
+                      {group.name && <p className="text-xs text-[var(--muted)]">{group.name}</p>}
+                      <ul aria-label={group.name || section.title} className="space-y-2">
+                        {group.items.map(({ work, index }) => {
+                          const up = moved(works!, index, -1);
+                          const down = moved(works!, index, 1);
+                          return (
+                            <li key={`${index}-${work.title}`} className="flex items-center gap-1 rounded-lg border px-3 py-2">
+                              <span className="min-w-0 flex-1 truncate text-sm" title={work.title}>
+                                {work.title}
+                              </span>
+                              <button disabled={busy || !up} onClick={() => reorder(up!)} aria-label={`เลื่อนขึ้น ${work.title}`} className="solx-btn-ghost editor-move">
+                                ↑
+                              </button>
+                              <button disabled={busy || !down} onClick={() => reorder(down!)} aria-label={`เลื่อนลง ${work.title}`} className="solx-btn-ghost editor-move">
+                                ↓
+                              </button>
+                              <button disabled={busy} onClick={() => setEditing(index)} className="solx-btn-ghost px-2 py-1 text-xs">
+                                แก้ไข
+                              </button>
+                              <button disabled={busy} onClick={() => remove(index)} className="solx-btn-ghost px-2 py-1 text-xs">
+                                ลบ
+                              </button>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </Fragment>
+                  ))}
                 </div>
               ))
             )}
@@ -418,11 +479,11 @@ function Lock() {
   );
 }
 
-function WorkCard({ work, preview }: { work: Work; preview?: string }) {
+function WorkCard({ work, pictureUrl }: { work: Work; pictureUrl: (path: string) => string }) {
   // a certificate must show whole, other photos may be cropped to fill
   const fit = sectionOf(work) === "certificates" ? "object-contain" : "object-cover";
   const [shown, setShown] = useState<Shown | null>(null);
-  const picture = preview ?? `${base}${work.image}`;
+  const pictures = picturesOf(work).map(pictureUrl);
 
   // a plain press shows the file here; new-tab presses and files the page cannot draw follow the link
   function openFile(event: MouseEvent<HTMLAnchorElement>) {
@@ -435,11 +496,11 @@ function WorkCard({ work, preview }: { work: Work; preview?: string }) {
 
   return (
     <SpotlightCard className="flex h-full flex-col">
-      {work.image && (
-        <button type="button" onClick={() => setShown({ kind: "image", src: picture, href: picture, title: work.title })} className="work-picture aspect-video bg-black/40">
+      {pictures.length > 0 && (
+        <button type="button" onClick={() => setShown({ kind: "image", src: pictures[0], href: pictures[0], title: work.title, gallery: pictures })} className="work-picture aspect-video bg-black/40">
           {/* eslint-disable-next-line @next/next/no-img-element -- a static export serves images as they are */}
-          <img src={picture} alt={work.title} className={`h-full w-full ${fit}`} />
-          <span>ดูภาพเต็ม</span>
+          <img src={pictures[0]} alt={work.title} className={`h-full w-full ${fit}`} />
+          <span>{pictures.length > 1 ? `ดูรูปทั้งหมด ${pictures.length} รูป` : "ดูภาพเต็ม"}</span>
         </button>
       )}
       <div className="flex flex-1 flex-col gap-2 p-5">

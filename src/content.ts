@@ -44,6 +44,8 @@ export type Work = {
   summary: string;
   /** รูปในโฟลเดอร์ works/ ของเว็บ */
   image?: string;
+  /** รูปอื่นของรายการเดียวกัน ต่อจากรูปหลัก */
+  more?: string[];
   /** ลิงก์ดูของจริง */
   link?: string;
 };
