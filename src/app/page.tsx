@@ -9,6 +9,7 @@ export default function HomePage() {
   return (
     <>
       <header className="sticky top-0 z-40 px-2 pt-2">
+        <div aria-hidden="true" className="fx-progress" />
         {/* two rows on narrow screens: the menu is too long to share one with the name */}
         <div className="mx-auto flex max-w-6xl flex-col items-center rounded-lg bg-[#171717]/90 px-3 pt-2 lg:h-14 lg:flex-row lg:justify-between lg:gap-3 lg:pt-0">
           <a href="#top" aria-label={`${profile.name} กลับขึ้นบนสุด`}>
@@ -28,7 +29,7 @@ export default function HomePage() {
         {/* pulled up by the header height, so the code backdrop reaches the top of the page */}
         <section className="relative -mt-24 overflow-hidden pt-24 lg:-mt-16 lg:pt-16">
           <HeroMotion />
-          <div className="mx-auto max-w-5xl px-5 py-32 text-center">
+          <div className="hero-content mx-auto max-w-5xl px-5 py-32 text-center">
             <h1
               aria-label={`Portfolio ของ ${profile.name}`}
               lang="en"
@@ -51,6 +52,19 @@ export default function HomePage() {
             </div>
           </div>
         </section>
+
+        {/* decoration only: the same names are in the menu */}
+        <div aria-hidden="true" className="fx-band">
+          <div className="fx-track">
+            {[0, 1].map((half) => (
+              <span key={half}>
+                {sections.map((section) => (
+                  <span key={section.id}>{section.title} ✦ </span>
+                ))}
+              </span>
+            ))}
+          </div>
+        </div>
 
         <Works />
       </main>

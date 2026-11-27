@@ -472,8 +472,8 @@ body::before {
   }
 }
 
-/* full motion. Plays even where the system asks for less, by the owner's choice like the hero;
-   the checkbox in the footer stops it. Scroll-driven parts stay still in browsers without view(). */
+/* full motion: ambient parts here, scroll and pointer parts in motion.ts. Plays even where the system asks for
+   less, by the owner's choice like the hero; the checkbox in the footer stops it. */
 
 /* drifting embers and two slow glows behind everything */
 html::before,
@@ -506,26 +506,17 @@ html {
 }
 
 /* reading progress along the top edge */
-header::before {
-  content: "";
+.fx-progress {
   position: fixed;
   inset: 0 0 auto;
   height: 3px;
   transform-origin: left;
+  transform: scaleX(0);
   background: linear-gradient(90deg, #dc2626, #f87171, #fecaca);
   box-shadow: 0 0 14px #dc2626;
-  animation: fx-progress linear both;
-  animation-timeline: scroll(root);
 }
 
-/* the opening block sinks and fades as the page moves on */
-#top > section:first-child > div {
-  animation: fx-hero linear both;
-  animation-timeline: scroll(root);
-  animation-range: 0 520px;
-}
-
-/* each heading gets a line that draws itself */
+/* each heading gets a glowing underline */
 main section[id] h2::after {
   content: "";
   display: block;
@@ -535,9 +526,6 @@ main section[id] h2::after {
   border-radius: 999px;
   background: linear-gradient(90deg, transparent, #f87171, transparent);
   box-shadow: 0 0 16px #dc2626;
-  animation: fx-line linear both;
-  animation-timeline: view();
-  animation-range: entry 20% cover 35%;
 }
 
 /* cards start off to the side, which must not widen the page */
@@ -545,22 +533,44 @@ main {
   overflow-x: clip;
 }
 
-/* cards swing up out of the dark, alternating sides */
-main section[id] li {
-  animation: fx-card linear both;
-  animation-timeline: view();
-  animation-range: entry 0% entry 90%;
-}
-main section[id] li:nth-child(even) {
-  animation-name: fx-card-alt;
+/* a huge outlined section number that drifts behind the heading */
+.fx-number {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  z-index: -1;
+  translate: -50% 0;
+  font-size: clamp(8rem, 28vw, 18rem);
+  font-weight: 900;
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 2px rgba(248, 113, 113, 0.16);
+  pointer-events: none;
+  user-select: none;
 }
 
-/* on hover a card leans forward, glows, and a sheen crosses it */
+/* the tilted band of section names */
+.fx-band {
+  margin: 2rem -3vw;
+  padding: 0.8rem 0;
+  overflow: hidden;
+  rotate: 0deg;
+  background: linear-gradient(90deg, #7f1d1d, #dc2626, #7f1d1d);
+  box-shadow: 0 0 40px -6px #dc2626;
+}
+.fx-track {
+  display: flex;
+  width: max-content;
+  font-size: clamp(1.25rem, 4vw, 2.25rem);
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+/* on hover a card glows and a sheen crosses it; the tilt itself is in SpotlightCard */
 main li .solx-spotlight {
-  transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+  transition: transform 0.2s ease, box-shadow 0.35s ease, border-color 0.35s ease;
 }
 main li .solx-spotlight:hover {
-  transform: perspective(700px) rotateX(5deg) translateY(-10px) scale(1.03);
   border-color: #f87171;
   box-shadow: 0 24px 50px -18px rgba(220, 38, 38, 0.75);
 }
@@ -577,6 +587,21 @@ main li .solx-spotlight:hover::after {
   transition: translate 0.8s ease;
 }
 
+/* the light that trails the pointer */
+.fx-glow {
+  position: fixed;
+  top: -14rem;
+  left: -14rem;
+  z-index: 35;
+  width: 28rem;
+  height: 28rem;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(248, 113, 113, 0.18), transparent 65%);
+  mix-blend-mode: screen;
+  pointer-events: none;
+  visibility: hidden;
+}
+
 /* a pulse on the main button and a glide under menu links */
 main .solx-btn-primary {
   animation: fx-pulse 2.4s ease-out 3s infinite;
@@ -585,6 +610,10 @@ header nav a {
   background: linear-gradient(#f87171, #f87171) center bottom / 0 2px no-repeat;
   transition: background-size 0.3s ease, color 0.3s ease;
 }
+header nav a.fx-active {
+  color: var(--foreground);
+}
+header nav a.fx-active,
 header nav a:hover,
 header nav a:focus-visible {
   background-size: 80% 2px;
@@ -608,36 +637,6 @@ html:has(#calm:checked)::after {
   to {
     translate: 12% -8%;
     scale: 1.15;
-  }
-}
-@keyframes fx-progress {
-  from {
-    transform: scaleX(0);
-  }
-}
-@keyframes fx-hero {
-  to {
-    opacity: 0.1;
-    translate: 0 140px;
-    scale: 0.86;
-  }
-}
-@keyframes fx-line {
-  from {
-    width: 0;
-    opacity: 0;
-  }
-}
-@keyframes fx-card {
-  from {
-    opacity: 0;
-    transform: perspective(900px) translate(-60px, 80px) rotateY(28deg) scale(0.85);
-  }
-}
-@keyframes fx-card-alt {
-  from {
-    opacity: 0;
-    transform: perspective(900px) translate(60px, 80px) rotateY(-28deg) scale(0.85);
   }
 }
 @keyframes fx-pulse {

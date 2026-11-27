@@ -22,7 +22,8 @@ export function SpotlightCard({
     el.style.setProperty("--spot-x", `${x}px`);
     el.style.setProperty("--spot-y", `${y}px`);
 
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    // follows the page's stop-animation checkbox, like the other effects
+    if (document.querySelector("#calm:checked")) return;
 
     // subtle 3D tilt toward the cursor
     const px = x / rect.width - 0.5; // -0.5..0.5

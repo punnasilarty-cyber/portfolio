@@ -6,6 +6,7 @@ import { SpotlightCard } from "@/components/SpotlightCard";
 import { StaggerText } from "@/components/StaggerText";
 import { sectionOf, sections, works as defaults, type SectionId, type Work } from "@/content";
 import { checkToken, deleteFile, fromBase64, readFile, writeFile } from "@/github";
+import { useMotion } from "@/motion";
 import { seal, unseal } from "@/vault";
 
 const base = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
@@ -52,6 +53,8 @@ export function Works() {
       .then((data) => setWorks(Array.isArray(data) ? data : defaults))
       .catch(() => setWorks(defaults));
   }, []);
+
+  useMotion(works);
 
   async function run(task: () => Promise<void>) {
     setBusy(true);
@@ -170,8 +173,11 @@ export function Works() {
 
   return (
     <>
-      {sections.map((section) => (
-        <section key={section.id} id={section.id} className="mx-auto max-w-6xl scroll-mt-28 px-5 py-16 lg:scroll-mt-24">
+      {sections.map((section, order) => (
+        <section key={section.id} id={section.id} className="relative isolate mx-auto max-w-6xl scroll-mt-28 px-5 py-16 lg:scroll-mt-24">
+          <span aria-hidden="true" className="fx-number">
+            {String(order + 1).padStart(2, "0")}
+          </span>
           {/* only the heading waits for scrolling: a tall grid might never be "visible enough" */}
           <Reveal>
             <h2 aria-label={section.title} className="mb-10 text-center text-2xl font-semibold sm:text-4xl">
