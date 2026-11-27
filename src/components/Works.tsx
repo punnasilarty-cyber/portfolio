@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useState, type FormEvent } from "react";
+import { createPortal } from "react-dom";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { works as defaults, type Work } from "@/content";
 import { checkToken, deleteFile, fromBase64, readFile, writeFile } from "@/github";
@@ -38,6 +39,9 @@ export function Works() {
   const [previews, setPreviews] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
+  // the floating editor window; closed shows the page exactly as visitors see it
+  const [open, setOpen] = useState(true);
+  const [opacity, setOpacity] = useState(90);
 
   useEffect(() => {
     // the query string skips the host's cache, so a fresh save shows up
@@ -46,6 +50,15 @@ export function Works() {
       .then((data) => setWorks(Array.isArray(data) ? data : defaults))
       .catch(() => setWorks(defaults));
   }, []);
+
+  // the whole page changes look while editing; see html[data-ghost] in globals.css
+  useEffect(() => {
+    if (!token || !open) return;
+    document.documentElement.dataset.ghost = "on";
+    return () => {
+      delete document.documentElement.dataset.ghost;
+    };
+  }, [token, open]);
 
   async function run(task: () => Promise<void>) {
     setBusy(true);
@@ -76,6 +89,7 @@ export function Works() {
         await writeFile(value, VAULT, bytes, (await readFile(value, VAULT))?.sha);
       }
       setToken(value);
+      setOpen(true);
       setPanel(null);
       if (!saved) setMessage("ตั้งรหัสแล้ว เครื่องอื่นจะใช้ได้ในราว 1–2 นาที");
     });
@@ -154,82 +168,110 @@ export function Works() {
 
   return (
     <div className="space-y-5">
-      {token && (
-        <>
-          <div className="flex justify-center gap-3">
-            <button disabled={busy} onClick={() => setEditing("new")} className="solx-btn-primary px-5 py-2 text-sm">
-              + เพิ่มผลงาน
-            </button>
-            <button disabled={busy} onClick={logout} className="solx-btn-ghost px-5 py-2 text-sm">
-              เลิกแก้ไข
-            </button>
-          </div>
-          {status}
-        </>
-      )}
-
-      {token && editing !== null && (
-        <form
-          key={editing}
-          ref={(form) => form?.scrollIntoView({ block: "nearest" })}
-          onSubmit={save}
-          className="solx-panel mx-auto max-w-2xl scroll-mt-24 space-y-4 p-6"
-        >
-          <h3 className="font-bold">{current ? `แก้ไข: ${current.title}` : "เพิ่มผลงาน"}</h3>
-          <label className="block text-sm">
-            ชื่อผลงาน
-            <input name="title" required autoFocus defaultValue={current?.title} className={field} />
-          </label>
-          <label className="block text-sm">
-            ประเภท
-            <input name="kind" placeholder="เช่น ตัดต่อวิดีโอ" defaultValue={current?.kind} className={field} />
-          </label>
-          <label className="block text-sm">
-            คำอธิบาย
-            <textarea name="summary" rows={3} defaultValue={current?.summary} className={field} />
-          </label>
-          <label className="block text-sm">
-            ลิงก์ผลงาน (ไม่บังคับ)
-            <input name="link" type="url" placeholder="https://" defaultValue={current?.link} className={field} />
-          </label>
-          <label className="block text-sm">
-            รูป (ไม่บังคับ)
-            <input name="image" type="file" accept="image/*" className={field} />
-          </label>
-          {current?.image && (
-            <label className="flex items-center gap-2 text-sm">
-              <input name="removeImage" type="checkbox" /> เอารูปเดิมออก
-            </label>
-          )}
-          <div className="flex gap-3">
-            <button disabled={busy} className="solx-btn-primary px-5 py-2 text-sm">
-              บันทึก
-            </button>
-            <button type="button" disabled={busy} onClick={() => setEditing(null)} className="solx-btn-ghost px-5 py-2 text-sm">
-              ยกเลิก
-            </button>
-          </div>
-        </form>
-      )}
-
       <ul className="grid min-h-64 gap-5 sm:grid-cols-2 lg:grid-cols-3" aria-busy={!works}>
         {works?.map((work, index) => (
           <li key={`${index}-${work.title}`}>
-            <WorkCard work={work} preview={work.image ? previews[work.image] : undefined}>
-              {token && (
-                <div className="flex gap-2 pt-2">
-                  <button disabled={busy} onClick={() => setEditing(index)} className="solx-btn-ghost px-3 py-1.5 text-xs">
-                    แก้ไข
-                  </button>
-                  <button disabled={busy} onClick={() => remove(index)} className="solx-btn-ghost px-3 py-1.5 text-xs">
-                    ลบ
-                  </button>
-                </div>
-              )}
-            </WorkCard>
+            <WorkCard work={work} preview={work.image ? previews[work.image] : undefined} />
           </li>
         ))}
       </ul>
+
+      {/* on document.body: an animated ancestor would otherwise pin "fixed" to this section */}
+      {token &&
+        createPortal(
+          <>
+          {!open && (
+            <button onClick={() => setOpen(true)} className="ghost-btn fixed right-4 bottom-4 z-40">
+              <Ghost />
+              เปิดหน้าต่างแก้ไข
+            </button>
+          )}
+
+          {/* kept mounted while hidden, so a half-filled form survives */}
+          <section aria-label="หน้าต่างแก้ไขผลงาน" hidden={!open} className="ghost-window" style={{ opacity: opacity / 100 }}>
+            <header className="flex items-center gap-2 border-b px-4 py-3">
+              <Ghost />
+              <h3 className="ghost-title text-sm font-bold">โหมดผี</h3>
+              <button onClick={() => setOpen(false)} className="solx-btn-ghost ml-auto px-3 py-1.5 text-xs">
+                ซ่อน ดูผลลัพธ์
+              </button>
+              <button disabled={busy} onClick={logout} className="solx-btn-ghost px-3 py-1.5 text-xs">
+                ออก
+              </button>
+            </header>
+            <label className="flex items-center gap-3 border-b px-4 py-2 text-xs text-[var(--muted)]">
+              ความทึบ
+              <input type="range" min={30} max={100} value={opacity} onChange={(event) => setOpacity(Number(event.target.value))} className="flex-1 accent-teal-300" />
+              {opacity}%
+            </label>
+            <div className="space-y-3 overflow-y-auto p-4">
+              {status}
+              {editing !== null ? (
+                <form
+                  key={editing}
+                  onSubmit={save}
+                  className="space-y-3"
+                >
+                  <h3 className="font-bold">{current ? `แก้ไข: ${current.title}` : "เพิ่มผลงาน"}</h3>
+                  <label className="block text-sm">
+                    ชื่อผลงาน
+                    <input name="title" required autoFocus defaultValue={current?.title} className={field} />
+                  </label>
+                  <label className="block text-sm">
+                    ประเภท
+                    <input name="kind" placeholder="เช่น ตัดต่อวิดีโอ" defaultValue={current?.kind} className={field} />
+                  </label>
+                  <label className="block text-sm">
+                    คำอธิบาย
+                    <textarea name="summary" rows={3} defaultValue={current?.summary} className={field} />
+                  </label>
+                  <label className="block text-sm">
+                    ลิงก์ผลงาน (ไม่บังคับ)
+                    <input name="link" type="url" placeholder="https://" defaultValue={current?.link} className={field} />
+                  </label>
+                  <label className="block text-sm">
+                    รูป (ไม่บังคับ)
+                    <input name="image" type="file" accept="image/*" className={field} />
+                  </label>
+                  {current?.image && (
+                    <label className="flex items-center gap-2 text-sm">
+                      <input name="removeImage" type="checkbox" /> เอารูปเดิมออก
+                    </label>
+                  )}
+                  <div className="flex gap-3">
+                    <button disabled={busy} className="solx-btn-primary px-5 py-2 text-sm">
+                      บันทึก
+                    </button>
+                    <button type="button" disabled={busy} onClick={() => setEditing(null)} className="solx-btn-ghost px-5 py-2 text-sm">
+                      ยกเลิก
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <>
+                  <button disabled={busy} onClick={() => setEditing("new")} className="solx-btn-primary w-full px-5 py-2 text-sm">
+                    + เพิ่มผลงาน
+                  </button>
+                  <ul aria-label="ผลงานทั้งหมด" className="space-y-2">
+                    {works?.map((work, index) => (
+                      <li key={`${index}-${work.title}`} className="flex items-center gap-2 rounded-lg border px-3 py-2">
+                        <span className="min-w-0 flex-1 truncate text-sm">{work.title}</span>
+                        <button disabled={busy} onClick={() => setEditing(index)} className="solx-btn-ghost px-3 py-1 text-xs">
+                          แก้ไข
+                        </button>
+                        <button disabled={busy} onClick={() => remove(index)} className="solx-btn-ghost px-3 py-1 text-xs">
+                          ลบ
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
+            </div>
+          </section>
+          </>,
+          document.body,
+        )}
 
       {!token &&
         (panel ? (
@@ -282,8 +324,9 @@ export function Works() {
           </form>
         ) : (
           <p className="text-center">
-            <button disabled={!works || busy} onClick={openPanel} className="text-xs text-[var(--muted)] underline hover:text-[var(--foreground)]">
-              แก้ไขผลงาน
+            <button disabled={!works || busy} onClick={openPanel} className="ghost-btn">
+              <Ghost />
+              โหมดผี · แก้ไขผลงาน
             </button>
             <span role="alert" className="mt-2 block text-sm text-[var(--accent-soft)]">
               {message}
@@ -294,10 +337,21 @@ export function Works() {
   );
 }
 
-function WorkCard({ work, preview, children }: { work: Work; preview?: string; children: ReactNode }) {
+function Ghost({ className = "" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true" className={className}>
+      <path
+        fillRule="evenodd"
+        d="M12 2a8 8 0 0 0-8 8v12l2.7-2 2.6 2 2.7-2 2.7 2 2.6-2 2.7 2V10a8 8 0 0 0-8-8ZM9 8.5a1.5 2 0 1 0 0 4 1.5 2 0 0 0 0-4Zm6 0a1.5 2 0 1 0 0 4 1.5 2 0 0 0 0-4Z"
+      />
+    </svg>
+  );
+}
+
+function WorkCard({ work, preview }: { work: Work; preview?: string }) {
   return (
     <SpotlightCard className="flex h-full flex-col">
-      <div className="flex aspect-video items-center justify-center bg-[linear-gradient(135deg,#7f1d1d,#3b1113)]">
+      <div className="work-media flex aspect-video items-center justify-center bg-[linear-gradient(135deg,#7f1d1d,#3b1113)]">
         {work.image && (
           // eslint-disable-next-line @next/next/no-img-element -- a static export serves images as they are
           <img src={preview ?? `${base}${work.image}`} alt={work.title} className="h-full w-full object-cover" />
@@ -312,7 +366,6 @@ function WorkCard({ work, preview, children }: { work: Work; preview?: string; c
             ดูผลงาน
           </a>
         )}
-        {children}
       </div>
     </SpotlightCard>
   );
