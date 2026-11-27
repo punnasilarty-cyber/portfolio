@@ -40,10 +40,11 @@ export function Education() {
             <p className="flex flex-wrap items-center gap-2 text-xs text-[var(--accent-soft)]">
               <span className="edu-step">{String(i + 1).padStart(2, "0")}</span>
               {stop.level}
-              {stop.period && <span className="text-[var(--muted)]">· {stop.period}</span>}
+              <span className="text-[var(--muted)]">· ปีการศึกษา {stop.period}</span>
               {stop.current && <span className="edu-now">กำลังศึกษา</span>}
             </p>
             <h3 className="mt-2 text-xl font-bold sm:text-2xl">{stop.school}</h3>
+            {stop.program && <p className="edu-program">{stop.program}</p>}
             <p className="text-sm text-[var(--muted)]">{stop.place}</p>
             {stop.schoolColors && (
               <p className="mt-3 flex flex-wrap items-center gap-2 text-xs">

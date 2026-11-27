@@ -27,12 +27,17 @@ export type Work = {
   link?: string;
 };
 
-/** ประวัติการศึกษา แสดงเป็นไทม์ไลน์โมเดลอาคาร ไม่ได้แก้จากหน้าเว็บ */
+/**
+ * ประวัติการศึกษา แสดงเป็นไทม์ไลน์โมเดลอาคาร ไม่ได้แก้จากหน้าเว็บ
+ * ปีการศึกษานับย้อนและไปข้างหน้าจาก ม.4 ปีการศึกษา 2569 โดยเรียนต่อเนื่องปีละชั้น
+ */
 export const education: {
   level: string;
   school: string;
   place: string;
-  period?: string;
+  /** ปีการศึกษา */
+  period: string;
+  program?: string;
   current?: boolean;
   website: string;
   /** สีประจำโรงเรียน ใช้ทาอาคารจำลองด้วย ถ้าไม่รู้ให้เว้นไว้ อาคารจะใช้สีแดงของเว็บ */
@@ -44,6 +49,7 @@ export const education: {
 }[] = [
   {
     level: "ประถมศึกษาปีที่ 1–6",
+    period: "2560 – 2565",
     school: "โรงเรียนสังขะวิทยาคม",
     place: "ตำบลสังขะ อำเภอสังขะ จังหวัดสุรินทร์",
     website: "https://skwsc.ac.th/2026/",
@@ -57,6 +63,7 @@ export const education: {
   },
   {
     level: "มัธยมศึกษาปีที่ 1–3",
+    period: "2566 – 2568",
     school: "โรงเรียนสุรวิทยาคาร",
     place: "ถนนหลักเมือง อำเภอเมืองสุรินทร์ จังหวัดสุรินทร์",
     website: "https://sura.ac.th/",
@@ -77,7 +84,8 @@ export const education: {
     level: "มัธยมศึกษาปีที่ 4–6",
     school: "โรงเรียนสุรวิทยาคาร",
     place: "ถนนหลักเมือง อำเภอเมืองสุรินทร์ จังหวัดสุรินทร์",
-    period: "2569 – ปัจจุบัน",
+    period: "2569 – 2571 (คาดว่าจบ)",
+    program: "สายวิทย์–เทคโนโลยี",
     current: true,
     website: "https://sura.ac.th/",
     schoolColors: [
