@@ -1,9 +1,9 @@
 import { HeroMotion } from "@/components/HeroMotion";
 import { StaggerText } from "@/components/StaggerText";
 import { Works } from "@/components/Works";
-import { aboutWhole, profile, sections } from "@/content";
+import { aboutWhole, contacts, profile, sections } from "@/content";
 
-const menu = [{ id: "top", title: "หน้าแรก" }, ...sections];
+const menu = [{ id: "top", title: "หน้าแรก" }, ...sections, { id: "contact", title: "ติดต่อ" }];
 
 export default function HomePage() {
   return (
@@ -90,6 +90,28 @@ export default function HomePage() {
         </div>
 
         <Works />
+
+        <section id="contact" className="mx-auto max-w-6xl scroll-mt-28 px-5 py-16 lg:scroll-mt-24">
+          <h2 className="mb-10 text-center text-2xl font-semibold sm:text-4xl">ติดต่อ</h2>
+          <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {contacts.map((contact) => (
+              <li key={contact.name}>
+                {contact.href ? (
+                  // a mail link opens the mail app, so only web addresses get a new tab
+                  <a href={contact.href} {...(contact.href.startsWith("https:") && { target: "_blank", rel: "noopener noreferrer" })} className="solx-card contact-card">
+                    <span>{contact.name}</span>
+                    <b>{contact.value}</b>
+                  </a>
+                ) : (
+                  <div className="solx-card contact-card">
+                    <span>{contact.name}</span>
+                    <b className="select-all">{contact.value}</b>
+                  </div>
+                )}
+              </li>
+            ))}
+          </ul>
+        </section>
       </main>
 
       {/* the extra bottom room keeps the corner button off the text */}

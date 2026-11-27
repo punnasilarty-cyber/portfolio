@@ -14,6 +14,14 @@ export const profile = {
   ],
 };
 
+/** ช่องทางติดต่อท้ายหน้า เจ้าของเว็บเลือกให้เปิดสาธารณะ ไม่มีลิงก์ก็แสดงเป็นข้อความให้คัดลอก */
+export const contacts: { name: string; value: string; href?: string }[] = [
+  { name: "อีเมล", value: "punnasilarty@gmail.com", href: "mailto:punnasilarty@gmail.com" },
+  { name: "Facebook", value: "Punnasin Namwat", href: "https://www.facebook.com/hopecore.or.real" },
+  { name: "Instagram", value: "@justwannabe_7", href: "https://www.instagram.com/justwannabe_7/" },
+  { name: "Discord", value: "csx.z" },
+];
+
 /** หมวดของหน้าเว็บ เรียงตามนี้ ต่อจากหน้าแรก */
 export const sections = [
   { id: "education", title: "ประวัติการศึกษา" },

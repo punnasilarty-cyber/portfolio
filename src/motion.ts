@@ -32,7 +32,7 @@ export function useMotion(content: unknown) {
             scale: 0.55,
             opacity: 0,
             ease: "none",
-            scrollTrigger: { trigger: heading, start: "top bottom", end: "top 65%", scrub: 0.5 },
+            scrollTrigger: { trigger: heading, start: "clamp(top bottom)", end: "clamp(top 65%)", scrub: 0.5 },
           });
           // the menu lights up the section on screen
           ScrollTrigger.create({

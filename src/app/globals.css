@@ -1114,6 +1114,22 @@ div.viewer-body {
   max-width: none;
 }
 
+.contact-card {
+  display: grid;
+  height: 100%;
+  gap: 0.25rem;
+  padding: 1.25rem;
+  text-align: center;
+}
+.contact-card span {
+  color: var(--accent-soft);
+  font-size: 0.75rem;
+}
+.contact-card b {
+  overflow-wrap: anywhere;
+  font-weight: 700;
+}
+
 .work-group {
   margin: 2.5rem 0 1rem;
   padding-bottom: 0.5rem;
