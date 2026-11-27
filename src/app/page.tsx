@@ -59,7 +59,9 @@ export default function HomePage() {
             {[0, 1].map((half) => (
               <span key={half}>
                 {sections.map((section) => (
-                  <span key={section.id}>{section.title} ✦ </span>
+                  <span key={section.id} className="fx-item">
+                    {section.title}
+                  </span>
                 ))}
               </span>
             ))}

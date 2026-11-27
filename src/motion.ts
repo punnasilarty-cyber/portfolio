@@ -31,14 +31,13 @@ export function useMotion(content: unknown) {
         gsap.to("#top > section:first-child canvas", { scale: 1.35, transformOrigin: "50% 40%", ease: "none", scrollTrigger: hero });
 
         // the band of section names never stops, and scrolling pushes it faster
-        const band = gsap.to(".fx-track", { xPercent: -50, duration: 24, ease: "none", repeat: -1 });
+        const band = gsap.to(".fx-track", { xPercent: -50, duration: 40, ease: "none", repeat: -1 });
         ScrollTrigger.create({
           onUpdate: (self) => {
             const push = gsap.utils.clamp(-8, 8, self.getVelocity() / 250);
             gsap.fromTo(band, { timeScale: 1 + Math.abs(push) }, { timeScale: 1, duration: 1, overwrite: true });
           },
         });
-        gsap.fromTo(".fx-band", { rotation: -4 }, { rotation: 2, ease: "none", scrollTrigger: { trigger: ".fx-band", scrub: true } });
 
         gsap.utils.toArray<HTMLElement>("main section[id]").forEach((section) => {
           const heading = section.querySelector("h2");
@@ -76,38 +75,67 @@ export function useMotion(content: unknown) {
           });
         });
 
-        // schooling timeline: the spine fills, a light rides it, and each building rises floor by floor
-        const edu = document.querySelector(".edu");
-        if (edu) {
-          const along = { trigger: edu, start: "top 70%", end: "bottom 60%", scrub: 0.5 };
-          gsap.fromTo(".edu-spine-fill", { scaleY: 0 }, { scaleY: 1, ease: "none", scrollTrigger: along });
-          gsap.fromTo(".edu-dot", { top: "0%" }, { top: "100%", ease: "none", scrollTrigger: along });
-          gsap.utils.toArray<HTMLElement>(".edu-stop").forEach((stop, i) => {
+        // schooling map: the route draws itself as the cards scroll past, a light rides it, and each pin pops up
+        // when its school's first card arrives
+        const list = document.querySelector(".edu-list");
+        if (list) {
+          const along = { trigger: list, start: "top 65%", end: "bottom 70%", scrub: 0.6 };
+          const route = document.querySelector<SVGPathElement>(".edu-route")!;
+          const traveller = document.querySelector(".edu-traveller")!;
+          const length = route.getTotalLength();
+          gsap.fromTo(route, { strokeDashoffset: 1 }, { strokeDashoffset: 0, ease: "none", scrollTrigger: along });
+          gsap.fromTo(
+            { at: 0 },
+            { at: 0 },
+            {
+              at: 1,
+              ease: "none",
+              scrollTrigger: along,
+              onUpdate() {
+                const point = route.getPointAtLength(this.targets()[0].at * length);
+                gsap.set(traveller, { attr: { cx: point.x, cy: point.y } });
+              },
+            },
+          );
+          // the map leans back further as the reader moves through the stages
+          gsap.fromTo(".edu-map", { rotationX: 30, rotationZ: -6 }, { rotationX: 48, rotationZ: 4, ease: "none", scrollTrigger: along });
+
+          const popped = new Set<string>();
+          gsap.utils.toArray<HTMLElement>(".edu-stop").forEach((stop) => {
+            const school = stop.dataset.school!;
+            const pin = document.querySelector(`.edu-pin[data-school="${school}"]`);
             const when = { trigger: stop, start: "top 75%", toggleActions: "play none none reverse" };
             const tl = gsap.timeline({ scrollTrigger: when });
-            // no opacity on the 3D parts: anything below 1 flattens them
-            tl.from(stop.querySelector(".edu-spin"), { rotationZ: -135, scale: 0, duration: 1, ease: "power3.out" })
-              .from(stop.querySelectorAll(".edu-floor"), { scaleZ: 0, scale: 0.6, duration: 0.5, stagger: 0.12, ease: "back.out(2)" }, "-=0.5")
-              .from(stop.querySelector(".edu-card"), { x: i % 2 ? -80 : 80, opacity: 0, duration: 0.8, ease: "power3.out" }, 0.2)
-              .from(stop.querySelectorAll(".edu-fact"), { x: 30, opacity: 0, duration: 0.4, stagger: 0.1 }, 0.6);
+            tl.from(stop.querySelector(".edu-card"), { y: 60, opacity: 0, duration: 0.8, ease: "power3.out" }).from(
+              stop.querySelectorAll(".edu-fact"),
+              { x: 30, opacity: 0, duration: 0.4, stagger: 0.1 },
+              0.4,
+            );
+            if (pin && !popped.has(school)) {
+              popped.add(school);
+              tl.from(pin, { scale: 0, transformOrigin: "50% 50%", duration: 0.7, ease: "back.out(3)" }, 0);
+            }
             const count = stop.querySelector<HTMLElement>(".edu-count");
             if (count) {
               const target = Number(count.dataset.to);
               const shown = { value: 0 };
               // reverting the animation does not restore text, so put the real number back
               undo.push(() => (count.textContent = target.toLocaleString("th-TH")));
-              tl.to(shown, {
-                value: target,
-                duration: 1.4,
-                ease: "power2.out",
-                onUpdate: () => {
-                  count.textContent = Math.round(shown.value).toLocaleString("th-TH");
+              tl.to(
+                shown,
+                {
+                  value: target,
+                  duration: 1.4,
+                  ease: "power2.out",
+                  onUpdate: () => {
+                    count.textContent = Math.round(shown.value).toLocaleString("th-TH");
+                  },
                 },
-              }, 0.4);
+                0.4,
+              );
             }
-            // the models keep turning slowly, like on a display stand
-            gsap.to(stop.querySelector(".edu-model"), { "--turn": "360deg", duration: 40, ease: "none", repeat: -1, delay: 1.2 });
           });
+          gsap.to(".edu-pin-pulse", { attr: { r: 30 }, opacity: 0, duration: 1.8, ease: "power2.out", repeat: -1, stagger: 0.6 });
         }
 
         if (!finePointer) return;
@@ -142,8 +170,8 @@ export function useMotion(content: unknown) {
       undo.push(() => document.removeEventListener("load", remeasure, true));
 
       return () => {
-        undo.forEach((fn) => fn());
         context.revert();
+        undo.forEach((fn) => fn());
       };
     }
 

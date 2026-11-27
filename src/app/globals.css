@@ -549,21 +549,36 @@ main {
   user-select: none;
 }
 
-/* the tilted band of section names */
+/* a quiet strip of section names between two hairlines, fading at both ends */
 .fx-band {
-  margin: 2rem -3vw;
-  padding: 0.8rem 0;
+  margin: 1rem 0 2rem;
+  padding: 1rem 0;
   overflow: hidden;
-  rotate: 0deg;
-  background: linear-gradient(90deg, #7f1d1d, #dc2626, #7f1d1d);
-  box-shadow: 0 0 40px -6px #dc2626;
+  border-block: 1px solid rgba(255, 255, 255, 0.08);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 15%, #000 85%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 15%, #000 85%, transparent);
 }
 .fx-track {
   display: flex;
   width: max-content;
-  font-size: clamp(1.25rem, 4vw, 2.25rem);
-  font-weight: 800;
+  font-size: clamp(0.95rem, 2.2vw, 1.25rem);
+  font-weight: 600;
+  letter-spacing: 0.04em;
   white-space: nowrap;
+  color: var(--muted);
+}
+.fx-item {
+  display: inline-flex;
+  align-items: center;
+}
+.fx-item::after {
+  content: "";
+  width: 5px;
+  height: 5px;
+  margin: 0 2.5rem;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent);
 }
 
 /* on hover a card glows and a sheen crosses it; the tilt itself is in SpotlightCard */
@@ -649,55 +664,73 @@ html:has(#calm:checked)::after {
   }
 }
 
-/* schooling timeline with small 3D building models */
+/* schooling: a tilted map that stays in view beside the stage cards */
 .edu {
-  position: relative;
   display: grid;
-  gap: 4rem;
-  padding-left: 2.5rem;
+  gap: 2rem;
 }
-.edu-spine {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0.75rem;
-  width: 3px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.08);
+@media (min-width: 900px) {
+  .edu {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+  }
+  .edu-map-wrap {
+    position: sticky;
+    top: 7rem;
+  }
 }
-.edu-spine-fill {
-  position: absolute;
-  inset: 0;
-  transform-origin: top;
-  border-radius: inherit;
-  background: linear-gradient(#f87171, #facc15, #22c55e);
-  box-shadow: 0 0 14px #f87171;
+.edu-map-wrap {
+  margin: 0;
+  perspective: 1100px;
 }
-.edu-dot {
-  position: absolute;
-  left: 50%;
-  width: 16px;
-  height: 16px;
-  translate: -50% -50%;
-  border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 0 0 5px rgba(248, 113, 113, 0.35), 0 0 24px 6px #f87171;
+.edu-map {
+  border: 1px solid rgba(248, 113, 113, 0.25);
+  border-radius: 18px;
+  background: radial-gradient(circle at 50% 40%, rgba(220, 38, 38, 0.12), transparent 70%), #0b0b0d;
+  box-shadow: 0 40px 80px -30px rgba(0, 0, 0, 0.9), 0 0 50px -20px rgba(220, 38, 38, 0.6);
+  transform: rotateX(30deg) rotateZ(-6deg);
+  transform-origin: 50% 60%;
 }
-.edu-stop {
+.edu-map svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.edu-map-label {
+  fill: rgba(255, 255, 255, 0.28);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+.edu-pin-label {
+  fill: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  paint-order: stroke;
+  stroke: #000;
+  stroke-width: 3px;
+}
+.edu-route-under {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.12);
+  stroke-width: 2;
+  stroke-dasharray: 4 6;
+}
+.edu-route {
+  fill: none;
+  stroke: #facc15;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  filter: drop-shadow(0 0 6px #facc15);
+}
+.edu-traveller {
+  fill: #fff;
+  filter: drop-shadow(0 0 8px #fff) drop-shadow(0 0 14px #facc15);
+}
+.edu-list {
   display: grid;
-  align-items: center;
-  gap: 1.5rem;
-}
-@media (min-width: 768px) {
-  .edu-stop {
-    grid-template-columns: 15rem 1fr;
-  }
-  .edu-stop:nth-of-type(even) {
-    grid-template-columns: 1fr 15rem;
-  }
-  .edu-stop:nth-of-type(even) .edu-model {
-    order: 2;
-  }
+  gap: 2rem;
 }
 .edu-card {
   padding: 1.5rem;
@@ -740,87 +773,6 @@ html:has(#calm:checked)::after {
   height: 6px;
   rotate: 45deg;
   background: var(--accent-soft);
-}
-
-/* the model: floors stacked in real 3D, seen from above at an angle */
-@property --turn {
-  syntax: "<angle>";
-  inherits: true;
-  initial-value: 0deg;
-}
-.edu-model {
-  --w: 92px;
-  --h: 22px;
-  display: grid;
-  place-items: center;
-  height: 15rem;
-  perspective: 900px;
-}
-.edu-iso {
-  position: relative;
-  width: var(--w);
-  height: var(--w);
-  transform-style: preserve-3d;
-  transform: rotateX(58deg) rotateZ(calc(45deg + var(--turn, 0deg)));
-}
-.edu-spin {
-  position: absolute;
-  inset: 0;
-  transform-style: preserve-3d;
-}
-.edu-ground {
-  position: absolute;
-  inset: -60%;
-  border-radius: 50%;
-  background: radial-gradient(circle, color-mix(in srgb, var(--a) 35%, transparent), transparent 65%);
-}
-.edu-floor {
-  position: absolute;
-  inset: 0;
-  transform-style: preserve-3d;
-}
-.edu-top,
-.edu-side {
-  position: absolute;
-  backface-visibility: visible;
-}
-.edu-top {
-  inset: 0;
-  transform: translateZ(var(--h));
-  background: linear-gradient(135deg, var(--a), color-mix(in srgb, var(--a) 70%, #000));
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
-}
-/* walls with rows of lit windows */
-.edu-side {
-  width: var(--w);
-  height: var(--h);
-  background:
-    repeating-linear-gradient(90deg, transparent 0 8px, rgba(255, 244, 200, 0.85) 8px 14px, transparent 14px 18px) 0 6px / 100% 8px no-repeat,
-    var(--b);
-}
-.edu-wall {
-  position: absolute;
-  inset: 0;
-  transform-style: preserve-3d;
-}
-.edu-wall > .edu-side {
-  bottom: 0;
-  left: 0;
-  transform-origin: bottom;
-  transform: rotateX(-90deg);
-}
-/* the floor still being built */
-.edu-building .edu-top,
-.edu-building .edu-side {
-  background: transparent;
-  outline: 2px dashed var(--a);
-  outline-offset: -2px;
-  animation: edu-blink 1.2s steps(2) infinite;
-}
-@keyframes edu-blink {
-  50% {
-    opacity: 0.3;
-  }
 }
 .edu-swatch {
   display: inline-flex;
@@ -876,4 +828,30 @@ html:has(#calm:checked)::after {
   color: #fff;
   font-size: 0.85rem;
   font-weight: 700;
+}
+.edu-level {
+  font-size: clamp(1.15rem, 2.6vw, 1.5rem);
+  font-weight: 800;
+  color: var(--a);
+}
+.edu-step {
+  width: 2.5rem;
+  height: 2.5rem;
+  font-size: 0.95rem;
+}
+.edu-logo {
+  width: 3.25rem;
+  height: 3.25rem;
+  flex-shrink: 0;
+  padding: 2px;
+  border: 2px solid var(--a);
+  border-radius: 50%;
+  background: #fff;
+  object-fit: contain;
+  box-shadow: 0 0 16px -6px var(--a);
+}
+.edu-logo-note {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--muted);
 }
