@@ -4,7 +4,7 @@ import { isTheme, THEMES, type Theme } from "./theme.ts";
 export const PLACES = ["top", "education", "is2", "activities", "certificates", "contact"];
 
 export type Facts = { english: boolean; about: string[]; education: string[]; projects: string[]; contacts: string[] };
-export type Answer = { lines: string[]; clear?: boolean; close?: boolean; theme?: Theme; english?: boolean; goto?: string };
+export type Answer = { lines: string[]; heaven?: boolean; clear?: boolean; close?: boolean; theme?: Theme; english?: boolean; goto?: string };
 
 export function answer(input: string, facts: Facts): Answer {
   const [command = "", value = ""] = input.trim().toLowerCase().split(/\s+/);
@@ -41,6 +41,9 @@ export function answer(input: string, facts: Facts): Answer {
       return value === "th" || value === "en" ? { lines: [value === "en" ? "Language: English" : "ภาษาไทย"], english: value === "en" } : usage(["th", "en"]);
     case "goto":
       return PLACES.includes(value) ? { lines: [], goto: value, close: true } : usage(PLACES);
+    // not listed by help
+    case "heaven":
+      return { lines: [], heaven: true, close: true };
     case "clear":
       return { lines: [], clear: true };
     case "exit":

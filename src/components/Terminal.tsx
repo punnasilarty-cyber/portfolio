@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
+import { openHeaven } from "@/components/Heaven";
 import { setEnglish, useLang } from "@/i18n";
 import { useSite } from "@/site-store";
 import { answer } from "@/terminal";
@@ -53,6 +54,7 @@ export function Terminal() {
     if (reply.english !== undefined) setEnglish(reply.english);
     setLines((before) => (reply.clear ? [] : [...before, `> ${typed}`, ...reply.lines]));
     if (reply.close) dialog.current!.close();
+    if (reply.heaven) openHeaven();
     // after the window has gone, so the page is free to move
     if (reply.goto) requestAnimationFrame(() => document.getElementById(reply.goto!)?.scrollIntoView());
   }

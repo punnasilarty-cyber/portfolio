@@ -6,6 +6,7 @@ import { CopyButton } from "@/components/CopyButton";
 import { Deck } from "@/components/Deck";
 import { Robot } from "@/components/Robot";
 import { HeroMotion } from "@/components/HeroMotion";
+import { Heaven, openHeaven } from "@/components/Heaven";
 import { LangToggle } from "@/components/LangToggle";
 import { Loader } from "@/components/Loader";
 import { SectionDots } from "@/components/SectionDots";
@@ -156,6 +157,7 @@ export default function HomePage() {
       <ButtonLean />
       <Deck />
       <Robot />
+      <Heaven />
 
       {/* the extra bottom room keeps the corner button off the text */}
       <footer className="bg-[#18181b] px-5 pt-6 pb-20 text-center text-xs text-[var(--muted)]">
@@ -165,6 +167,9 @@ export default function HomePage() {
           <input id="calm" type="checkbox" /> {t("หยุดแอนิเมชัน")}
         </label>
         <Terminal />
+        <button type="button" onClick={openHeaven} aria-label="Made in Heaven" className="heaven-open">
+          <span aria-hidden="true">✦</span>
+        </button>
       </footer>
     </>
   );
