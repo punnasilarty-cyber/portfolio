@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { lineAt, momentAt, WHITE_FULL } from "@/heaven";
+import { lineAt, momentAt, WHITE_FULL, yearLabel } from "@/heaven";
 import { foundSecret } from "@/features";
 import { createScene } from "@/heaven-draw";
 import { playHeaven } from "@/heaven-sound";
@@ -47,6 +47,8 @@ function Scene({ onDone }: { onDone: () => void }) {
   // decided once as it opens
   const [mode, setMode] = useState<"stopped" | "ask" | "play">(stillness);
   const silence = useRef<() => void>(undefined);
+  // written straight into the page every frame: it never stops counting
+  const years = useRef<HTMLElement>(null);
   // the sound ends with the window, however it was closed
   useEffect(() => () => silence.current?.(), []);
 
@@ -67,8 +69,9 @@ function Scene({ onDone }: { onDone: () => void }) {
     const sheet = canvas.current!;
     const pen = sheet.getContext("2d")!;
     const veil = sheet.parentElement!;
-    const ratio = Math.min(1.5, window.devicePixelRatio || 1);
     const [w, h] = [window.innerWidth, window.innerHeight];
+    // sharp, but never more dots than a screen of about 2 million, which keeps large displays smooth
+    const ratio = Math.min(1.5, window.devicePixelRatio || 1, Math.max(0.75, Math.sqrt(2_100_000 / (w * h))));
     sheet.width = w * ratio;
     sheet.height = h * ratio;
     pen.setTransform(ratio, 0, 0, ratio, 0, 0);
@@ -77,11 +80,22 @@ function Scene({ onDone }: { onDone: () => void }) {
     let before = 0;
     let began = 0;
     let renewed = false;
+    // frames that came late, counted in batches of sixty
+    let seen = 0;
+    let late = 0;
 
     const tick = (now: number) => {
       began ||= now;
       const t = (now - began) / 1000;
       const step = Math.min(0.05, before ? (now - before) / 1000 : 0);
+      if (before) {
+        seen++;
+        if (now - before > 25) late++;
+        if (seen >= 60) {
+          if (late > 24) scene.lighten();
+          seen = late = 0;
+        }
+      }
       before = now;
       const moment = momentAt(t);
 
@@ -94,9 +108,11 @@ function Scene({ onDone }: { onDone: () => void }) {
         veil.classList.add("is-renewed");
       }
       if (renewed) scene.bang(t - WHITE_FULL);
-      else scene.universe(t, step);
+      else scene.universe(t, step, document.documentElement.lang === "en");
       veil.style.setProperty("--white", String(moment.white));
-      setLine(lineAt(t, document.documentElement.lang === "en"));
+      const english = document.documentElement.lang === "en";
+      setLine(lineAt(t, english));
+      if (years.current) years.current.textContent = yearLabel(t, english);
       if (moment.over) return onDone();
       frame = requestAnimationFrame(tick);
     };
@@ -119,12 +135,13 @@ function Scene({ onDone }: { onDone: () => void }) {
         <canvas ref={canvas} aria-hidden="true" />
         <i aria-hidden="true" />
         <h2 lang="en">MADE IN HEAVEN</h2>
+        {mode === "play" && <b ref={years} aria-hidden="true" className="heaven-year" />}
         <p role="status">
           {mode === "play"
             ? line
             : mode === "stopped"
               ? english ? "The new universe waits. Turn animations on to see it" : "จักรวาลใหม่รออยู่ เปิดแอนิเมชันเพื่อชม"
-              : english ? "A fast, spinning scene of about 27 seconds" : "ฉากหมุนเร็ว ยาวราว 27 วินาที"}
+              : english ? "A fast, spinning scene of one minute" : "ฉากหมุนเร็ว ยาวราว 1 นาที"}
         </p>
         {mode === "ask" && (
           <div className="heaven-choice">
