@@ -36,8 +36,9 @@ const GROUPS: { th: string; en: string; entries: Entry[] }[] = [
     th: "ฉากลับ",
     en: "Secret shows",
     entries: [
+      { icon: "⏪", th: ["ย้อนเวลา", "กรอกลับผ่านโรงเรียนที่เคยเรียน"], en: ["Rewind", "Back through the schools, and home again"], open: "rewind" },
+      { icon: "☄", th: ["พลังทำลายล้าง", "ชาร์จแล้วยิง หน้าเว็บแตกเป็นผง"], en: ["Destruction beam", "Charge, fire, and the page turns to dust"], open: "blast" },
       { icon: "✦", th: ["Made in Heaven", "เวลาเร่งจนจักรวาลเริ่มใหม่"], en: ["Made in Heaven", "Time races until the universe restarts"], open: "heaven" },
-      { icon: "⏸", th: ["หยุดเวลา", "ทุกอย่างค้าง 5 วินาที"], en: ["Time stop", "Everything freezes for 5 seconds"], open: "timestop" },
       { icon: "🌧", th: ["ฝนรหัส", "ตัวอักษรไหลรวมเป็นชื่อ"], en: ["Code rain", "Falling letters gather into a name"], open: "matrix" },
       { icon: "🌀", th: ["หลุมดำ", "ดูดทั้งหน้าแล้วคายกลับ"], en: ["Black hole", "Swallows the page and throws it back"], open: "blackhole" },
       { icon: "🖐", th: ["พลังจิต", "จับของบนหน้าเว็บเหวี่ยงได้"], en: ["Psychic power", "Grab the page's pieces and throw them"], open: "psychic" },

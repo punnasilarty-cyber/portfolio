@@ -14,12 +14,13 @@ import { AiShow } from "@/components/AiShow";
 import { Matrix } from "@/components/Matrix";
 import { Menu } from "@/components/Menu";
 import { Blackhole } from "@/components/Blackhole";
+import { Blast } from "@/components/Blast";
+import { Rewind } from "@/components/Rewind";
 import { Offline } from "@/components/Offline";
 import { Palette } from "@/components/Palette";
 import { Present } from "@/components/Present";
 import { Psychic } from "@/components/Psychic";
 import { Secrets } from "@/components/Secrets";
-import { TimeStop } from "@/components/TimeStop";
 import { openFeature } from "@/features";
 import { LangToggle } from "@/components/LangToggle";
 import { Loader } from "@/components/Loader";
@@ -191,7 +192,6 @@ export default function HomePage() {
       <Deck />
       <Robot />
       <Heaven />
-      <TimeStop />
       <Matrix />
       <Palette />
       <Present />
@@ -199,6 +199,8 @@ export default function HomePage() {
       <Menu />
       <Blackhole />
       <Psychic />
+      <Blast />
+      <Rewind />
       <Glass />
       <Hack />
       <Universe />

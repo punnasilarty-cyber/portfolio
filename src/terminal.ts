@@ -49,9 +49,10 @@ export function answer(input: string, facts: Facts): Answer {
       return { lines: [], open: command, close: true };
     // not listed by help
     case "matrix":
-    case "timestop":
     case "blackhole":
     case "psychic":
+    case "rewind":
+    case "blast":
     case "glass":
     case "hack":
     case "universe":

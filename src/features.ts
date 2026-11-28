@@ -1,6 +1,6 @@
 // สิ่งที่เปิดจากหลายที่ได้ (ปุ่ม กล่องคำสั่ง เทอร์มินัล คำลับ) และความลับที่ให้คนดูตามหา
 
-export type Feature = "palette" | "card" | "present" | "secrets" | "timestop" | "matrix" | "blackhole" | "menu" | "terminal" | "ai" | "psychic" | "glass" | "hack" | "universe";
+export type Feature = "palette" | "card" | "present" | "secrets" | "matrix" | "blackhole" | "menu" | "terminal" | "ai" | "psychic" | "glass" | "hack" | "universe" | "rewind" | "blast";
 
 export const openFeature = (name: Feature) => window.dispatchEvent(new CustomEvent("feature", { detail: name }));
 
@@ -12,7 +12,7 @@ export function onFeature(name: Feature, run: () => void) {
 }
 
 /** words typed anywhere on the page; read by the keys' places, so any keyboard language works */
-export const WORDS: Record<string, "timestop" | "matrix" | "blackhole" | "psychic"> = { timestop: "timestop", matrix: "matrix", blackhole: "blackhole", psychic: "psychic" };
+export const WORDS: Record<string, "matrix" | "blackhole" | "psychic" | "rewind" | "blast"> = { matrix: "matrix", blackhole: "blackhole", psychic: "psychic", rewind: "rewind", blast: "blast" };
 
 /** the word these latest keys end with, if any */
 export const wordTyped = (keys: string) => Object.keys(WORDS).find((word) => keys.endsWith(word));
@@ -20,7 +20,7 @@ export const wordTyped = (keys: string) => Object.keys(WORDS).find((word) => key
 export const SECRETS = [
   { id: "terminal", name: { th: "หน้าต่างคำสั่ง", en: "The command window" }, hint: { th: "ลองกดปุ่มซ้ายเลข 1 บนแป้นพิมพ์ หรือหาในเมนูฟีเจอร์", en: "Try the key left of 1, or look in the feature menu" } },
   { id: "heaven", name: { th: "Made in Heaven", en: "Made in Heaven" }, hint: { th: "พิมพ์คำว่าสวรรค์เป็นภาษาอังกฤษ หรือหาในเมนูฟีเจอร์", en: "Type where angels live, or look in the feature menu" } },
-  { id: "timestop", name: { th: "หยุดเวลา", en: "Time stop" }, hint: { th: "พิมพ์คำว่าหยุดเวลาเป็นภาษาอังกฤษ ติดกันไม่เว้นวรรค", en: "Type the two words for stopping time, with no space" } },
+  { id: "rewind", name: { th: "ย้อนเวลา", en: "Rewind" }, hint: { th: "พิมพ์คำว่ากรอกลับเป็นภาษาอังกฤษ หรือหาในเมนูฟีเจอร์", en: "Type what a tape does to go back, or look in the feature menu" } },
   { id: "matrix", name: { th: "ฝนรหัส", en: "Code rain" }, hint: { th: "พิมพ์ชื่อหนังที่มีตัวอักษรสีเขียวไหลลงมา", en: "Type the name of the film with falling green letters" } },
   { id: "name", name: { th: "เจ้าของชื่อ", en: "The name's owner" }, hint: { th: "ชื่อบนแถบเมนู ลองกดซ้ำหลายๆ ครั้ง", en: "Try pressing the name on the menu bar again and again" } },
 ] as const;

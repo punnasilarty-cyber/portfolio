@@ -8,7 +8,9 @@ import { join } from "node:path";
 import { answer } from "../src/terminal.ts";
 
 test("secret words are noticed at the end of what was typed", () => {
-  assert.equal(wordTyped("xxtimestop"), "timestop");
+  assert.equal(wordTyped("xxblackhole"), "blackhole");
+  // the time stop is gone
+  assert.equal(wordTyped("timestop"), undefined);
   assert.equal(wordTyped("matrix"), "matrix");
   assert.equal(wordTyped("matri"), undefined);
 });
@@ -33,9 +35,9 @@ test("slides stop at both ends", () => {
 
 test("the terminal opens features, and keeps the secret ones out of help", () => {
   const facts = { english: true, about: [], education: [], projects: [], contacts: [] };
-  for (const name of ["present", "matrix", "timestop", "blackhole", "psychic", "glass", "hack", "universe"]) assert.equal(answer(name, facts).open, name);
+  for (const name of ["present", "matrix", "blackhole", "psychic", "rewind", "blast", "glass", "hack", "universe"]) assert.equal(answer(name, facts).open, name);
   const help = answer("help", facts).lines.join(" ");
-  assert.ok(help.includes("present") && !help.includes("matrix") && !help.includes("timestop"));
+  assert.ok(help.includes("present") && !help.includes("matrix"));
   // the ID card is hidden for now
   assert.equal(answer("card", facts).open, undefined);
 });

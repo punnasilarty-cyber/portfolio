@@ -43,6 +43,8 @@ export function Palette() {
         };
       }).filter((item) => item.label);
       const actions = [
+        { label: say("ย้อนเวลา", "Rewind"), words: "rewind time ย้อนเวลา กรอกลับ", run: () => openFeature("rewind") },
+        { label: say("พลังทำลายล้าง", "Destruction beam"), words: "blast beam พลัง ทำลาย ยิง", run: () => openFeature("blast") },
         { label: say("ทุบกระจก", "Break the glass"), words: "glass shatter กระจก ทุบ", run: () => openFeature("glass") },
         { label: say("โหมดแฮ็กเกอร์", "Hacker mode"), words: "hack game แฮ็ก รหัส เกม", run: () => openFeature("hack") },
         { label: say("ควบคุมจักรวาล", "Rule the universe"), words: "universe space gravity จักรวาล ดาว แรงโน้มถ่วง", run: () => openFeature("universe") },
