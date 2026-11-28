@@ -1,13 +1,10 @@
 "use client";
 
 import { Fragment, useEffect, useState, type FormEvent, type MouseEvent } from "react";
-import { CertificateCabinet } from "@/components/CertificateCabinet";
 import { Education } from "@/components/Education";
-import { PondModel } from "@/components/PondModel";
 import { Reveal } from "@/components/Reveal";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { StaggerText } from "@/components/StaggerText";
-import { SurveyChart } from "@/components/SurveyChart";
 import { groupsOf, sectionOf, sections, works as defaults, type SectionId, type Work } from "@/content";
 import { Viewer, type Shown } from "@/components/Viewer";
 import { checkToken, deleteFile, fromBase64, readFile, writeFile } from "@/github";
@@ -214,7 +211,7 @@ export function Works() {
     <>
       {sections.map((section, order) => (
         // an empty section takes less room, so the page does not read as unfinished
-        <section key={section.id} id={section.id} className={`relative isolate mx-auto max-w-6xl scroll-mt-28 px-5 lg:scroll-mt-24 ${works && section.id === "activities" && inSection(section.id).length === 0 ? "py-10" : "py-16"}`}>
+        <section key={section.id} id={section.id} className={`relative isolate mx-auto max-w-6xl scroll-mt-28 px-5 lg:scroll-mt-24 ${works && section.id !== "education" && inSection(section.id).length === 0 ? "py-10" : "py-16"}`}>
           <span aria-hidden="true" className="fx-number">
             {String(order + 1).padStart(2, "0")}
           </span>
@@ -224,16 +221,8 @@ export function Works() {
               <StaggerText text={section.title} />
             </h2>
           </Reveal>
-          {section.id === "is2" && (
-            <div className="is-showcase">
-              <PondModel />
-              <SurveyChart />
-            </div>
-          )}
           {section.id === "education" ? (
             <Education project={inSection("is2").find(({ work }) => work.image)?.work} />
-          ) : section.id === "certificates" && works ? (
-            <CertificateCabinet items={inSection(section.id).map(({ work }) => work)} pictureUrl={pictureUrl} />
           ) : works && inSection(section.id).length === 0 ? (
             <p className="work-empty">กำลังรวบรวม{section.title}</p>
           ) : (

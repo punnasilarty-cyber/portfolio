@@ -1,3 +1,4 @@
+import { ContactIcon } from "@/components/ContactIcon";
 import { CopyButton } from "@/components/CopyButton";
 import { HeroMotion } from "@/components/HeroMotion";
 import { Loader } from "@/components/Loader";
@@ -104,11 +105,13 @@ export default function HomePage() {
                 {contact.href ? (
                   // a mail link opens the mail app, so only web addresses get a new tab
                   <a href={contact.href} {...(contact.href.startsWith("https:") && { target: "_blank", rel: "noopener noreferrer" })} className="solx-card contact-card">
+                    <ContactIcon name={contact.name} />
                     <span>{contact.name}</span>
                     <b>{contact.value}</b>
                   </a>
                 ) : (
                   <div className="solx-card contact-card">
+                    <ContactIcon name={contact.name} />
                     <span>{contact.name}</span>
                     <b className="select-all">{contact.value}</b>
                     <CopyButton value={contact.value} />

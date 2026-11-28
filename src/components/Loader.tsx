@@ -55,12 +55,23 @@ export function Loader() {
   if (state === "gone") return null;
   return (
     <div id="loader" className={state === "leaving" ? "is-leaving" : ""}>
-      <span aria-hidden="true">&lt;/&gt;</span>
-      <p>{profile.name}</p>
-      <div role="progressbar" aria-label="กำลังโหลดเว็บ" aria-valuemin={0} aria-valuemax={100} aria-valuenow={percent}>
+      <div aria-hidden="true" className="loader-mark">
+        <i />
+        <i />
+        <svg viewBox="0 0 64 64">
+          <path pathLength={1} d="M22 20 10 32l12 12" />
+          <path pathLength={1} d="M36 16 28 48" />
+          <path pathLength={1} d="M42 20l12 12-12 12" />
+        </svg>
+      </div>
+      <p>
+        <small>Portfolio</small>
+        {profile.name}
+      </p>
+      <div role="progressbar" aria-label="กำลังโหลดเว็บ" aria-valuemin={0} aria-valuemax={100} aria-valuenow={percent} className="loader-bar">
         <i style={{ transform: `scaleX(${percent / 100})` }} />
       </div>
-      <small>กำลังโหลด {percent}%</small>
+      <b>{percent}%</b>
       {/* without scripts there is nothing to wait for */}
       <noscript>
         <style>{"#loader{display:none}"}</style>
