@@ -1,5 +1,6 @@
 import { CopyButton } from "@/components/CopyButton";
 import { HeroMotion } from "@/components/HeroMotion";
+import { Loader } from "@/components/Loader";
 import { StaggerText } from "@/components/StaggerText";
 import { ToTop } from "@/components/ToTop";
 import { Works } from "@/components/Works";
@@ -11,6 +12,7 @@ const menu = [{ id: "top", title: "หน้าแรก" }, ...sections, { id: 
 export default function HomePage() {
   return (
     <>
+      <Loader />
       <header className="sticky top-0 z-40 px-2 pt-2">
         <div aria-hidden="true" className="fx-progress" />
         {/* two rows on narrow screens: the menu is too long to share one with the name */}

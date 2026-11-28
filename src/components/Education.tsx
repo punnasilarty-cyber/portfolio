@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { LearningRoute } from "@/components/LearningRoute";
 import { SchoolScene } from "@/components/SchoolScene";
 import { education, type Work } from "@/content";
@@ -17,9 +16,9 @@ export function Education({ project }: { project?: Work }) {
   const schools = education.filter((stop, i) => education.findIndex((other) => other.school === stop.school) === i);
 
   const [view, setView] = useState<(typeof VIEWS)[number]["id"]>("route");
-  // the two views differ in height, so the scroll positions need measuring again
+  // the animations are rebuilt for the view now showing, which also measures its new height
   useEffect(() => {
-    ScrollTrigger.refresh();
+    window.dispatchEvent(new Event("view-change"));
   }, [view]);
 
   return (

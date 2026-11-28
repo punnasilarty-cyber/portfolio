@@ -60,8 +60,9 @@ export function useMotion(content: unknown) {
 
         // school scenes: each builds itself, floor by floor. On wide screens one stays in view and changes with the
         // card being read; on narrow ones they are stacked and build as they scroll in
-        const stage = document.querySelector(".edu-stage");
-        if (stage) {
+        const stage = document.querySelector<HTMLElement>(".edu-stage");
+        // never while hidden: GSAP measures each hidden SVG part the slow way, which froze the page for seconds
+        if (stage && !stage.hidden) {
           const wide = matchMedia("(min-width: 900px)").matches;
           const scenes = gsap.utils.toArray<HTMLElement>(".edu-scene");
           const builds = scenes.map((scene) => {
@@ -123,8 +124,11 @@ export function useMotion(content: unknown) {
 
     apply();
     calm?.addEventListener("change", apply);
+    // the school models are set up when they come into view (see Education)
+    window.addEventListener("view-change", apply);
     return () => {
       calm?.removeEventListener("change", apply);
+      window.removeEventListener("view-change", apply);
       stop();
     };
   }, [content]);

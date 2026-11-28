@@ -63,6 +63,8 @@ export function StaggerText({
       seen?.disconnect();
       reset();
       if (html.dataset.motion !== "on") return;
+      // not while the loading cover hides the text
+      if (document.getElementById("loader")) return window.addEventListener("site-ready", play, { once: true });
       seen = new IntersectionObserver(
         ([entry]) => {
           if (!entry.isIntersecting) return;
@@ -79,6 +81,7 @@ export function StaggerText({
     motion.observe(html, { attributes: true, attributeFilter: ["data-motion"] });
     return () => {
       motion.disconnect();
+      window.removeEventListener("site-ready", play);
       seen?.disconnect();
       cancelAnimationFrame(frame);
       reset();
