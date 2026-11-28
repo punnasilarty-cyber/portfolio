@@ -14,6 +14,8 @@ const GROUPS: { th: string; en: string; entries: Entry[] }[] = [
     en: "Games and experiments",
     entries: [
       { icon: "💻", th: ["โหมดแฮ็กเกอร์", "ไขรหัส 3 ด่าน ปลดล็อกธีมลับ"], en: ["Hacker mode", "Three puzzles unlock a secret theme"], open: "hack" },
+      { icon: "🧠", th: ["สอน AI ด้วยตัวเอง", "วาดตัวอย่าง ฝึกโมเดล แล้วให้ทาย"], en: ["Teach an AI", "Draw examples, train it, let it guess"], open: "teach" },
+      { icon: "🔬", th: ["แว่น X-ray", "ส่องดูว่าเว็บแต่ละส่วนสร้างด้วยอะไร"], en: ["X-ray lens", "See how each part of the site is made"], open: "xray" },
       { icon: "🪐", th: ["ควบคุมจักรวาล", "วางดาว เหวี่ยงดาวเคราะห์"], en: ["Rule the universe", "Place stars and throw planets"], open: "universe" },
     ],
   },

@@ -139,7 +139,7 @@ export function SiteEditor({ tab, busy, onSave }: { tab: SiteTab; busy: boolean;
             </>
           )}
         </List>
-        <p className="text-xs text-[var(--muted)]">หมุดบนแผนที่และโมเดลโรงเรียนมีเฉพาะ 2 โรงเรียนที่วาดไว้ ต้องใช้ชื่อภาษาไทยตรงกัน</p>
+        <p className="text-xs text-[var(--muted)]">โมเดลโรงเรียนมีเฉพาะ 2 โรงเรียนที่วาดไว้ ต้องใช้ชื่อภาษาไทยตรงกัน</p>
       </div>
 
       <div className="editor-save">

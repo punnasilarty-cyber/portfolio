@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { LearningRoute } from "@/components/LearningRoute";
 import { SchoolScene } from "@/components/SchoolScene";
-import { type Work } from "@/content";
 import { useLang } from "@/i18n";
 import { useSite } from "@/site-store";
 import { englishPeriod } from "@/translations";
@@ -9,12 +8,12 @@ import { englishPeriod } from "@/translations";
 const base = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
 const VIEWS = [
-  { id: "route", label: "เส้นทางการเรียนรู้", note: "แผนที่ © OpenStreetMap contributors · เส้นทาง OSRM" },
+  { id: "route", label: "เส้นทางการเรียนรู้", note: "สรุปจากข้อมูลการศึกษาและผลงานในเว็บนี้" },
   { id: "model", label: "โมเดลโรงเรียน", note: "ผังจำลองจากแผนผังโรงเรียน ภาพมุมสูง และภาพถ่ายดาวเทียม ย่อส่วนและมีบางจุดเป็นการประมาณ" },
 ] as const;
 
 /** where the schooling happened: the learning route or school models, then a card per stage (see motion.ts) */
-export function Education({ project }: { project?: Work }) {
+export function Education() {
   const { education } = useSite();
   // one scene per school, in the order first reached
   const schools = education.filter((stop, i) => education.findIndex((other) => other.school === stop.school) === i);
@@ -51,8 +50,8 @@ export function Education({ project }: { project?: Work }) {
             </div>
           ))}
         </div>
-        {/* unmounted while away, so its drawing plays again on every visit */}
-        {view === "route" && <LearningRoute project={project} onStage={setReading} />}
+        {/* unmounted while away, so it follows the scroll afresh on every visit */}
+        {view === "route" && <LearningRoute onStage={setReading} />}
         <figcaption className="mt-2 text-center text-[11px] text-[var(--muted)]">{t(VIEWS.find(({ id }) => id === view)!.note)}</figcaption>
       </figure>
 

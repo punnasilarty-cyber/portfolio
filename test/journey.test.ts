@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { education } from "../src/content.ts";
-import { yearAt, yearsOf } from "../src/journey.ts";
+import { education, learning } from "../src/content.ts";
+import { reach, yearAt, yearsOf } from "../src/journey.ts";
 
 test("the schooling stages become twelve consecutive school years", () => {
   const years = yearsOf(education);
@@ -27,4 +27,17 @@ test("scrolling down the stage cards walks through the years in order", () => {
     assert.ok(at(y) >= last);
     last = at(y);
   }
+});
+
+test("the path fills year by year, each stage an equal share, never reaching the goal early", () => {
+  const years = yearsOf(education);
+  const along = years.map((_, i) => reach(years, i, education.length));
+  assert.equal(along[0], 0);
+  assert.ok(along.every((value, i) => (!i || value > along[i - 1]) && value < 1));
+  assert.equal(reach(years, years.findIndex((year) => year.stage === 1), 3), 1 / 3);
+});
+
+test("every skill names its proof in both languages, and a work by the title its card carries", () => {
+  assert.ok(learning.skills.every((skill) => skill.th.every(Boolean) && skill.en.every(Boolean)));
+  assert.equal(learning.skills.filter((skill) => !skill.work).length, 1);
 });

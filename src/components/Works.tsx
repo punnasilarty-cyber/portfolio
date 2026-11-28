@@ -349,7 +349,7 @@ export function Works() {
           </Reveal>
           {section.id === "is2" && files.length > 1 && <DownloadAll files={files} name="IS2-Punnasin.zip" />}
           {section.id === "education" ? (
-            <Education project={inSection("is2").find(({ work }) => work.image)?.work} />
+            <Education />
           ) : works && inSection(section.id).length === 0 ? (
             <div className="work-empty">
               <EmptyArt section={section.id} />

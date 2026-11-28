@@ -56,6 +56,8 @@ export function answer(input: string, facts: Facts): Answer {
     case "glass":
     case "hack":
     case "universe":
+    case "teach":
+    case "xray":
       return { lines: [], open: command, close: true };
     case "heaven":
       return { lines: [], heaven: true, close: true };

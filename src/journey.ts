@@ -29,6 +29,13 @@ export function yearsOf(stages: Stage[]): Year[] {
   });
 }
 
+/** how far along the whole path a year is, 0 to 1: each stage takes an equal share, and one more leads on to the goal */
+export function reach(years: Year[], step: number, stages: number): number {
+  const { stage } = years[step];
+  const own = years.filter((entry) => entry.stage === stage);
+  return (stage + own.indexOf(years[step]) / own.length) / stages;
+}
+
 /**
  * Which year the reader has scrolled to. `cards` are the stages' on-screen boxes in order; the card crossing the
  * reading `line` picks the stage, and how far through it the line is picks the year within that stage.

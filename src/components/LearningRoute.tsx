@@ -1,38 +1,43 @@
 import { useEffect, useMemo, useState } from "react";
 import { Student } from "@/components/Student";
-import { type Work } from "@/content";
+import { learning } from "@/content";
+import { openFeature } from "@/features";
 import { useLang } from "@/i18n";
-import { yearAt, yearsOf } from "@/journey";
-import { PINS, PROVINCE, ROAD, ROAD_KM } from "@/map-data";
+import { reach, yearAt, yearsOf } from "@/journey";
 import { useSite } from "@/site-store";
 import { englishGrade } from "@/translations";
 
 const base = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 const STATUS = { past: "เรียนจบแล้ว", now: "กำลังเรียน", ahead: "ยังมาไม่ถึง (คาดว่า)" };
-
-// the map is framed on the schools, with room around them for their names
-const across = Object.values(PINS).map(([x]) => x);
-const down = Object.values(PINS).map(([, y]) => y);
-const FRAME = { x: Math.min(...across) - 70, y: Math.min(...down) - 50, width: Math.max(...across) - Math.min(...across) + 140, height: Math.max(...down) - Math.min(...down) + 90 };
+const calm = () => !!document.querySelector<HTMLInputElement>("#calm")?.checked;
 
 /** how far down the window a stage card has to come to count as being read; lower on narrow screens, where the panel itself covers the upper half */
 const readingLine = () => window.innerHeight * (window.innerWidth < 900 ? 0.8 : 0.6);
 
-/** brings a school's first stage card to the reading line, so the journey shows its first year */
-function goToSchool(school: string) {
-  const card = document.querySelector(`.edu-stop[data-school="${school}"]`)?.getBoundingClientRect();
+/** brings a stage's card to the reading line, so the journey shows its first year */
+function goToStage(stage: number) {
+  const card = document.querySelectorAll(".edu-stop")[stage]?.getBoundingClientRect();
   if (!card) return;
-  const calm = document.querySelector<HTMLInputElement>("#calm")?.checked;
-  window.scrollBy({ top: card.top - readingLine() + card.height * 0.12, behavior: calm ? "instant" : "smooth" });
+  window.scrollBy({ top: card.top - readingLine() + card.height * 0.12, behavior: calm() ? "instant" : "smooth" });
 }
 
-/** the learning journey: a made-up student moves through the school years along the real road between the schools */
-export function LearningRoute({ project, onStage }: { project?: Work; /** told which stage card the journey is at */ onStage: (stage: number) => void }) {
+/** brings the work that shows a skill into view and lights it for a moment; its section when the card was renamed */
+function goToWork(title: string) {
+  const heading = Array.from(document.querySelectorAll("#is2 li h3")).find((each) => each.textContent === title);
+  const card = heading?.closest("li");
+  const behavior = calm() ? "instant" : "smooth";
+  if (!card) return document.getElementById("is2")?.scrollIntoView({ behavior });
+  card.scrollIntoView({ behavior, block: "center" });
+  card.classList.add("is-sought");
+  setTimeout(() => card.classList.remove("is-sought"), 3000);
+}
+
+/** the learning journey: each stage hands on to the next, down to the skills of today, their proof, and the goal */
+export function LearningRoute({ onStage }: { /** told which stage card the journey is at */ onStage: (stage: number) => void }) {
   const { education } = useSite();
   const years = useMemo(() => yearsOf(education), [education]);
-  // one pin per school the map knows, in the order first reached
-  const pins = education.filter((stop, i) => PINS[stop.school] && education.findIndex((other) => other.school === stop.school) === i);
   const { english, t } = useLang();
+  const say = english ? "en" : "th";
   const [at, setStep] = useState(0);
   // the student walks only while the page is moving
   const [walking, setWalking] = useState(false);
@@ -40,10 +45,12 @@ export function LearningRoute({ project, onStage }: { project?: Work; /** told w
   const step = Math.min(at, years.length - 1);
   const entry = years[step];
   const stage = education[entry.stage];
+  const next = education[entry.stage + 1];
   const color = stage.schoolColors?.[1]?.hex ?? "#f87171";
-  const atSecondSchool = stage.school !== education[0].school;
   const year = english ? entry.year - 543 : entry.year;
-  const grade = english ? englishGrade(entry.grade) : entry.grade;
+  const gradeOf = (grade: string) => (english ? englishGrade(grade) : grade);
+  const grade = gradeOf(entry.grade);
+  const school = (name: string) => t(name).replace("โรงเรียน", "").replace(" School", "");
 
   useEffect(() => onStage(entry.stage), [entry.stage, onStage]);
 
@@ -71,64 +78,38 @@ export function LearningRoute({ project, onStage }: { project?: Work; /** told w
     };
   }, [years]);
 
+  const nextGrade = next && gradeOf(years.find((item) => item.stage === entry.stage + 1)!.grade);
+
   return (
-    <div className="edu-route-view">
-      <svg
-        viewBox={`${FRAME.x} ${FRAME.y} ${FRAME.width} ${FRAME.height}`}
-        role="group"
-        aria-label={english ? `Map of Surin Province: the ${ROAD_KM} km road from ${pins.map((pin) => t(pin.school)).join(" to ")}` : `แผนที่จังหวัดสุรินทร์ เส้นทางจาก${pins.map((pin) => pin.school).join(" ไป")} ${ROAD_KM} กิโลเมตร`}
-        className="edu-map-art"
-      >
-        <path d={PROVINCE} className="edu-province" />
-        <text x={FRAME.x + FRAME.width - 8} y={FRAME.y + 18} textAnchor="end" className="edu-map-label">
-          {t("จังหวัดสุรินทร์")}
-        </text>
-        <path d={ROAD} className="edu-road-under" />
-        {/* the road lights up once the journey has moved to the second school */}
-        <path d={ROAD} className="edu-road" pathLength={1} style={{ strokeDashoffset: atSecondSchool ? 0 : 1 }} />
-        {pins.map((pin) => {
-          const [x, y] = PINS[pin.school];
-          const ring = pin.schoolColors?.[1]?.hex ?? "#f87171";
-          const id = `edu-clip-${x}`;
+    <div className="edu-route-view" style={{ "--a": color } as React.CSSProperties}>
+      <ol className="edu-path" aria-label={english ? "The learning path" : "เส้นทางการเรียนรู้"} style={{ "--reach": reach(years, step, education.length), "--stops": education.length + 1 } as React.CSSProperties}>
+        {education.map((item, i) => {
+          const grades = years.filter((each) => each.stage === i);
           return (
-            <g
-              key={pin.school}
-              transform={`translate(${x} ${y})`}
-              role="button"
-              tabIndex={0}
-              aria-label={english ? `Go to ${t(pin.school)}` : `ไปที่${pin.school}`}
-              className="edu-pin"
-              onClick={() => goToSchool(pin.school)}
-              onKeyDown={(event) => {
-                if (event.key !== "Enter" && event.key !== " ") return;
-                event.preventDefault();
-                goToSchool(pin.school);
-              }}
-            >
-              {pin.school === stage.school && <circle r="23" fill={ring} opacity="0.3" />}
-              <circle r="15" fill="#fff" stroke={ring} strokeWidth="3" />
-              <clipPath id={id}>
-                <circle r="13.5" />
-              </clipPath>
-              {pin.logo && <image href={base + pin.logo} x="-13.5" y="-13.5" width="27" height="27" clipPath={`url(#${id})`} />}
-              <text y="-24" textAnchor="middle" className="edu-pin-label">
-                {t(pin.school).replace("โรงเรียน", "").replace(" School", "")}
-              </text>
-            </g>
+            <li key={`${i} ${item.level}`} className={i === entry.stage ? "is-here" : i < entry.stage ? "is-done" : ""}>
+              <button type="button" aria-current={i === entry.stage ? "step" : undefined} onClick={() => goToStage(i)}>
+                <span>
+                  {/* eslint-disable-next-line @next/next/no-img-element -- a static export serves images as they are */}
+                  {item.logo && <img src={base + item.logo} alt="" />}
+                </span>
+                <b>
+                  {gradeOf(grades[0].grade)}–{gradeOf(grades.at(-1)!.grade)}
+                </b>
+                <small>{school(item.school)}</small>
+              </button>
+            </li>
           );
         })}
-        {/* the traveller rides the road from the first school to the second */}
-        <g className="edu-traveller" style={{ offsetPath: `path("${ROAD}")`, offsetDistance: atSecondSchool ? "100%" : "0%" }}>
-          <circle cy="22" r="9" fill="#fff" style={{ stroke: "var(--a1)" }} strokeWidth="2.5" />
-          <text y="26" textAnchor="middle" fontSize="11" fontWeight="800" fill="#7f1d1d">
-            {english ? `${grade[0]}${grade.slice(-1)}` : grade.replace(".", "")}
-          </text>
-        </g>
-      </svg>
-      <p className="text-center text-xs text-[var(--muted)]">{english ? `About ${ROAD_KM.toFixed(1)} km by road between the two schools` : `ระยะทางตามถนนระหว่างสองโรงเรียนราว ${ROAD_KM.toFixed(1)} กม.`}</p>
+        <li className="edu-goal-stop">
+          <div>
+            <span aria-hidden="true">★</span>
+            <b>{english ? "Goal" : "เป้าหมาย"}</b>
+          </div>
+        </li>
+      </ol>
 
-      <div className="edu-journey" style={{ "--a": color } as React.CSSProperties}>
-        <Student step={step} stage={entry.stage} color={color} walking={walking} cheer={atSecondSchool} />
+      <div className="edu-journey">
+        <Student step={step} stage={entry.stage} color={color} walking={walking} cheer={stage.school !== education[0].school} />
         <div className="min-w-0">
           <p className="edu-year">
             {year} <span>{grade}</span>
@@ -148,17 +129,42 @@ export function LearningRoute({ project, onStage }: { project?: Work; /** told w
         </div>
       </div>
 
-      {/* the IS project belongs to the stage being studied now */}
-      {stage.current && project && (
-        <a href="#is2" className="edu-project">
-          {/* eslint-disable-next-line @next/next/no-img-element -- a static export serves images as they are */}
-          <img src={base + project.image} alt="" />
-          <span>
-            <b>{t("ผลงาน IS ในช่วง ม.4")}</b>
-            <small>{t(project.title)}</small>
-            <em>{t("ดูผลงานและรายงานในหมวด IS2 →")}</em>
-          </span>
-        </a>
+      {/* what this stage leads to: the next one, or, today, the skills with their proof */}
+      {stage.current ? (
+        <div className="edu-skills">
+          <p>
+            <b>{english ? "Interested in" : "สนใจ"}</b> {learning.interests[say]}
+          </p>
+          <ul>
+            {learning.skills.map((skill) => {
+              const [name, proof] = skill[say];
+              return (
+                <li key={skill.th[0]}>
+                  <button type="button" onClick={() => (skill.work ? goToWork(t(skill.work)) : openFeature("xray"))}>
+                    <b>{name}</b>
+                    <small>
+                      {proof} <span aria-hidden="true">→</span>
+                    </small>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+          <p className="edu-aim">
+            <b>★ {english ? "Heading for" : "มุ่งสู่"}</b> {learning.goal[say]}
+          </p>
+        </div>
+      ) : (
+        next && (
+          <button type="button" className="edu-next" onClick={() => goToStage(entry.stage + 1)}>
+            <b>{english ? "Next step" : "ก้าวต่อไป"}</b>
+            <span>
+              {nextGrade} · {next.school === stage.school ? (english ? "same school" : "เรียนต่อที่เดิม") : english ? `move to ${t(next.school)}` : `ย้ายมา${next.school}`}
+              {next.program && ` · ${t(next.program)}`}
+            </span>
+            <span aria-hidden="true">↓</span>
+          </button>
+        )
       )}
 
       <div className="edu-progress" role="progressbar" aria-label={t("ความคืบหน้าบนเส้นทางการเรียน")} aria-valuemin={1} aria-valuemax={years.length} aria-valuenow={step + 1} aria-valuetext={`${year} ${grade}`}>

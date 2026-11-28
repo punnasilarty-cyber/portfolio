@@ -42,6 +42,25 @@ export const survey = {
   ],
 };
 
+/**
+ * เส้นทางการเรียนรู้ช่วงปัจจุบัน: สิ่งที่สนใจ ทักษะที่มีผลงานยืนยัน และเป้าหมาย (จากข้อความ "เกี่ยวกับฉัน")
+ * `work` คือชื่อผลงานในเว็บที่กดไปดูได้ ต้องสะกดตรงกับชื่อการ์ด ไม่ใส่แปลว่าหมายถึงเว็บนี้เอง
+ */
+export const learning: {
+  interests: { th: string; en: string };
+  goal: { th: string; en: string };
+  skills: { th: [skill: string, proof: string]; en: [skill: string, proof: string]; work?: string }[];
+} = {
+  interests: { th: "คอมพิวเตอร์ · เทคโนโลยี · คณิตศาสตร์", en: "Computers · Technology · Maths" },
+  goal: { th: "นำเทคโนโลยีมาสร้างผลงานหรือเครื่องมือที่ช่วยอำนวยความสะดวกได้จริง", en: "To build things and tools with technology that truly help" },
+  skills: [
+    { th: ["เก็บข้อมูล", "แบบสอบถามโครงงานกลุ่ม"], en: ["Gathering data", "Our group's questionnaire"], work: "เนื้อหารายงาน" },
+    { th: ["วิเคราะห์", "จัดอันดับปัญหาด้วยค่าเฉลี่ย"], en: ["Analysing", "Problems ranked by their means"], work: "อินโฟกราฟิก: สระน้ำสะอาด เริ่มได้จากพวกเราทุกคน" },
+    { th: ["สื่อสาร", "แผ่นพับให้คนทั่วไปเข้าใจ"], en: ["Communicating", "A leaflet anyone can follow"], work: "แผ่นพับ: ร่วมกันดูแลแหล่งน้ำของเรา" },
+    { th: ["เทคโนโลยี", "ส่องดูว่าเว็บนี้สร้างด้วยอะไร"], en: ["Technology", "See what this site is made of"] },
+  ],
+};
+
 /** หมวดของหน้าเว็บ เรียงตามนี้ ต่อจากหน้าแรก */
 export const sections = [
   { id: "education", title: "ประวัติการศึกษา" },

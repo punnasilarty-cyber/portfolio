@@ -894,28 +894,6 @@ html:has(#calm:checked)::after {
   border-radius: 18px;
   background: radial-gradient(circle at 50% 30%, color-mix(in srgb, var(--a1) 10%, transparent), transparent 70%), #0b0d12;
 }
-.edu-map-art {
-  display: block;
-  width: 100%;
-  height: auto;
-  /* the stages below must stay on screen with it while the column is sticky */
-  max-height: min(14rem, 24dvh);
-  border-radius: 10px;
-}
-/* the pins lead to their stage card */
-.edu-pin {
-  cursor: pointer;
-}
-.edu-pin circle {
-  transition: stroke-width 0.2s ease;
-}
-.edu-pin:hover circle,
-.edu-pin:focus-visible circle {
-  stroke-width: 6;
-}
-.edu-pin:focus {
-  outline: none;
-}
 /* on the learning journey the card being read stands out */
 .edu--route .edu-stop {
   transition: opacity 0.3s ease;
@@ -927,44 +905,149 @@ html:has(#calm:checked)::after {
   border-color: var(--a);
   box-shadow: 0 0 0 1px var(--a), 0 18px 40px -22px var(--a);
 }
-.edu-province {
-  fill: #1a1012;
-  stroke: color-mix(in srgb, var(--a2) 60%, transparent);
-  stroke-width: 1.5;
+/* the path: one stop for each stage and one for the goal, the line between them filling year by year */
+.edu-path {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(var(--stops), minmax(0, 1fr));
 }
-.edu-map-label {
-  fill: rgba(255, 255, 255, 0.3);
-  font-size: 14px;
-  font-weight: 700;
+.edu-path::before,
+.edu-path::after {
+  content: "";
+  position: absolute;
+  top: 1.5rem;
+  left: calc(50% / var(--stops));
+  height: 3px;
+  border-radius: 3px;
 }
-.edu-pin-label {
-  fill: #fff;
-  font-size: 13px;
-  font-weight: 700;
-  paint-order: stroke;
-  stroke: #000;
-  stroke-width: 3px;
+.edu-path::before {
+  right: calc(50% / var(--stops));
+  background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.22) 0 6px, transparent 6px 12px);
 }
-.edu-road-under {
-  fill: none;
-  stroke: rgba(255, 255, 255, 0.14);
-  stroke-width: 2;
-  stroke-dasharray: 4 6;
+.edu-path::after {
+  /* reach counts in stages, of which the line holds one fewer than there are stops */
+  width: calc((100% - 100% / var(--stops)) * var(--reach));
+  background: var(--a);
+  transition: width 0.5s ease;
 }
-.edu-road {
-  fill: none;
-  stroke: #facc15;
-  stroke-width: 3.5;
-  stroke-linecap: round;
-  stroke-dasharray: 1;
-  transition: stroke-dashoffset 1.6s ease-in-out;
+.edu-path :is(button, div) {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  width: 100%;
+  justify-items: center;
+  gap: 0.15rem;
+  line-height: 1.25;
+  text-align: center;
+}
+.edu-path button {
+  cursor: pointer;
+}
+.edu-path span {
+  display: grid;
+  width: 3rem;
+  height: 3rem;
+  place-items: center;
+  overflow: hidden;
+  border: 3px solid rgba(255, 255, 255, 0.25);
+  border-radius: 50%;
+  background: #fff;
+  transition:
+    scale 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+.edu-path img {
+  width: 2.4rem;
+  height: 2.4rem;
+  object-fit: contain;
+}
+.edu-path b {
+  font-size: 0.8rem;
+}
+.edu-path small {
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+.edu-path .is-done span {
+  border-color: var(--a);
+}
+.edu-path .is-here span {
+  border-color: var(--a);
+  box-shadow: 0 0 18px var(--a);
+  scale: 1.15;
+}
+.edu-path li:not(.is-here, .is-done) span {
+  filter: grayscale(0.7);
+}
+.edu-path .edu-goal-stop span {
+  border-style: dashed;
+  background: #14161c;
+  color: #facc15;
+  font-size: 1.3rem;
+  filter: none;
+}
+.edu-next {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px dashed color-mix(in srgb, var(--a) 60%, transparent);
+  border-radius: 14px;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  text-align: left;
+  cursor: pointer;
+}
+.edu-next b {
+  flex: none;
+  color: var(--a);
+}
+.edu-next span:first-of-type {
+  flex: 1;
+}
+.edu-skills {
+  display: grid;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+.edu-skills b {
+  color: var(--a);
+}
+.edu-skills ul {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.4rem;
+}
+.edu-skills button {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  align-content: start;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid color-mix(in srgb, var(--a) 45%, transparent);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--a) 8%, transparent);
+  text-align: left;
+  cursor: pointer;
+}
+.edu-skills button:hover,
+.edu-skills button:focus-visible {
+  border-color: var(--a);
+  background: color-mix(in srgb, var(--a) 20%, transparent);
+}
+.edu-skills small {
+  color: #d4d4d8;
+  font-size: 0.72rem;
+}
+/* the work a skill has led to */
+li.is-sought .solx-spotlight {
+  border-color: #facc15;
+  box-shadow: 0 0 0 3px #facc15, 0 0 40px -6px #facc15;
 }
 
-/* the journey: the traveller on the road, and the student beside this year's details */
-.edu-traveller {
-  offset-rotate: 0deg;
-  transition: offset-distance 1.6s ease-in-out;
-}
+/* the journey: the student beside this year's details */
 .edu-journey {
   display: grid;
   grid-template-columns: 6.5rem minmax(0, 1fr);
@@ -1093,49 +1176,37 @@ html:has(#calm:checked)::after {
   background: var(--accent);
 }
 /* narrow screens: the journey stays in view, compact, while the cards pass under it */
-.edu-project {
-  display: grid;
-  grid-template-columns: 7rem minmax(0, 1fr);
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.6rem;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 14px;
-  line-height: 1.4;
-}
-.edu-project:hover,
-.edu-project:focus-visible {
-  border-color: var(--accent-soft);
-}
-.edu-project img {
-  width: 100%;
-  border-radius: 8px;
-}
-.edu-project span {
-  display: grid;
-}
-.edu-project b {
-  font-size: 0.875rem;
-}
-.edu-project small {
-  color: var(--muted);
-  font-size: 0.75rem;
-}
-.edu-project em {
-  color: var(--accent-soft);
-  font-size: 0.75rem;
-  font-style: normal;
-}
-
 @media (max-width: 899px) {
-  /* the pinned panel stays short on phones: only the link remains */
-  .edu--route .edu-project {
-    display: block;
-    padding: 0.35rem 0.6rem;
+  /* the pinned panel stays short on phones: small stops, and the skills by name only */
+  .edu--route .edu-path span {
+    width: 2.2rem;
+    height: 2.2rem;
+  }
+  .edu--route .edu-path img {
+    width: 1.7rem;
+    height: 1.7rem;
+  }
+  .edu--route .edu-path::before,
+  .edu--route .edu-path::after {
+    top: 1.05rem;
+  }
+  .edu--route .edu-path small,
+  .edu--route .edu-skills p,
+  .edu--route .edu-skills small,
+  .edu--route .edu-journey .text-xs,
+  .edu--route .edu-journey .text-sm {
+    display: none;
+  }
+  .edu--route .edu-skills ul {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .edu--route .edu-skills button {
+    padding: 0.25rem;
+    font-size: 0.72rem;
     text-align: center;
   }
-  .edu--route .edu-project :is(img, b, small) {
-    display: none;
+  .edu--route .edu-next {
+    padding: 0.3rem 0.6rem;
   }
   .edu--route {
     display: block;
@@ -1150,9 +1221,6 @@ html:has(#calm:checked)::after {
   .edu--route .edu-route-view {
     gap: 0.4rem;
     padding: 0.5rem;
-  }
-  .edu--route .edu-map-art {
-    max-height: 15dvh;
   }
   .edu--route .edu-journey {
     grid-template-columns: 4.5rem minmax(0, 1fr);
@@ -2566,6 +2634,8 @@ body.is-presenting .about {
 }
 .flip-front {
   height: 100%;
+  /* a step toward the reader: without it the tilted card sinks behind this face, which then takes the presses */
+  transform: translateZ(1px);
 }
 .flip-back {
   position: absolute;
@@ -3720,4 +3790,791 @@ html[data-loading] .solx-animate-in {
 /* stopped animation leaves every word fully lit, whatever the scroll animation had set */
 body:has(#calm:checked) .fx-word {
   opacity: 1 !important;
+}
+
+/* the X-ray lens: a blueprint of the page inside a circle; presses pass through to the page */
+.xray-glass,
+.xray-ring {
+  position: fixed;
+  z-index: 60;
+  pointer-events: none;
+}
+.xray-glass {
+  inset: 0;
+  overflow: hidden;
+  background:
+    linear-gradient(rgba(90, 220, 255, 0.16) 1px, transparent 1px) 0 0 / 24px 24px,
+    linear-gradient(90deg, rgba(90, 220, 255, 0.16) 1px, transparent 1px) 0 0 / 24px 24px,
+    rgba(2, 20, 40, 0.9);
+}
+.xray-glass i {
+  position: absolute;
+  border: 1px dashed rgba(90, 220, 255, 0.8);
+}
+.xray-glass i.is-under {
+  border: 2px solid #fff;
+  background: rgba(90, 220, 255, 0.16);
+}
+.xray-glass i.is-bone {
+  border: 1px solid rgba(255, 214, 120, 0.75);
+  background: rgba(255, 214, 120, 0.06);
+}
+.xray-glass i.is-bone::before {
+  background: none;
+  color: #ffd678;
+  font-size: 0.6rem;
+}
+.xray-glass i[data-name=""]::before {
+  display: none;
+}
+.xray-glass code {
+  position: absolute;
+  z-index: 1;
+  max-width: 17rem;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid #5adcff;
+  border-radius: 8px;
+  background: rgba(2, 14, 28, 0.92);
+  color: #e9fbff;
+  font: 400 0.75rem / 1.5 ui-monospace, Consolas, var(--font-seed), monospace;
+  overflow-wrap: anywhere;
+  text-align: center;
+  white-space: pre-wrap;
+  translate: -50% -50%;
+}
+.xray-glass i::before {
+  content: attr(data-name);
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 0 0.35rem;
+  background: #04243f;
+  color: #9ff0ff;
+  font: 400 0.68rem / 1.5 ui-monospace, Consolas, var(--font-seed), monospace;
+  white-space: pre;
+}
+.xray-glass i.is-under::before {
+  background: #5adcff;
+  color: #04121f;
+}
+.xray-ring {
+  border: 3px solid #5adcff;
+  border-radius: 50%;
+  box-shadow:
+    0 0 24px rgba(90, 220, 255, 0.6),
+    inset 0 0 30px rgba(90, 220, 255, 0.35);
+}
+.xray-ring.is-held {
+  border-color: #ffd678;
+}
+.xray-glass i.is-margin,
+.xray-glass i.is-padding {
+  box-sizing: border-box;
+  border-style: solid;
+}
+.xray-glass i.is-margin {
+  border-color: rgba(255, 150, 60, 0.45);
+}
+.xray-glass i.is-padding {
+  border-color: rgba(70, 220, 130, 0.45);
+}
+.xray-glass i.is-deep {
+  border: 2px solid #ff6ad5;
+}
+.xray-glass s {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  background:
+    linear-gradient(#fff, #fff) center / 100% 1px no-repeat,
+    linear-gradient(#fff, #fff) center / 1px 100% no-repeat;
+  translate: -50% -50%;
+}
+.xray-panel {
+  position: fixed;
+  z-index: 61;
+  right: 0.5rem;
+  bottom: 0.5rem;
+  left: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  max-height: 46dvh;
+  border: 1px solid #5adcff;
+  border-radius: 12px;
+  background: rgba(4, 18, 31, 0.97);
+  color: #e9fbff;
+  font-size: 0.8rem;
+}
+@media (min-width: 900px) {
+  .xray-panel {
+    top: 5.5rem;
+    left: auto;
+    width: 25rem;
+    max-height: none;
+  }
+  .xray-panel.is-folded {
+    bottom: auto;
+  }
+}
+.xray-panel header,
+.xray-keys {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.75rem 0;
+}
+.xray-panel header b {
+  flex: 1;
+  min-width: 0;
+  color: #9ff0ff;
+  font-size: 1rem;
+}
+.xray-keys {
+  flex-wrap: wrap;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(90, 220, 255, 0.3);
+}
+.xray-panel button {
+  padding: 0.2rem 0.6rem;
+  border: 1px solid rgba(90, 220, 255, 0.6);
+  border-radius: 6px;
+  cursor: pointer;
+}
+.xray-panel button[aria-pressed="true"] {
+  background: #5adcff;
+  color: #04121f;
+}
+.xray-panel button.xray-close {
+  border-color: transparent;
+  background: var(--a1);
+  color: #fff;
+}
+.xray-body {
+  min-height: 0;
+  padding: 0.6rem 0.75rem;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+.xray-panel.is-folded .xray-body {
+  display: none;
+}
+.xray-body section {
+  margin-top: 0.6rem;
+  padding-top: 0.2rem;
+  border-top: 1px solid rgba(90, 220, 255, 0.2);
+}
+.xray-body h4 {
+  margin: 0.4rem 0 0.25rem;
+  color: #ffd678;
+  font-weight: 700;
+}
+.xray-body ol {
+  padding-left: 1.1rem;
+  list-style: decimal;
+}
+.xray-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+.xray-tags li {
+  padding: 0 0.5rem;
+  border-radius: 999px;
+  background: rgba(90, 220, 255, 0.18);
+}
+.xray-body pre {
+  padding: 0.4rem 0.6rem;
+  overflow-x: auto;
+  border-radius: 6px;
+  background: #000a14;
+  color: #ffd678;
+  font-size: 0.72rem;
+}
+.xray-body code {
+  color: #ff9be4;
+  overflow-wrap: anywhere;
+}
+.xray-file,
+.xray-path {
+  margin-top: 0.3rem;
+  color: #8fb7c9;
+  overflow-wrap: anywhere;
+}
+.xray-body dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.1rem 0;
+}
+.xray-body dt {
+  flex: none;
+  color: #8fb7c9;
+}
+.xray-body dd {
+  min-width: 0;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+.xray-body dd i {
+  display: inline-block;
+  width: 0.7rem;
+  height: 0.7rem;
+  margin-right: 0.35rem;
+  border: 1px solid #fff6;
+}
+
+.xray-panel .xray-tabs {
+  display: flex;
+  flex: none;
+  flex-wrap: wrap;
+  gap: 0.15rem;
+  padding: 0.4rem 0.75rem;
+  border-bottom: 1px solid rgba(90, 220, 255, 0.3);
+}
+.xray-panel .xray-tabs button {
+  flex: none;
+  border-color: transparent;
+}
+.xray-panel .xray-tabs button[aria-selected="true"] {
+  border-color: #ffd678;
+  color: #ffd678;
+}
+.xray-panel.is-folded .xray-tabs {
+  border: 0;
+}
+.xray-at p:first-child {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.xray-at code {
+  flex: 1;
+  min-width: 0;
+}
+.xray-at {
+  margin-bottom: 0.5rem;
+}
+.xray-none {
+  color: #8fb7c9;
+}
+.xray-body pre em {
+  color: #ff9be4;
+  font-style: normal;
+}
+.xray-body pre {
+  margin-bottom: 0.4rem;
+}
+.xray-body pre.is-wrapped,
+.xray-body pre:has(em) {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.xray-when {
+  color: #6ee7a8;
+  font-size: 0.7rem;
+}
+.xray-box {
+  position: relative;
+  display: grid;
+  padding: 1.15rem 1.9rem;
+  border: 1px dashed;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.xray-box > span {
+  position: absolute;
+  top: 0;
+  left: 0.25rem;
+  font-size: 0.65rem;
+}
+.xray-box > b {
+  position: absolute;
+  font-size: 0.72rem;
+  font-weight: 400;
+}
+.xray-box > .side-0 {
+  top: 0;
+  left: 50%;
+  translate: -50% 0;
+}
+.xray-box > .side-1 {
+  top: 50%;
+  right: 0.3rem;
+  translate: 0 -50%;
+}
+.xray-box > .side-2 {
+  bottom: 0;
+  left: 50%;
+  translate: -50% 0;
+}
+.xray-box > .side-3 {
+  top: 50%;
+  left: 0.3rem;
+  translate: 0 -50%;
+}
+.xray-box.is-margin {
+  margin-bottom: 0.6rem;
+  border-color: #ff963c;
+  background: rgba(255, 150, 60, 0.14);
+}
+.xray-box.is-border {
+  border-color: #ffd678;
+  background: rgba(255, 214, 120, 0.14);
+}
+.xray-box.is-padding {
+  border-color: #46dc82;
+  background: rgba(70, 220, 130, 0.14);
+}
+.xray-box.is-content {
+  padding: 0.35rem;
+  border-color: #5adcff;
+  background: #04243f;
+}
+.xray-files li {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 2px;
+  padding: 0.1rem 0.4rem;
+  background: linear-gradient(90deg, rgba(90, 220, 255, 0.25) calc(var(--share) * 100%), rgba(90, 220, 255, 0.05) 0);
+}
+.xray-files span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.xray-files b {
+  flex: none;
+  font-weight: 400;
+}
+.xray-colours {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.25rem;
+}
+.xray-colours i {
+  display: inline-block;
+  width: 0.8rem;
+  height: 0.8rem;
+  margin-right: 0.35rem;
+  border: 1px solid #fff6;
+  vertical-align: -0.1rem;
+}
+
+@media (min-width: 900px) {
+  .xray-panel.is-wide {
+    width: min(44rem, 60vw);
+  }
+}
+@media (max-width: 899px) {
+  .xray-panel button.xray-widen {
+    display: none;
+  }
+  .xray-panel.is-wide {
+    max-height: 70dvh;
+  }
+}
+.xray-body pre s {
+  margin-left: 0.4rem;
+  color: #6ee7a8;
+  text-decoration: none;
+}
+.xray-body input {
+  width: 100%;
+  padding: 0.3rem 0.5rem;
+  border: 1px solid rgba(90, 220, 255, 0.6);
+  border-radius: 6px;
+  background: #000a14;
+  color: #fff;
+}
+.xray-tree {
+  font-family: ui-monospace, Consolas, var(--font-seed), monospace;
+  font-size: 0.72rem;
+}
+.xray-tree li {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+}
+.xray-tree li > span {
+  width: 1.2rem;
+  flex: none;
+}
+.xray-panel .xray-tree button {
+  padding: 0 0.15rem;
+  border: 0;
+  text-align: left;
+}
+.xray-panel .xray-tree button:first-child {
+  width: 1.2rem;
+  flex: none;
+}
+.xray-panel .xray-tree button:last-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.xray-tree li.is-chosen {
+  background: rgba(255, 106, 213, 0.3);
+}
+.xray-tree small {
+  color: #8fb7c9;
+}
+.xray-glass u {
+  position: absolute;
+  text-decoration: none;
+}
+.xray-glass u.is-across {
+  right: 0;
+  left: 0;
+  border-top: 1px dashed rgba(255, 106, 213, 0.7);
+}
+.xray-glass u.is-down {
+  top: 0;
+  bottom: 0;
+  border-left: 1px dashed rgba(255, 106, 213, 0.7);
+}
+.xray-glass u.is-gap-across {
+  border-top: 2px solid #ffd678;
+}
+.xray-glass u.is-gap-down {
+  border-left: 2px solid #ffd678;
+}
+.xray-glass u[data-name]:not([data-name=""])::after {
+  content: attr(data-name);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  padding: 0 0.25rem;
+  border-radius: 4px;
+  background: #ffd678;
+  color: #1c1403;
+  font: 700 0.65rem / 1.4 ui-monospace, Consolas, monospace;
+  translate: -50% -50%;
+}
+.xray-glass > div.is-3d {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transition: transform 0.25s ease-out;
+}
+.xray-glass i.is-layer {
+  border: 1px solid hsl(var(--hue) 90% 65% / 0.85);
+  background: hsl(var(--hue) 90% 60% / 0.06);
+}
+.xray-glass i.is-layer.is-chosen {
+  border: 3px solid #ff6ad5;
+  background: rgba(255, 106, 213, 0.35);
+}
+.xray-ring[hidden] {
+  display: none;
+}
+
+/* the film: the page itself seen as an X-ray picture */
+.xray-glass.is-film {
+  background:
+    linear-gradient(rgba(150, 225, 255, 0.1) 1px, transparent 1px) 0 0 / 100% 4px,
+    rgba(0, 24, 48, 0.28);
+  backdrop-filter: grayscale(1) invert(1) sepia(1) hue-rotate(165deg) saturate(1.6) brightness(0.55) contrast(1.35);
+}
+.xray-glass i.is-bone {
+  border-color: var(--kind, #ffd678);
+}
+.xray-glass i.is-bone::before {
+  color: var(--kind, #ffd678);
+}
+.xray-glass.is-film i.is-bone span {
+  display: block;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  color: #eaffff;
+  text-shadow:
+    0 0 3px #5adcff,
+    0 0 9px #5adcff;
+}
+/* a line of light sweeping the lens; stops with the page's other motion */
+.xray-ring {
+  overflow: hidden;
+}
+.xray-ring::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  left: 0;
+  height: 18%;
+  background: linear-gradient(transparent, rgba(150, 235, 255, 0.28), transparent);
+  animation: xray-sweep 2.8s linear infinite;
+}
+@keyframes xray-sweep {
+  from {
+    top: -20%;
+  }
+  to {
+    top: 102%;
+  }
+}
+.xray-legend {
+  display: flex;
+  flex: none;
+  flex-wrap: wrap;
+  gap: 0.1rem 0.7rem;
+  padding: 0.35rem 0.75rem;
+  border-bottom: 1px solid rgba(90, 220, 255, 0.3);
+  font-size: 0.68rem;
+}
+.xray-legend i {
+  display: inline-block;
+  width: 0.55rem;
+  height: 0.55rem;
+  margin-right: 0.25rem;
+  border-radius: 2px;
+}
+.xray-panel.is-folded .xray-legend {
+  display: none;
+}
+.xray-source {
+  /* a sample to read, not to take: it cannot be selected */
+  user-select: none;
+  margin-bottom: 0.6rem;
+  padding: 0.35rem 0;
+  overflow-x: auto;
+  border-radius: 6px;
+  background: #000a14;
+}
+.xray-body .xray-source code {
+  display: block;
+  width: max-content;
+  min-width: 100%;
+  padding-right: 0.6rem;
+  color: #cfe8f5;
+  font-size: 0.7rem;
+  white-space: pre;
+  overflow-wrap: normal;
+}
+.xray-body .xray-source code.is-noted {
+  background: rgba(255, 214, 120, 0.18);
+  color: #fff;
+}
+.xray-source code i {
+  display: inline-block;
+  width: 2.6rem;
+  margin-right: 0.6rem;
+  color: #5b8399;
+  font-style: normal;
+  text-align: right;
+}
+.xray-source p {
+  position: sticky;
+  left: 0;
+  padding: 0.15rem 0.6rem 0.35rem 3.2rem;
+  color: #ffd678;
+}
+.xray-fps b {
+  color: #6ee7a8;
+  font-size: 2rem;
+  font-variant-numeric: tabular-nums;
+}
+.xray-graph {
+  width: 100%;
+  height: 4rem;
+  background: #000a14;
+}
+.xray-graph polyline {
+  fill: none;
+  stroke: #6ee7a8;
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+}
+.xray-graph line {
+  stroke: #5b8399;
+  stroke-dasharray: 4 3;
+  vector-effect: non-scaling-stroke;
+}
+.xray-fall li {
+  display: grid;
+  grid-template-columns: minmax(0, 9rem) minmax(0, 1fr) 3.5rem;
+  align-items: center;
+  gap: 0.4rem;
+}
+.xray-fall span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.xray-fall i {
+  height: 0.5rem;
+  border-radius: 2px;
+  background: #5adcff;
+}
+.xray-fall b {
+  font-weight: 400;
+  text-align: right;
+}
+.xray-glossary {
+  margin-top: 0.75rem;
+}
+.xray-glossary summary {
+  color: #ffd678;
+  font-weight: 700;
+  cursor: pointer;
+}
+.xray-glossary dd {
+  flex: 1;
+}
+.xray-glossary dt {
+  width: 6.5rem;
+}
+
+/* teaching the small model */
+.teach[open] {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: min(46rem, calc(100vw - 1rem));
+  max-height: calc(100dvh - 1rem);
+  margin: auto;
+  padding: 1rem;
+  overflow: auto;
+  border: 1px solid var(--a2);
+  border-radius: 12px;
+  background: #101114;
+  color: var(--foreground);
+}
+.teach::backdrop {
+  background: rgba(0, 0, 0, 0.85);
+}
+.teach header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-weight: 700;
+}
+.teach button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.teach-step {
+  color: var(--a2);
+  font-weight: 700;
+}
+.teach-body {
+  display: grid;
+  gap: 1rem;
+}
+@media (min-width: 40rem) {
+  .teach-body {
+    grid-template-columns: 18rem minmax(0, 1fr);
+  }
+}
+.teach-board {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: min(18rem, 100%);
+  margin: 0 auto;
+}
+.teach-board > canvas {
+  width: 100%;
+  aspect-ratio: 1;
+  border: 2px dashed var(--a2);
+  border-radius: 12px;
+  background: #05070c;
+  cursor: crosshair;
+  touch-action: none;
+}
+.teach-board > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.teach-board figure {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+.teach-board figure canvas {
+  width: 3.75rem;
+  height: 3.75rem;
+  image-rendering: pixelated;
+}
+.teach-side {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-width: 0;
+}
+.teach-side ul {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.teach-side li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.3rem 0.6rem;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid #28292a;
+  border-radius: 8px;
+}
+.teach-side li.is-best {
+  border-color: var(--a2);
+  background: color-mix(in srgb, var(--a2) 18%, transparent);
+}
+.teach-side input {
+  min-width: 0;
+  background: transparent;
+  font-weight: 700;
+}
+.teach-side meter {
+  width: 100%;
+}
+.teach-side li b {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.teach-keys {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.teach-loss svg {
+  width: 100%;
+  height: 3.5rem;
+  border-bottom: 1px solid #333;
+}
+.teach-loss polyline {
+  fill: none;
+  stroke: var(--a2);
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+.teach-loss figcaption,
+.teach small {
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+
+/* on a phone the controls take one line each and slide sideways, leaving the height to what is being read */
+@media (max-width: 899px) {
+  .xray-panel {
+    max-height: 56dvh;
+  }
+  .xray-panel .xray-keys,
+  .xray-panel .xray-tabs {
+    flex: none;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+  .xray-panel .xray-keys button {
+    flex: none;
+  }
+  .xray-panel .xray-legend {
+    display: none;
+  }
 }

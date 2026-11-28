@@ -43,3 +43,6 @@ next-env.d.ts
 
 # local dev log
 .dev-server.log
+
+# written by scripts/sources.mjs at build time
+/public/xray-sources.json

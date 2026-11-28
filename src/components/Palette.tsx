@@ -48,6 +48,8 @@ export function Palette() {
         { label: say("ทุบกระจก", "Break the glass"), words: "glass shatter กระจก ทุบ", run: () => openFeature("glass") },
         { label: say("โหมดแฮ็กเกอร์", "Hacker mode"), words: "hack game แฮ็ก รหัส เกม", run: () => openFeature("hack") },
         { label: say("ควบคุมจักรวาล", "Rule the universe"), words: "universe space gravity จักรวาล ดาว แรงโน้มถ่วง", run: () => openFeature("universe") },
+        { label: say("สอน AI ด้วยตัวเอง", "Teach an AI"), words: "teach ai learn neural draw สอน วาด โมเดล เรียนรู้", run: () => openFeature("teach") },
+        { label: say("แว่น X-ray", "X-ray lens"), words: "xray x-ray lens code how แว่น ส่อง เบื้องหลัง", run: () => openFeature("xray") },
         { label: say("พลังจิต", "Psychic power"), words: "psychic throw พลังจิต โยน ยก", run: () => openFeature("psychic") },
         { label: say("AI ทำอะไรได้", "What AI can do"), words: "ai artificial intelligence เอไอ ปัญญาประดิษฐ์ หุ่นยนต์", run: () => openFeature("ai") },
         { label: say("เมนูฟีเจอร์ทั้งหมด", "All features"), words: "menu features เมนู ฟีเจอร์", run: () => openFeature("menu") },

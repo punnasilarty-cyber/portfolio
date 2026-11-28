@@ -7,7 +7,7 @@ import { useLang } from "@/i18n";
 
 const SAY: Record<string, { th: string; en: string }> = {
   top: { th: "สวัสดีครับ กดผมเพื่อไปต่อ", en: "Hello! Press me to move on" },
-  education: { th: "เส้นทางการเรียน ลองกดหมุดบนแผนที่", en: "My schools. Try the map pins" },
+  education: { th: "เส้นทางการเรียน ลองกดตราโรงเรียน", en: "My path. Try the school crests" },
   is2: { th: "โครงงาน IS กด “รายละเอียด” ได้", en: "The IS project. Press “Details”" },
   activities: { th: "กิจกรรมของผม", en: "My activities" },
   certificates: { th: "เกียรติบัตร", en: "Certificates" },
