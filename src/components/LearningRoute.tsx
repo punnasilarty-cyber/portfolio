@@ -115,7 +115,7 @@ export function LearningRoute({ project, onStage }: { project?: Work; /** told w
         })}
         {/* the traveller rides the road from the first school to the second */}
         <g className="edu-traveller" style={{ offsetPath: `path("${ROAD}")`, offsetDistance: atSecondSchool ? "100%" : "0%" }}>
-          <circle cy="22" r="9" fill="#fff" stroke="#dc2626" strokeWidth="2.5" />
+          <circle cy="22" r="9" fill="#fff" style={{ stroke: "var(--a1)" }} strokeWidth="2.5" />
           <text y="26" textAnchor="middle" fontSize="11" fontWeight="800" fill="#7f1d1d">
             {english ? `${grade[0]}${grade.slice(-1)}` : grade.replace(".", "")}
           </text>

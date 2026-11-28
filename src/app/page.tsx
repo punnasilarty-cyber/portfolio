@@ -6,6 +6,8 @@ import { HeroMotion } from "@/components/HeroMotion";
 import { LangToggle } from "@/components/LangToggle";
 import { Loader } from "@/components/Loader";
 import { StaggerText } from "@/components/StaggerText";
+import { Terminal } from "@/components/Terminal";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { ToTop } from "@/components/ToTop";
 import { Works } from "@/components/Works";
 import { aboutWhole, contacts, profile, sections, siteUrl } from "@/content";
@@ -34,7 +36,11 @@ export default function HomePage() {
               </a>
             ))}
           </nav>
-          <LangToggle />
+          {/* the two corners of the bar on narrow screens, a pair at its end on wide ones */}
+          <div className="contents lg:flex lg:gap-2">
+            <ThemeToggle />
+            <LangToggle />
+          </div>
         </div>
       </header>
 
@@ -148,6 +154,7 @@ export default function HomePage() {
         <label className="mt-3 flex items-center justify-center gap-2">
           <input id="calm" type="checkbox" /> {t("หยุดแอนิเมชัน")}
         </label>
+        <Terminal />
       </footer>
     </>
   );

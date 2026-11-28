@@ -1,28 +1,49 @@
 @import "tailwindcss";
 
-/* design tokens: charcoal surfaces with a single red accent */
+/* design tokens: charcoal surfaces with a single accent in four shades, from deep to pale; see theme.ts */
 :root {
+  --a1: #dc2626;
+  --a2: #f87171;
+  --a3: #fca5a5;
+  --a4: #fecaca;
+  /* the resting code behind the headline */
+  --code-dim: #2b2325;
   --background: #08090a;
   --surface: #111111;
   --surface-2: #1b1c20;
   --border: rgba(255, 255, 255, 0.1);
   --foreground: #fafafa;
   --muted: #a1a1aa;
-  --accent: #dc2626;
-  --accent-soft: #fca5a5;
+  --accent: var(--a1);
+  --accent-soft: var(--a3);
 
   --solx-ink: #ffffff;
   --solx-ink-soft: #d4d4d4;
   --solx-green: #4ade80;
   --solx-amber: #fbbf24;
-  --solx-red: #f87171;
+  --solx-red: var(--a2);
 
   --radius-card: 10px;
   --radius-button: 8px;
 
   --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.08) inset, 0 24px 50px -28px rgba(0, 0, 0, 0.85);
-  --shadow-btn: 0 10px 24px -14px rgba(220, 38, 38, 0.9);
-  --holo: linear-gradient(100deg, #f87171 0%, #fca5a5 50%, #fee2e2 100%);
+  --shadow-btn: 0 10px 24px -14px color-mix(in srgb, var(--a1) 90%, transparent);
+  --holo: linear-gradient(100deg, var(--a2) 0%, var(--a3) 50%, var(--a4) 100%);
+}
+
+:root[data-theme="school"] {
+  --a1: #15803d;
+  --a2: #facc15;
+  --a3: #fde047;
+  --a4: #fef08a;
+  --code-dim: #232b22;
+}
+:root[data-theme="blue"] {
+  --a1: #2563eb;
+  --a2: #60a5fa;
+  --a3: #93c5fd;
+  --a4: #bfdbfe;
+  --code-dim: #23262f;
 }
 
 /* --font-seed comes from next/font in layout.tsx */
@@ -56,7 +77,7 @@ body::before {
   pointer-events: none;
   background:
     radial-gradient(48rem 30rem at 8% -4%, rgba(255, 255, 255, 0.075), transparent 70%),
-    radial-gradient(40rem 28rem at 92% 8%, rgba(220, 38, 38, 0.1), transparent 70%);
+    radial-gradient(40rem 28rem at 92% 8%, color-mix(in srgb, var(--a1) 10%, transparent), transparent 70%);
 }
 
 .solx-gradient-text {
@@ -108,7 +129,7 @@ body::before {
 /* a short flash as a letter resolves */
 @keyframes solx-settle {
   from {
-    filter: brightness(2.2) drop-shadow(0 0 12px #f87171);
+    filter: brightness(2.2) drop-shadow(0 0 12px var(--a2));
   }
 }
 .solx-after-title {
@@ -172,7 +193,7 @@ body::before {
 }
 /* the shop name in the hero: red at the top of each letter, fading down into white */
 .solx-title-brand .solx-gradient-text {
-  background-image: linear-gradient(#c81e1e 20%, #f87171 40%, #ffffff 64%);
+  background-image: linear-gradient(var(--a1) 20%, var(--a2) 40%, #ffffff 64%);
 }
 /* a framed area that holds other cards; unlike .solx-card it does not lift on hover.
    Page-dark inside, with a faint light in the top-left corner */
@@ -288,12 +309,12 @@ body::before {
 .solx-btn-primary:hover {
   filter: brightness(1.1);
   transform: translateY(-1px);
-  box-shadow: 0 14px 30px -14px rgba(220, 38, 38, 1);
+  box-shadow: 0 14px 30px -14px color-mix(in srgb, var(--a1) 100%, transparent);
 }
 
 .solx-btn-primary:active {
   transform: translateY(0) scale(0.97);
-  box-shadow: 0 6px 16px -10px rgba(220, 38, 38, 0.9);
+  box-shadow: 0 6px 16px -10px color-mix(in srgb, var(--a1) 90%, transparent);
 }
 
 .solx-btn-ghost {
@@ -396,7 +417,7 @@ body::before {
   height: 2.75rem;
   min-width: 2.75rem;
   padding: 0 0.8rem;
-  border: 1px solid rgba(248, 113, 113, 0.25);
+  border: 1px solid color-mix(in srgb, var(--a2) 25%, transparent);
   border-radius: 999px;
   background: rgba(8, 9, 10, 0.7);
   color: var(--accent-soft);
@@ -417,8 +438,8 @@ body::before {
 .secret-btn:hover,
 .secret-btn:focus-visible {
   opacity: 1;
-  border-color: #f87171;
-  box-shadow: 0 0 24px -4px #dc2626;
+  border-color: var(--a2);
+  box-shadow: 0 0 24px -4px var(--a1);
 }
 .secret-btn:hover svg,
 .secret-btn:focus-visible svg {
@@ -430,10 +451,10 @@ body::before {
   margin-left: 0.5rem;
 }
 .secret-dialog {
-  border: 1px solid rgba(248, 113, 113, 0.45);
+  border: 1px solid color-mix(in srgb, var(--a2) 45%, transparent);
   border-radius: 16px;
   background: #0d0e10;
-  box-shadow: 0 0 60px -12px #dc2626;
+  box-shadow: 0 0 60px -12px var(--a1);
 }
 .secret-dialog::backdrop {
   background: rgba(0, 0, 0, 0.75);
@@ -450,7 +471,7 @@ body::before {
   flex-direction: column;
   width: min(25rem, calc(100vw - 1.5rem));
   max-height: min(40rem, calc(100dvh - 7rem));
-  border: 1px solid rgba(248, 113, 113, 0.35);
+  border: 1px solid color-mix(in srgb, var(--a2) 35%, transparent);
   border-radius: 16px;
   background: rgba(13, 14, 16, 0.96);
   box-shadow: 0 24px 60px -20px #000;
@@ -483,14 +504,14 @@ html::after {
 }
 html::before {
   background:
-    radial-gradient(1.5px 1.5px at 20px 30px, #fca5a5, transparent) 0 0 / 190px 210px,
+    radial-gradient(1.5px 1.5px at 20px 30px, var(--a3), transparent) 0 0 / 190px 210px,
     radial-gradient(1px 1px at 90px 120px, #ffffff, transparent) 0 0 / 260px 240px,
-    radial-gradient(2px 2px at 150px 60px, #f87171, transparent) 0 0 / 330px 370px;
+    radial-gradient(2px 2px at 150px 60px, var(--a2), transparent) 0 0 / 330px 370px;
   opacity: 0.55;
 }
 html::after {
   background:
-    radial-gradient(34rem 24rem at 30% 35%, rgba(220, 38, 38, 0.16), transparent 70%),
+    radial-gradient(34rem 24rem at 30% 35%, color-mix(in srgb, var(--a1) 16%, transparent), transparent 70%),
     radial-gradient(30rem 22rem at 72% 70%, rgba(124, 58, 237, 0.12), transparent 70%);
 }
 body {
@@ -507,8 +528,8 @@ html {
   height: 3px;
   transform-origin: left;
   transform: scaleX(0);
-  background: linear-gradient(90deg, #dc2626, #f87171, #fecaca);
-  box-shadow: 0 0 14px #dc2626;
+  background: linear-gradient(90deg, var(--a1), var(--a2), var(--a4));
+  box-shadow: 0 0 14px var(--a1);
 }
 
 /* each heading gets a glowing underline */
@@ -519,8 +540,8 @@ main section[id] h2::after {
   height: 3px;
   margin: 0.9rem auto 0;
   border-radius: 999px;
-  background: linear-gradient(90deg, transparent, #f87171, transparent);
-  box-shadow: 0 0 16px #dc2626;
+  background: linear-gradient(90deg, transparent, var(--a2), transparent);
+  box-shadow: 0 0 16px var(--a1);
 }
 
 /* cards start off to the side, which must not widen the page */
@@ -539,7 +560,7 @@ main {
   font-weight: 900;
   line-height: 1;
   color: transparent;
-  -webkit-text-stroke: 2px rgba(248, 113, 113, 0.16);
+  -webkit-text-stroke: 2px color-mix(in srgb, var(--a2) 16%, transparent);
   pointer-events: none;
   user-select: none;
 }
@@ -581,8 +602,8 @@ main li .solx-spotlight {
   transition: transform 0.2s ease, box-shadow 0.35s ease, border-color 0.35s ease;
 }
 main li .solx-spotlight:hover {
-  border-color: #f87171;
-  box-shadow: 0 24px 50px -18px rgba(220, 38, 38, 0.75);
+  border-color: var(--a2);
+  box-shadow: 0 24px 50px -18px color-mix(in srgb, var(--a1) 75%, transparent);
 }
 main li .solx-spotlight::after {
   content: "";
@@ -601,7 +622,7 @@ main li .solx-spotlight:hover::after {
 
 /* a pulse on the main button and a glide under menu links */
 header nav a {
-  background: linear-gradient(#f87171, #f87171) center bottom / 0 2px no-repeat;
+  background: linear-gradient(var(--a2), var(--a2)) center bottom / 0 2px no-repeat;
   transition: background-size 0.3s ease, color 0.3s ease;
 }
 header nav a.fx-active {
@@ -645,7 +666,7 @@ html:has(#calm:checked)::after {
 .edu-stage {
   display: grid;
   gap: 1.5rem;
-  border: 1px solid rgba(248, 113, 113, 0.2);
+  border: 1px solid color-mix(in srgb, var(--a2) 20%, transparent);
   border-radius: 18px;
   background: radial-gradient(circle at 50% 35%, rgba(120, 160, 255, 0.14), transparent 70%), #0b0d12;
   padding: 0.75rem;
@@ -830,9 +851,9 @@ html:has(#calm:checked)::after {
   display: grid;
   gap: 0.75rem;
   padding: 0.75rem;
-  border: 1px solid rgba(248, 113, 113, 0.2);
+  border: 1px solid color-mix(in srgb, var(--a2) 20%, transparent);
   border-radius: 18px;
-  background: radial-gradient(circle at 50% 30%, rgba(220, 38, 38, 0.1), transparent 70%), #0b0d12;
+  background: radial-gradient(circle at 50% 30%, color-mix(in srgb, var(--a1) 10%, transparent), transparent 70%), #0b0d12;
 }
 .edu-map-art {
   display: block;
@@ -869,7 +890,7 @@ html:has(#calm:checked)::after {
 }
 .edu-province {
   fill: #1a1012;
-  stroke: rgba(248, 113, 113, 0.6);
+  stroke: color-mix(in srgb, var(--a2) 60%, transparent);
   stroke-width: 1.5;
 }
 .edu-map-label {
@@ -1367,6 +1388,102 @@ div.viewer-body {
     flex: none;
   }
 }
+/* the colour button: the other corner of the header on narrow screens, beside the language on wide ones */
+.theme-toggle {
+  position: absolute;
+  top: 0.4rem;
+  left: 0.5rem;
+  display: grid;
+  width: 1.75rem;
+  height: 1.75rem;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-button);
+  cursor: pointer;
+}
+.theme-toggle span {
+  width: 0.9rem;
+  height: 0.9rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--a1) 50%, var(--a2) 50%);
+}
+.theme-toggle:hover {
+  border-color: var(--a3);
+}
+@media (min-width: 1024px) {
+  .theme-toggle {
+    position: static;
+    flex: none;
+  }
+}
+
+/* the hidden command window */
+.terminal-open {
+  display: block;
+  margin: 0.75rem auto 0;
+  padding: 0.15rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-button);
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  cursor: pointer;
+}
+.terminal-open:hover {
+  border-color: var(--a2);
+  color: var(--a3);
+}
+.terminal[open] {
+  display: flex;
+  flex-direction: column;
+  width: min(40rem, calc(100vw - 1rem));
+  height: min(28rem, calc(100dvh - 2rem));
+  margin: auto;
+  padding: 0;
+  border: 1px solid var(--a2);
+  border-radius: 12px;
+  background: #0a0b0d;
+  color: #e4e4e7;
+  font-family: ui-monospace, Menlo, Consolas, var(--font-seed), monospace;
+  font-size: 0.8125rem;
+  text-align: left;
+}
+.terminal::backdrop {
+  background: rgba(0, 0, 0, 0.7);
+}
+.terminal header {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--a3);
+}
+.terminal header button {
+  cursor: pointer;
+}
+.terminal-log {
+  flex: 1;
+  overflow: auto;
+  padding: 0.75rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.terminal form {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-top: 1px solid var(--border);
+  color: var(--a2);
+}
+.terminal input {
+  flex: 1;
+  min-width: 0;
+  background: none;
+  color: #fff;
+  /* below this size phones zoom the page when the field is pressed */
+  font-size: 1rem;
+  outline: none;
+}
+
 /* the drawing in an empty section */
 .empty-art {
   margin: 0 auto 0.5rem;
@@ -1460,7 +1577,7 @@ div.viewer-body {
   display: block;
   height: 100%;
   border-radius: 999px;
-  background: linear-gradient(90deg, #b91c1c, #f87171);
+  background: linear-gradient(90deg, var(--a1), var(--a2));
   transform: scaleX(0);
   transform-origin: left;
   transition: transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
@@ -1489,7 +1606,7 @@ div.viewer-body {
   content: "";
   position: absolute;
   inset: 0;
-  background-image: linear-gradient(rgba(248, 113, 113, 0.09) 1px, transparent 1px), linear-gradient(90deg, rgba(248, 113, 113, 0.09) 1px, transparent 1px);
+  background-image: linear-gradient(color-mix(in srgb, var(--a2) 9%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--a2) 9%, transparent) 1px, transparent 1px);
   background-size: 2.5rem 2.5rem;
   mask-image: radial-gradient(circle at 50% 45%, #000, transparent 65%);
 }
@@ -1512,7 +1629,7 @@ div.viewer-body {
   position: absolute;
   inset: 0;
   border: 2px solid transparent;
-  border-top-color: #f87171;
+  border-top-color: var(--a2);
   border-radius: 50%;
   animation: loader-spin 1.4s linear infinite;
 }
@@ -1527,7 +1644,7 @@ div.viewer-body {
   width: 4.5rem;
   height: 4.5rem;
   fill: none;
-  stroke: #f87171;
+  stroke: var(--a2);
   stroke-width: 6;
   stroke-linecap: round;
   stroke-linejoin: round;
@@ -1550,7 +1667,7 @@ div.viewer-body {
   font-weight: 900;
 }
 #loader p small {
-  color: #f87171;
+  color: var(--a2);
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.4em;
@@ -1569,7 +1686,7 @@ div.viewer-body {
   display: block;
   height: 100%;
   overflow: hidden;
-  background: linear-gradient(90deg, #b91c1c, #f87171);
+  background: linear-gradient(90deg, var(--a1), var(--a2));
   transform-origin: left;
   transition: transform 0.2s ease;
 }

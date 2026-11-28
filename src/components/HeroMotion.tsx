@@ -16,12 +16,9 @@ const hash = (a: number, b: number) => {
   return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
 };
 const clamp = (x: number) => Math.max(0, Math.min(1, x));
-const mix = (u: number) => {
-  const stops = [
-    [185, 28, 28],
-    [248, 113, 113],
-    [254, 202, 202],
-  ];
+/** a colour of the theme, written in globals.css as #rrggbb */
+const themeColor = (name: string) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+const mix = (stops: number[][], u: number) => {
   const k = clamp(u) * 2;
   const i = Math.min(1, Math.floor(k));
   const c = stops[i].map((v, n) => Math.round(v + (stops[i + 1][n] - v) * (k - i)));
@@ -62,7 +59,14 @@ export function HeroMotion({ still = false }: { still?: boolean }) {
     // grid cells covered by the shape; u runs 0..1 diagonally across it
     let cells: { x: number; y: number; u: number }[] = [];
 
+    let stops: number[][] = [];
+    let dim = "";
+    let spark = "";
+
     function layout() {
+      stops = ["--a1", "--a2", "--a4"].map((name) => [1, 3, 5].map((at) => parseInt(themeColor(name).slice(at, at + 2), 16)));
+      dim = themeColor("--code-dim");
+      spark = themeColor("--a4");
       const dpr = Math.min(1.25, window.devicePixelRatio || 1);
       width = canvas!.clientWidth;
       height = canvas!.clientHeight;
@@ -120,11 +124,11 @@ export function HeroMotion({ still = false }: { still?: boolean }) {
       ctx!.font = dimFont;
       ctx!.shadowBlur = 0;
       ctx!.globalAlpha = 1;
-      ctx!.fillStyle = "#2b2325";
+      ctx!.fillStyle = dim;
       for (let y = 0; y < rows; y++) ctx!.fillText(twice.substr(offset(y), cols), 0, y * lh);
 
       // a few characters twinkle, each on its own clock
-      ctx!.fillStyle = "#fecaca";
+      ctx!.fillStyle = spark;
       for (let k = 0; k < 40; k++) {
         const clock = time * 0.7 + hash(k, 9);
         const spot = Math.floor(hash(k, Math.floor(clock)) * cols * rows);
@@ -149,7 +153,7 @@ export function HeroMotion({ still = false }: { still?: boolean }) {
           ? GLYPHS[Math.floor(hash(id, Math.floor(time * 18)) * GLYPHS.length)]
           : own === " " ? "·" : own;
         const shine = Math.exp(-((cell.u - sweep) ** 2) / 0.006);
-        const color = mix(cell.u);
+        const color = mix(stops, cell.u);
         // kept low so the headline in front stays readable
         ctx!.globalAlpha = alpha * (0.38 + 0.45 * shine);
         ctx!.fillStyle = shine > 0.6 ? "#ffffff" : color;
@@ -177,12 +181,14 @@ export function HeroMotion({ still = false }: { still?: boolean }) {
 
     redraw();
     if (playing) frame = requestAnimationFrame(tick);
+    window.addEventListener("theme-change", redraw);
     const resize = new ResizeObserver(redraw);
     resize.observe(canvas);
     const seen = new IntersectionObserver(([entry]) => (visible = entry.isIntersecting));
     seen.observe(canvas);
     return () => {
       cancelAnimationFrame(frame);
+      window.removeEventListener("theme-change", redraw);
       resize.disconnect();
       seen.disconnect();
     };

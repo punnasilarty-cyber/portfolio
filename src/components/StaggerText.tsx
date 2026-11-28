@@ -109,7 +109,7 @@ export function StaggerText({
                 style={
                   {
                     "--d": `${300 + (start + i) * 65}ms`,
-                    "--c": ["#dc2626", "#f87171", "#fecaca"][(start + i) % 3],
+                    "--c": ["var(--a1)", "var(--a2)", "var(--a4)"][(start + i) % 3],
                   } as React.CSSProperties
                 }
               >
