@@ -794,10 +794,10 @@ html:has(#calm:checked)::after {
   font-size: 0.95rem;
 }
 .edu-logo {
-  width: 3.25rem;
-  height: 3.25rem;
+  width: 5.5rem;
+  height: 5.5rem;
   flex-shrink: 0;
-  padding: 2px;
+  padding: 0.5rem;
   border: 2px solid var(--a);
   border-radius: 50%;
   background: #fff;
@@ -915,7 +915,7 @@ html:has(#calm:checked)::after {
 .edu-path::after {
   content: "";
   position: absolute;
-  top: 1.5rem;
+  top: 2.1rem;
   left: calc(50% / var(--stops));
   height: 3px;
   border-radius: 3px;
@@ -945,8 +945,8 @@ html:has(#calm:checked)::after {
 }
 .edu-path span {
   display: grid;
-  width: 3rem;
-  height: 3rem;
+  width: 4.25rem;
+  height: 4.25rem;
   place-items: center;
   overflow: hidden;
   border: 3px solid rgba(255, 255, 255, 0.25);
@@ -957,9 +957,10 @@ html:has(#calm:checked)::after {
     border-color 0.3s ease,
     box-shadow 0.3s ease;
 }
+/* kept well inside the circle, so the names round the foot of each crest are not cut */
 .edu-path img {
-  width: 2.4rem;
-  height: 2.4rem;
+  width: 2.95rem;
+  height: 2.95rem;
   object-fit: contain;
 }
 .edu-path b {
@@ -977,15 +978,11 @@ html:has(#calm:checked)::after {
   box-shadow: 0 0 18px var(--a);
   scale: 1.15;
 }
-.edu-path li:not(.is-here, .is-done) span {
-  filter: grayscale(0.7);
-}
 .edu-path .edu-goal-stop span {
   border-style: dashed;
   background: #14161c;
   color: #facc15;
-  font-size: 1.3rem;
-  filter: none;
+  font-size: 1.6rem;
 }
 .edu-next {
   display: flex;
@@ -1179,16 +1176,16 @@ li.is-sought .solx-spotlight {
 @media (max-width: 899px) {
   /* the pinned panel stays short on phones: small stops, and the skills by name only */
   .edu--route .edu-path span {
-    width: 2.2rem;
-    height: 2.2rem;
+    width: 3.1rem;
+    height: 3.1rem;
   }
   .edu--route .edu-path img {
-    width: 1.7rem;
-    height: 1.7rem;
+    width: 2.15rem;
+    height: 2.15rem;
   }
   .edu--route .edu-path::before,
   .edu--route .edu-path::after {
-    top: 1.05rem;
+    top: 1.5rem;
   }
   .edu--route .edu-path small,
   .edu--route .edu-skills p,
