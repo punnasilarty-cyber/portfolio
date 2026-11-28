@@ -1,10 +1,11 @@
 // คำสั่งของหน้าต่างเทอร์มินัลลับ ตอบจากข้อมูลที่หน้าเว็บส่งมาเท่านั้น
+import type { Feature } from "./features.ts";
 import { isTheme, THEMES, type Theme } from "./theme.ts";
 
 export const PLACES = ["top", "education", "is2", "activities", "certificates", "contact"];
 
 export type Facts = { english: boolean; about: string[]; education: string[]; projects: string[]; contacts: string[] };
-export type Answer = { lines: string[]; heaven?: boolean; clear?: boolean; close?: boolean; theme?: Theme; english?: boolean; goto?: string };
+export type Answer = { lines: string[]; heaven?: boolean; open?: Feature; clear?: boolean; close?: boolean; theme?: Theme; english?: boolean; goto?: string };
 
 export function answer(input: string, facts: Facts): Answer {
   const [command = "", value = ""] = input.trim().toLowerCase().split(/\s+/);
@@ -24,6 +25,7 @@ export function answer(input: string, facts: Facts): Answer {
           `goto <${say("หมวด", "section")}>   ${say("ไปยังหมวด", "jump to a section")}`,
           `theme <${THEMES.join("|")}>  ${say("เปลี่ยนสี", "change colour")}`,
           `lang <th|en>  ${say("เปลี่ยนภาษา", "change language")}`,
+          `present      ${say("โหมดนำเสนอ", "presentation mode")}`,
           `clear · exit`,
         ],
       };
@@ -41,7 +43,12 @@ export function answer(input: string, facts: Facts): Answer {
       return value === "th" || value === "en" ? { lines: [value === "en" ? "Language: English" : "ภาษาไทย"], english: value === "en" } : usage(["th", "en"]);
     case "goto":
       return PLACES.includes(value) ? { lines: [], goto: value, close: true } : usage(PLACES);
+    case "present":
+      return { lines: [], open: command, close: true };
     // not listed by help
+    case "matrix":
+    case "timestop":
+      return { lines: [], open: command, close: true };
     case "heaven":
       return { lines: [], heaven: true, close: true };
     case "clear":

@@ -2017,6 +2017,390 @@ div.viewer-body {
   }
 }
 
+/* the glass in the menu bar: the middle of the bar's left corner on narrow screens, beside the colour on wide ones */
+.palette-open {
+  position: absolute;
+  top: 0.4rem;
+  left: 2.75rem;
+  display: grid;
+  width: 1.75rem;
+  height: 1.75rem;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-button);
+  cursor: pointer;
+}
+.palette-open:hover {
+  border-color: var(--a3);
+}
+@media (min-width: 1024px) {
+  .palette-open {
+    position: static;
+    flex: none;
+  }
+}
+.about-side {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  align-items: flex-start;
+  gap: 0.6rem;
+}
+/* the heading keeps a row to itself; the buttons share the next one where there is room */
+.about-side h2 {
+  flex-basis: 100%;
+  margin-bottom: 0.25rem;
+}
+
+/* the command box */
+.palette[open] {
+  display: flex;
+  flex-direction: column;
+  width: min(36rem, calc(100vw - 1rem));
+  max-height: min(30rem, 80dvh);
+  margin: 10dvh auto auto;
+  padding: 0;
+  border: 1px solid var(--a2);
+  border-radius: 14px;
+  background: #101114;
+  color: var(--foreground);
+}
+.palette::backdrop,
+.sheet::backdrop {
+  background: rgba(0, 0, 0, 0.75);
+}
+.palette input {
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid var(--border);
+  background: none;
+  font-size: 1rem;
+  outline: none;
+}
+.palette ul {
+  flex: 1;
+  overflow: auto;
+  padding: 0.35rem;
+}
+.palette li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.55rem 0.7rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+.palette li[aria-selected="true"] {
+  background: color-mix(in srgb, var(--a1) 35%, transparent);
+}
+.palette li small {
+  color: var(--muted);
+  white-space: nowrap;
+}
+.palette li.is-empty {
+  color: var(--muted);
+  cursor: default;
+}
+.palette > p {
+  padding: 0.5rem 1rem;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+
+/* small windows: the secret book and the ID card */
+.sheet[open] {
+  display: grid;
+  gap: 1rem;
+  width: min(34rem, calc(100vw - 1rem));
+  max-height: calc(100dvh - 1rem);
+  margin: auto;
+  padding: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: #0d0e11;
+  color: var(--foreground);
+  overflow-x: hidden;
+}
+.sheet header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+.sheet h3 {
+  font-weight: 700;
+}
+.sheet--card[open] {
+  justify-items: center;
+  width: min(36rem, calc(100vw - 1rem));
+}
+.sheet--card header {
+  width: 100%;
+}
+
+.secrets-open {
+  display: block;
+  margin: 0.75rem auto 0;
+  padding: 0.3rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+}
+.secrets-open:hover {
+  border-color: #fde68a;
+  color: #fde68a;
+}
+.secret-list {
+  display: grid;
+  gap: 0.5rem;
+}
+.secret-list li {
+  display: grid;
+  padding: 0.6rem 0.8rem;
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  text-align: left;
+}
+.secret-list li.is-found {
+  border: 1px solid #fde68a;
+  background: rgba(253, 230, 138, 0.08);
+}
+.secret-list span {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+.secret-prize {
+  text-align: center;
+  color: #fde68a;
+  font-weight: 700;
+}
+.secret-prize span {
+  font-size: 3rem;
+}
+.secret-news {
+  position: fixed;
+  bottom: 1rem;
+  left: 50%;
+  z-index: 60;
+  max-width: calc(100vw - 2rem);
+  translate: -50% 150%;
+  padding: 0.6rem 1.1rem;
+  border: 1px solid #fde68a;
+  border-radius: 999px;
+  background: #17150c;
+  color: #fde68a;
+  font-size: 0.85rem;
+  visibility: hidden;
+  transition: translate 0.4s ease, visibility 0.4s;
+}
+.secret-news.is-on {
+  translate: -50% 0;
+  visibility: visible;
+}
+
+/* the ID card: tilted by the pointer, with a band of coloured light sliding across */
+.idcard-stage {
+  width: 100%;
+  padding: 0.5rem;
+  perspective: 900px;
+  touch-action: none;
+}
+.idcard {
+  --tilt-x: 0deg;
+  --tilt-y: 0deg;
+  --shine: 30%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 15rem;
+  padding: 5% 6%;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 18px;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--a1) 55%, #0d0e12), #0d0e12 55%, color-mix(in srgb, var(--a2) 35%, #0d0e12));
+  box-shadow: 0 30px 50px -25px color-mix(in srgb, var(--a1) 70%, transparent);
+  text-align: left;
+  container-type: inline-size;
+  transform: rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
+  transition: transform 0.15s ease-out;
+}
+.idcard::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(115deg, transparent calc(var(--shine) - 22%), rgba(255, 120, 200, 0.18) calc(var(--shine) - 8%), rgba(255, 255, 255, 0.28) var(--shine), rgba(110, 220, 255, 0.18) calc(var(--shine) + 8%), transparent calc(var(--shine) + 22%));
+  mix-blend-mode: screen;
+}
+.idcard-top {
+  color: var(--a2);
+  font-size: 3cqw;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+.idcard-name {
+  max-width: 70%;
+  margin: 6cqw 0 2cqw;
+  font-size: 6.6cqw;
+  font-weight: 800;
+  line-height: 1.2;
+}
+.idcard ul {
+  max-width: 68%;
+  color: #d4d4d8;
+  font-size: max(3.2cqw, 0.7rem);
+}
+.idcard-mail {
+  max-width: 68%;
+  margin-top: auto;
+  padding-top: 3cqw;
+  color: var(--a2);
+  font-size: max(3cqw, 0.7rem);
+  overflow-wrap: anywhere;
+}
+.idcard-crest {
+  position: absolute;
+  top: 5%;
+  right: 6%;
+  width: 19%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #fff;
+  object-fit: contain;
+  padding: 1.5%;
+}
+.idcard-code {
+  position: absolute;
+  right: 6%;
+  bottom: 7%;
+  width: 21%;
+  padding: 1%;
+  border-radius: 8px;
+  background: #fff;
+}
+.idcard-note {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+/* time stopped: the page behind turns inside out, spreading from the middle */
+.stop[open],
+.matrix[open] {
+  width: 100vw;
+  max-width: none;
+  height: 100dvh;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #fff;
+}
+.stop::backdrop,
+.matrix::backdrop {
+  background: transparent;
+}
+.stop-veil {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+  height: 100%;
+  padding: 1rem;
+  /* a shade in the middle keeps the words apart from the page's own */
+  background: linear-gradient(transparent 18%, rgba(0, 0, 0, 0.9) 30% 72%, transparent 84%);
+  -webkit-backdrop-filter: invert(0.92) hue-rotate(180deg) contrast(1.1);
+  backdrop-filter: invert(0.92) hue-rotate(180deg) contrast(1.1);
+  text-align: center;
+  text-shadow: 0 0 8px #000, 0 0 20px #000;
+  animation: stop-spread 0.7s ease-out both;
+}
+.stop-veil p {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.8rem, 8vw, 4.5rem);
+  font-weight: 700;
+  letter-spacing: 0.2em;
+}
+.stop-veil b {
+  font-size: clamp(4rem, 20vw, 10rem);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+@keyframes stop-spread {
+  from {
+    clip-path: circle(0 at 50% 50%);
+  }
+  to {
+    clip-path: circle(150% at 50% 50%);
+  }
+}
+.matrix canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.matrix button {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 50%;
+  translate: -50% 0;
+}
+
+/* presentation: the controls at the bottom, and the corner helpers out of the way */
+.present {
+  position: fixed;
+  bottom: 1rem;
+  left: 50%;
+  z-index: 55;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  translate: -50% 0;
+  padding: 0.35rem 0.5rem;
+  overflow: hidden;
+  border: 1px solid var(--a2);
+  border-radius: 999px;
+  background: #101114;
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.present button {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.present button:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--a1) 35%, transparent);
+}
+.present button:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+.present i {
+  position: absolute;
+  inset: auto 0 0;
+  height: 2px;
+  background: var(--a2);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+}
+body.is-presenting :is(.robot, .dots, .to-top, .secret-btn) {
+  display: none;
+}
+body.is-presenting .about {
+  scroll-margin-top: 6rem;
+}
+
 /* the drawing in an empty section */
 /* the whole drawing floats, which the graphics card can do by itself */
 .empty-art {

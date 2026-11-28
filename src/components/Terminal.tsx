@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { openHeaven } from "@/components/Heaven";
+import { foundSecret, openFeature } from "@/features";
 import { setEnglish, useLang } from "@/i18n";
 import { useSite } from "@/site-store";
 import { answer } from "@/terminal";
@@ -17,7 +18,9 @@ export function Terminal() {
   const [lines, setLines] = useState<string[]>([]);
 
   const open = () => {
-    if (!dialog.current!.open) dialog.current!.showModal();
+    if (dialog.current!.open) return;
+    dialog.current!.showModal();
+    foundSecret("terminal");
   };
 
   useEffect(() => {
@@ -55,6 +58,8 @@ export function Terminal() {
     setLines((before) => (reply.clear ? [] : [...before, `> ${typed}`, ...reply.lines]));
     if (reply.close) dialog.current!.close();
     if (reply.heaven) openHeaven();
+    // after this window has gone
+    if (reply.open) setTimeout(() => openFeature(reply.open!), 0);
     // after the window has gone, so the page is free to move
     if (reply.goto) requestAnimationFrame(() => document.getElementById(reply.goto!)?.scrollIntoView());
   }

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { lineAt, momentAt, WHITE_FULL } from "@/heaven";
+import { foundSecret } from "@/features";
 import { createScene } from "@/heaven-draw";
 import { playHeaven } from "@/heaven-sound";
 import { useLang } from "@/i18n";
@@ -52,6 +53,7 @@ function Scene({ onDone }: { onDone: () => void }) {
   function begin(sound: boolean) {
     // made inside the press, which is when a browser allows sound to start
     if (sound) silence.current = playHeaven();
+    foundSecret("heaven");
     setMode("play");
   }
   const quiet = mode !== "play";

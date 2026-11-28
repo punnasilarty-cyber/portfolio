@@ -7,6 +7,12 @@ import { Deck } from "@/components/Deck";
 import { Robot } from "@/components/Robot";
 import { HeroMotion } from "@/components/HeroMotion";
 import { Heaven, openHeaven } from "@/components/Heaven";
+import { Matrix } from "@/components/Matrix";
+import { Palette } from "@/components/Palette";
+import { Present } from "@/components/Present";
+import { Secrets } from "@/components/Secrets";
+import { TimeStop } from "@/components/TimeStop";
+import { openFeature } from "@/features";
 import { LangToggle } from "@/components/LangToggle";
 import { Loader } from "@/components/Loader";
 import { SectionDots } from "@/components/SectionDots";
@@ -45,6 +51,12 @@ export default function HomePage() {
           </nav>
           {/* the two corners of the bar on narrow screens, a pair at its end on wide ones */}
           <div className="contents lg:flex lg:gap-2">
+            <button type="button" onClick={() => openFeature("palette")} aria-label={english ? "Search and commands (Ctrl+K)" : "ค้นหาและคำสั่ง (Ctrl+K)"} title="Ctrl+K" className="palette-open">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true">
+                <circle cx="11" cy="11" r="6.5" />
+                <path d="m16 16 4.5 4.5" />
+              </svg>
+            </button>
             <ThemeToggle />
             <LangToggle />
           </div>
@@ -81,7 +93,12 @@ export default function HomePage() {
 
         {/* part of the front page, so it has no id of its own and no menu entry */}
         <section className="about">
-          <h2>{t("เกี่ยวกับฉัน")}</h2>
+          <div className="about-side">
+            <h2>{t("เกี่ยวกับฉัน")}</h2>
+            <button type="button" onClick={() => openFeature("present")} className="solx-btn-ghost px-4 py-2 text-sm">
+              {english ? "Present" : "โหมดนำเสนอ"}
+            </button>
+          </div>
           <div>
             {about.map((paragraph) => (
               <p key={paragraph}>
@@ -158,6 +175,10 @@ export default function HomePage() {
       <Deck />
       <Robot />
       <Heaven />
+      <TimeStop />
+      <Matrix />
+      <Palette />
+      <Present />
 
       {/* the extra bottom room keeps the corner button off the text */}
       <footer className="bg-[#18181b] px-5 pt-6 pb-20 text-center text-xs text-[var(--muted)]">
@@ -167,6 +188,7 @@ export default function HomePage() {
           <input id="calm" type="checkbox" /> {t("หยุดแอนิเมชัน")}
         </label>
         <Terminal />
+        <Secrets />
         <button type="button" onClick={openHeaven} aria-label="Made in Heaven" className="heaven-open">
           <span aria-hidden="true">✦</span>
         </button>
