@@ -10,11 +10,11 @@ export function toBase64(bytes: Uint8Array) {
 
 export const fromBase64 = (text: string) => Uint8Array.from(atob(text.replace(/\s/g, "")), (c) => c.charCodeAt(0));
 
-async function call(token: string, path: string, init: RequestInit = {}) {
+async function call(token: string, path: string, init: RequestInit = {}, accept = "application/vnd.github+json") {
   const response = await fetch(REPO + path, {
     ...init,
     cache: "no-store", // a cached sha would make the next save fail
-    headers: { Accept: "application/vnd.github+json", Authorization: `Bearer ${token}` },
+    headers: { Accept: accept, Authorization: `Bearer ${token}` },
   });
   if (response.ok || response.status === 404) return response;
   if (response.status === 401) throw new Error("รหัสไม่ถูกต้องหรือหมดอายุ");
@@ -32,6 +32,12 @@ export async function checkToken(token: string) {
 export async function readFile(token: string, path: string): Promise<{ sha: string; content: string } | null> {
   const response = await call(token, `/contents/${path}?ref=${BRANCH}`);
   return response.ok ? response.json() : null;
+}
+
+/** a stored file's own bytes, at any size the site allows; null when it is not there */
+export async function readBytes(token: string, path: string): Promise<Uint8Array<ArrayBuffer> | null> {
+  const response = await call(token, `/contents/${path}?ref=${BRANCH}`, {}, "application/vnd.github.raw+json");
+  return response.ok ? new Uint8Array(await response.arrayBuffer()) : null;
 }
 
 /** returns the new sha; pass the old one when replacing a file */

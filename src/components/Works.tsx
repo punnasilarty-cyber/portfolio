@@ -7,18 +7,20 @@ import { StaggerText } from "@/components/StaggerText";
 import { groupsOf, sectionOf, sections, works as defaults, type SectionId, type Work } from "@/content";
 import { DownloadAll } from "@/components/DownloadAll";
 import { EmptyArt } from "@/components/Graphics";
+import { BackupPanel } from "@/components/BackupPanel";
 import { CardForm } from "@/components/CardForm";
 import { field } from "@/components/Fields";
 import { SiteEditor, type SiteTab } from "@/components/SiteEditor";
 import { WorkCard } from "@/components/WorkCard";
 import { setOwnEnglish, useLang } from "@/i18n";
-import { checkToken, deleteFile, fromBase64, readFile, writeFile } from "@/github";
-import { addressOf, DOCUMENT_TYPES, documentsOf, MAX_DOCUMENT_BYTES, MAX_DOCUMENTS, MAX_PICTURES, moved, picturesOf, safeName, unusedFiles } from "@/items";
+import { readBackup, unzip } from "@/backup";
+import { checkToken, deleteFile, fromBase64, readBytes, readFile, writeFile } from "@/github";
+import { addressOf, DOCUMENT_TYPES, documentsOf, filesOf, MAX_DOCUMENT_BYTES, MAX_DOCUMENTS, MAX_PICTURES, moved, picturesOf, safeName, unusedFiles } from "@/items";
 import { useMotion } from "@/motion";
 import { readSite, texts, type Site } from "@/site";
 import { setSite, useSite } from "@/site-store";
 import { seal, unseal } from "@/vault";
-import { uniqueNames } from "@/zip";
+import { uniqueNames, zip } from "@/zip";
 
 const base = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 const DATA = "works.json";
@@ -28,6 +30,7 @@ const TABS = [
   { id: "home", label: "หน้าแรก" },
   { id: "contact", label: "ติดต่อ" },
   { id: "education", label: "การศึกษา" },
+  { id: "backup", label: "สำรอง" },
 ] as const;
 const VAULT = "vault.txt"; // the encrypted token, public on the site
 
@@ -63,7 +66,7 @@ export function Works() {
   // the floating editor window; closed shows the page exactly as visitors see it
   const [open, setOpen] = useState(true);
   const [opacity, setOpacity] = useState(95);
-  const [tab, setTab] = useState<"cards" | SiteTab>("cards");
+  const [tab, setTab] = useState<"cards" | "backup" | SiteTab>("cards");
   const [siteSha, setSiteSha] = useState<string>();
   const site = useSite();
 
@@ -152,6 +155,56 @@ export function Works() {
   }
 
   const pictureUrl = (path: string) => previews[path] ?? `${base}${path}`;
+
+  /** everything the editor has saved, as one file */
+  function backup() {
+    run(async () => {
+      const json = (value: unknown) => new TextEncoder().encode(JSON.stringify(value, null, 2));
+      const entries = [{ name: DATA, data: json(works) }];
+      // only when something was saved; otherwise the page's own texts are in use
+      if (siteSha) entries.push({ name: SITE, data: json(site) });
+      const paths = [...new Set(works!.flatMap(filesOf))];
+      let missing = 0;
+      for (const [i, path] of paths.entries()) {
+        setMessage(`กำลังรวมไฟล์ ${i + 1} จาก ${paths.length}…`);
+        const data = await readBytes(token, path);
+        if (data) entries.push({ name: path, data });
+        else missing++;
+      }
+      const address = URL.createObjectURL(new Blob([zip(entries)], { type: "application/zip" }));
+      const link = document.createElement("a");
+      link.href = address;
+      // the day by this computer's clock
+      link.download = `portfolio-backup-${new Date().toLocaleDateString("sv-SE")}.zip`;
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(address), 60000);
+      setMessage(missing ? `ดาวน์โหลดแล้ว แต่หาไฟล์ไม่พบ ${missing} ไฟล์` : "ดาวน์โหลดไฟล์สำรองแล้ว");
+    });
+  }
+
+  function restore(file: File) {
+    run(async () => {
+      // the whole file is checked before anything is written
+      const saved = readBackup(unzip(new Uint8Array(await file.arrayBuffer())));
+      const warning = saved.missing.length ? `\nคำเตือน: ไฟล์สำรองขาดไฟล์ ${saved.missing.length} ไฟล์` : "";
+      if (!window.confirm(`กู้คืนจาก "${file.name}"?\nการ์ด ${saved.works.length} ใบ ไฟล์ ${saved.files.length} ไฟล์\nเนื้อหาบนเว็บตอนนี้ (${works!.length} ใบ) จะถูกแทนที่${warning}`)) return;
+      for (const [i, entry] of saved.files.entries()) {
+        setMessage(`กำลังตรวจและอัปโหลดไฟล์ ${i + 1} จาก ${saved.files.length}…`);
+        // names carry the time of upload, so a file already there is the same one
+        if (!(await readFile(token, entry.name))) await writeFile(token, entry.name, entry.data);
+      }
+      setMessage("กำลังเขียนเนื้อหา…");
+      if (saved.site) setSiteSha(await writeFile(token, SITE, new TextEncoder().encode(JSON.stringify(saved.site, null, 2)), siteSha));
+      else if (siteSha) {
+        await deleteFile(token, SITE);
+        setSiteSha(undefined);
+      }
+      setSite(saved.site ?? readSite(null));
+      await publish(saved.works);
+      setEditing(null);
+      setMessage("กู้คืนแล้ว คนอื่นจะเห็นในราว 1–2 นาที");
+    });
+  }
 
   function saveSite(make: () => Site) {
     run(async () => {
@@ -441,9 +494,10 @@ export function Works() {
           <div className="space-y-3 overflow-y-auto p-4">
             {status}
             {/* kept mounted, so what is typed survives a look at another tab */}
-            <div hidden={tab === "cards"}>
-              <SiteEditor key={siteSha ?? "new"} tab={tab === "cards" ? "home" : tab} busy={busy} onSave={saveSite} />
+            <div hidden={tab === "cards" || tab === "backup"}>
+              <SiteEditor key={siteSha ?? "new"} tab={tab === "cards" || tab === "backup" ? "home" : tab} busy={busy} onSave={saveSite} />
             </div>
+            {tab === "backup" && <BackupPanel busy={busy} onBackup={backup} onRestore={restore} />}
             <div hidden={tab !== "cards"} className="space-y-3">
             {editing !== null ? (
               <CardForm
