@@ -1,16 +1,13 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 
 const PULL = 0.22; // how far a button leans toward the pointer, as a share of the distance from its middle
 
-/** a soft light that follows the mouse, and buttons that lean toward it. Mouse only, and the stop box ends it */
-export function CursorGlow() {
-  const glow = useRef<HTMLDivElement>(null);
-
+/** buttons lean toward the pointer. Mouse only, and the stop box ends it */
+export function ButtonLean() {
   useEffect(() => {
     if (!matchMedia("(hover: hover) and (pointer: fine)").matches) return;
-    const light = glow.current!;
     let frame = 0;
     let last: PointerEvent;
     let held: HTMLElement | null = null;
@@ -22,8 +19,6 @@ export function CursorGlow() {
     const draw = () => {
       frame = 0;
       if (document.querySelector("#calm:checked")) return release();
-      light.style.transform = `translate(${last.clientX}px, ${last.clientY}px)`;
-      light.classList.add("is-on");
       const button = (last.target as Element).closest<HTMLElement>(".solx-btn-primary, .solx-btn-ghost");
       if (button !== held) release();
       if (!button) return;
@@ -39,19 +34,15 @@ export function CursorGlow() {
       last = event;
       frame ||= requestAnimationFrame(draw);
     };
-    const left = () => {
-      light.classList.remove("is-on");
-      release();
-    };
     window.addEventListener("pointermove", moved, { passive: true });
-    document.documentElement.addEventListener("pointerleave", left);
+    document.documentElement.addEventListener("pointerleave", release);
     return () => {
       cancelAnimationFrame(frame);
       window.removeEventListener("pointermove", moved);
-      document.documentElement.removeEventListener("pointerleave", left);
+      document.documentElement.removeEventListener("pointerleave", release);
       release();
     };
   }, []);
 
-  return <div ref={glow} aria-hidden="true" className="cursor-glow" />;
+  return null;
 }

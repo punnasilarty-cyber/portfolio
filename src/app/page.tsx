@@ -1,8 +1,8 @@
 "use client";
 
+import { ButtonLean } from "@/components/ButtonLean";
 import { ContactIcon } from "@/components/ContactIcon";
 import { CopyButton } from "@/components/CopyButton";
-import { CursorGlow } from "@/components/CursorGlow";
 import { HeroMotion } from "@/components/HeroMotion";
 import { LangToggle } from "@/components/LangToggle";
 import { Loader } from "@/components/Loader";
@@ -151,7 +151,7 @@ export default function HomePage() {
 
       <SectionDots places={menu} />
       <ToTop />
-      <CursorGlow />
+      <ButtonLean />
 
       {/* the extra bottom room keeps the corner button off the text */}
       <footer className="bg-[#18181b] px-5 pt-6 pb-20 text-center text-xs text-[var(--muted)]">

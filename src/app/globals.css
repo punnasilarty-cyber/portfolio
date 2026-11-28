@@ -1709,27 +1709,7 @@ div.viewer-body {
   text-align: center;
 }
 
-/* the light that follows the mouse (CursorGlow); the buttons ease into their lean */
-.cursor-glow {
-  position: fixed;
-  top: -14rem;
-  left: -14rem;
-  z-index: 35;
-  width: 28rem;
-  height: 28rem;
-  border-radius: 50%;
-  background: radial-gradient(closest-side, color-mix(in srgb, var(--a2) 16%, transparent), transparent);
-  mix-blend-mode: screen;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.4s ease;
-}
-.cursor-glow.is-on {
-  opacity: 1;
-}
-body:has(#calm:checked) .cursor-glow {
-  display: none;
-}
+/* the buttons ease into their lean (ButtonLean) */
 .solx-btn-primary,
 .solx-btn-ghost {
   transition: filter 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease, border-color 0.15s ease, translate 0.18s ease-out;
