@@ -65,6 +65,14 @@ export function StaggerText({
       if (html.dataset.motion !== "on") return;
       // not while the loading cover hides the text
       if (document.getElementById("loader")) return window.addEventListener("site-ready", play, { once: true });
+      // carried here by the loading cover: it is already written, and only this once
+      const arrived = root!.closest<HTMLElement>("[data-arrived]");
+      if (arrived) {
+        cells.forEach((cell) => cell.classList.add("is-settled"));
+        // the other line of the same headline reads the mark in this same turn
+        queueMicrotask(() => delete arrived.dataset.arrived);
+        return;
+      }
       seen = new IntersectionObserver(
         ([entry]) => {
           if (!entry.isIntersecting) return;

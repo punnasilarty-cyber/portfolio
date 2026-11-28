@@ -1,17 +1,41 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { profile } from "@/content";
 import { settleWithin } from "@/loading";
 
 const LIMIT_MS = 10000;
 const FADE_MS = 350;
+const FLY_MS = 750;
+
+/**
+ * Sends the loader's two lines onto the headline, so the one becomes the other. False when that cannot be seen to
+ * work: animation stopped, or the page opened somewhere below its top.
+ */
+function flyToTitle(cover: HTMLElement) {
+  const title = document.querySelector<HTMLElement>(".solx-title");
+  if (!title || window.scrollY > 40 || document.documentElement.dataset.motion !== "on" || document.querySelector("#calm:checked")) return false;
+  const lines = cover.querySelectorAll<HTMLElement>("p > *");
+  const targets = title.querySelectorAll<HTMLElement>(":scope > span");
+  if (lines.length !== 2 || targets.length !== 2) return false;
+  lines.forEach((line, i) => {
+    const from = line.getBoundingClientRect();
+    const to = targets[i].getBoundingClientRect();
+    const scale = parseFloat(getComputedStyle(targets[i]).fontSize) / parseFloat(getComputedStyle(line).fontSize);
+    const x = to.x + to.width / 2 - from.x - from.width / 2;
+    const y = to.y + to.height / 2 - from.y - from.height / 2;
+    line.animate([{ transform: "none" }, { transform: `translate(${x}px, ${y}px) scale(${scale})`, color: "#ffffff" }], { duration: FLY_MS, easing: "cubic-bezier(0.7, 0, 0.2, 1)", fill: "forwards" });
+  });
+  // the headline waits out of sight, then shows already written (see StaggerText)
+  title.dataset.arriving = "";
+  return true;
+}
 
 /** covers the page until the cards, fonts and pictures are ready; it leaves as soon as they are */
 export function Loader() {
   const [percent, setPercent] = useState(0);
-  const [state, setState] = useState<"loading" | "leaving" | "gone">("loading");
+  const [state, setState] = useState<"loading" | "leaving" | "flying" | "gone">("loading");
 
   useEffect(() => {
     let closed = false;
@@ -35,8 +59,11 @@ export function Loader() {
       // measured again now that everything has its final size, then back to the linked section
       ScrollTrigger.refresh();
       document.getElementById(location.hash.slice(1))?.scrollIntoView({ behavior: "instant" });
-      setState("leaving");
-      fade = setTimeout(() => setState("gone"), FADE_MS);
+      const cover = document.getElementById("loader");
+      const flies = !!cover && flyToTitle(cover);
+      setState(flies ? "flying" : "leaving");
+      // by the clock, so a tab left in the background cannot hold the cover up
+      fade = setTimeout(() => setState("gone"), flies ? FLY_MS : FADE_MS);
     })();
 
     return () => {
@@ -47,14 +74,20 @@ export function Loader() {
     };
   }, []);
 
-  // entrance animations that waited for the cover start now
-  useEffect(() => {
-    if (state === "gone") window.dispatchEvent(new Event("site-ready"));
+  // entrance animations that waited for the cover start now, before the first frame without it is drawn
+  useLayoutEffect(() => {
+    if (state !== "gone") return;
+    const title = document.querySelector<HTMLElement>(".solx-title[data-arriving]");
+    if (title) {
+      delete title.dataset.arriving;
+      title.dataset.arrived = "";
+    }
+    window.dispatchEvent(new Event("site-ready"));
   }, [state]);
 
   if (state === "gone") return null;
   return (
-    <div id="loader" className={state === "leaving" ? "is-leaving" : ""}>
+    <div id="loader" className={state === "loading" ? "" : `is-${state}`}>
       <div aria-hidden="true" className="loader-mark">
         <i />
         <i />
@@ -66,7 +99,7 @@ export function Loader() {
       </div>
       <p>
         <small>Portfolio</small>
-        {profile.name}
+        <span>{profile.name}</span>
       </p>
       <div role="progressbar" aria-label="กำลังโหลดเว็บ" aria-valuemin={0} aria-valuemax={100} aria-valuenow={percent} className="loader-bar">
         <i style={{ transform: `scaleX(${percent / 100})` }} />

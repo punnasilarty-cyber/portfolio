@@ -1709,6 +1709,32 @@ div.viewer-body {
   text-align: center;
 }
 
+/* the light that follows the mouse (CursorGlow); the buttons ease into their lean */
+.cursor-glow {
+  position: fixed;
+  top: -14rem;
+  left: -14rem;
+  z-index: 35;
+  width: 28rem;
+  height: 28rem;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--a2) 16%, transparent), transparent);
+  mix-blend-mode: screen;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+.cursor-glow.is-on {
+  opacity: 1;
+}
+body:has(#calm:checked) .cursor-glow {
+  display: none;
+}
+.solx-btn-primary,
+.solx-btn-ghost {
+  transition: filter 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease, border-color 0.15s ease, translate 0.18s ease-out;
+}
+
 /* the drawing in an empty section */
 .empty-art {
   margin: 0 auto 0.5rem;
@@ -1821,10 +1847,33 @@ div.viewer-body {
   justify-items: center;
   gap: 0.9rem;
   overflow: hidden;
-  background: radial-gradient(40rem 28rem at 50% 38%, #2a0c10, transparent 70%), #08090a;
   transition: opacity 0.35s ease, transform 0.35s ease;
   /* if the scripts never arrive, the page must still show */
   animation: loader-give-up 0s 15s forwards;
+}
+/* the backdrop is a layer of its own, so it can clear while the name flies on */
+#loader::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(40rem 28rem at 50% 38%, color-mix(in srgb, var(--a1) 18%, #08090a), transparent 70%), #08090a;
+}
+#loader::before,
+#loader::after,
+#loader > * {
+  transition: opacity 0.55s ease;
+}
+#loader.is-flying {
+  pointer-events: none;
+}
+#loader.is-flying::before,
+#loader.is-flying::after,
+#loader.is-flying > :not(p) {
+  opacity: 0;
+}
+.solx-title[data-arriving] {
+  visibility: hidden;
 }
 /* a faint grid, fading out toward the edges */
 #loader::before {
@@ -1891,13 +1940,15 @@ div.viewer-body {
   font-size: 1.5rem;
   font-weight: 900;
 }
+#loader p {
+  font-weight: 700;
+}
+#loader p > * {
+  white-space: nowrap;
+}
 #loader p small {
   color: var(--a2);
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.4em;
-  text-indent: 0.4em;
-  text-transform: uppercase;
+  font-size: 0.875rem;
 }
 .loader-bar {
   width: min(18rem, 70vw);
