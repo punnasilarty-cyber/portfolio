@@ -1715,6 +1715,153 @@ div.viewer-body {
   transition: filter 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease, border-color 0.15s ease, translate 0.18s ease-out;
 }
 
+/* the project's cards as a pile: each sticks a little lower than the one before and is covered by the next */
+.deck {
+  display: grid;
+  gap: 2.5rem;
+  max-width: 52rem;
+  margin: 0 auto;
+  padding-bottom: 1.5rem;
+}
+.deck > li {
+  position: sticky;
+  top: calc(10.5rem + var(--i) * 0.9rem);
+  transform-origin: center top;
+}
+/* a card reached by keyboard comes to the front */
+.deck > li:focus-within {
+  z-index: 5;
+}
+.deck .solx-card {
+  box-shadow: 0 -14px 34px -20px #000;
+}
+@media (min-width: 1024px) {
+  .deck > li {
+    top: calc(6rem + var(--i) * 1.1rem);
+  }
+}
+/* wide cards lie on their side: the cover on the left, the words on the right */
+@media (min-width: 720px) {
+  .deck .solx-card {
+    flex-direction: row;
+  }
+  .deck .solx-card > :is(.work-picture, .work-file) {
+    flex: none;
+    align-self: stretch;
+    width: 55%;
+    min-height: 17rem;
+    aspect-ratio: auto;
+  }
+  .deck .solx-card > div {
+    justify-content: center;
+  }
+  .deck .solx-card > div > div:last-child {
+    margin-top: 0.5rem;
+  }
+}
+
+/* the helper in the corner, above the button back to the top */
+.robot {
+  position: fixed;
+  right: 0.75rem;
+  bottom: 9rem;
+  z-index: 30;
+  width: 4rem;
+}
+.robot-body {
+  display: block;
+  width: 100%;
+  cursor: pointer;
+  animation: robot-float 2.6s ease-in-out infinite alternate;
+}
+.robot-lamp,
+.robot-eyes circle {
+  fill: var(--a2);
+}
+.robot-eyes {
+  transform-origin: 32px 26.5px;
+  animation: robot-blink 4.2s infinite;
+}
+.robot-arm {
+  transform-origin: 19px 48px;
+  animation: robot-point 1.3s ease-in-out infinite alternate;
+}
+.robot svg.is-up .robot-arm {
+  animation: none;
+  rotate: 150deg;
+}
+.robot p {
+  position: absolute;
+  right: 100%;
+  bottom: 1.5rem;
+  width: max-content;
+  max-width: min(14rem, 60vw);
+  margin-right: 0.4rem;
+  padding: 0.4rem 0.7rem;
+  border: 1px solid var(--a2);
+  border-radius: 12px 12px 2px 12px;
+  background: #121316;
+  font-size: 0.8rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.robot.is-speaking p,
+.robot:hover p,
+.robot:focus-within p {
+  opacity: 1;
+}
+.robot-close {
+  position: absolute;
+  top: -0.6rem;
+  right: -0.25rem;
+  z-index: 1;
+  width: 1.4rem;
+  height: 1.4rem;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: #121316;
+  font-size: 0.8rem;
+  line-height: 1;
+  opacity: 0;
+  cursor: pointer;
+}
+.robot:hover .robot-close,
+.robot:focus-within .robot-close {
+  opacity: 1;
+}
+/* no hovering on touch screens, so the way out is always shown there, and the robot is smaller */
+@media (hover: none) {
+  .robot-close {
+    opacity: 1;
+  }
+}
+@media (max-width: 719px) {
+  .robot {
+    width: 3rem;
+  }
+}
+@keyframes robot-float {
+  to {
+    translate: 0 -6px;
+  }
+}
+@keyframes robot-blink {
+  0%,
+  92%,
+  100% {
+    scale: 1 1;
+  }
+  95% {
+    scale: 1 0.1;
+  }
+}
+@keyframes robot-point {
+  to {
+    rotate: 14deg;
+  }
+}
+
 /* the drawing in an empty section */
 .empty-art {
   margin: 0 auto 0.5rem;

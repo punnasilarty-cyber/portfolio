@@ -45,7 +45,7 @@ export function useMotion(content: unknown) {
             toggleClass: { targets: `nav a[href="#${section.id}"]`, className: "fx-active" },
           });
           // cards flip up one after another along each row
-          section.querySelectorAll(":scope > ul > li").forEach((card, i) => {
+          section.querySelectorAll(":scope > ul:not(.deck) > li").forEach((card, i) => {
             gsap.from(card, {
               y: 140,
               rotationX: -70,

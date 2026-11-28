@@ -360,9 +360,10 @@ export function Works() {
             (works ? groupsOf(inSection(section.id), ({ work }) => work.group) : [{ name: "", items: [] }]).map((group) => (
               <Fragment key={group.name}>
                 {group.name && <h3 className="work-group">{t(group.name)}</h3>}
-                <ul aria-label={group.name ? t(group.name) : undefined} className="grid min-h-40 gap-5 sm:grid-cols-2 lg:grid-cols-3" aria-busy={!works}>
+                <ul aria-label={group.name ? t(group.name) : undefined} className={section.id === "is2" ? "deck min-h-40" : "grid min-h-40 gap-5 sm:grid-cols-2 lg:grid-cols-3"} aria-busy={!works}>
                   {group.items.map(({ work, index }) => (
-                    <li key={`${index}-${work.title}`}>
+                    // its place in the pile sets how low it sticks
+                    <li key={`${index}-${work.title}`} style={{ "--i": group.items.findIndex((item) => item.index === index) } as React.CSSProperties}>
                       <WorkCard work={work} pictureUrl={pictureUrl} />
                     </li>
                   ))}
