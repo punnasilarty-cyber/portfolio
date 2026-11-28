@@ -13,6 +13,10 @@ import { Heaven } from "@/components/Heaven";
 import { Universe } from "@/components/Universe";
 import { Teach } from "@/components/Teach";
 import { Xray } from "@/components/Xray";
+import { Easy } from "@/components/Easy";
+import { ReadAloud } from "@/components/ReadAloud";
+import { Tour } from "@/components/Tour";
+import { Voice } from "@/components/Voice";
 import { AiShow } from "@/components/AiShow";
 import { Matrix } from "@/components/Matrix";
 import { Menu } from "@/components/Menu";
@@ -195,6 +199,10 @@ export default function HomePage() {
       <Universe />
       <Teach />
       <Xray />
+      <Tour />
+      <ReadAloud />
+      <Voice />
+      <Easy />
 
       {/* the extra bottom room keeps the corner button off the text */}
       <footer className="bg-[#18181b] px-5 pt-6 pb-20 text-center text-xs text-[var(--muted)]">

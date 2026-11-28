@@ -20,6 +20,16 @@ const GROUPS: { th: string; en: string; entries: Entry[] }[] = [
     ],
   },
   {
+    th: "ช่วยชมและอ่าน",
+    en: "Help with visiting",
+    entries: [
+      { icon: "🧭", th: ["ทัวร์พาชม", "หุ่นยนต์พาดูจุดเด่นใน 1 นาที"], en: ["Guided tour", "The robot shows the highlights in a minute"], open: "tour" },
+      { icon: "🔊", th: ["อ่านออกเสียง", "ให้เครื่องอ่านประวัติและผลงาน"], en: ["Read aloud", "Your device reads the page"], open: "read" },
+      { icon: "🎙", th: ["สั่งด้วยเสียง", "พูดเพื่อเลื่อนและเปิดสิ่งต่างๆ"], en: ["Voice commands", "Speak to move and open things"], open: "voice" },
+      { icon: "👓", th: ["โหมดอ่านง่าย", "ตัวใหญ่ สีชัด ไม่เคลื่อนไหว กดซ้ำเพื่อปิด"], en: ["Easy reading", "Large, clear and still; choose again to leave"], open: "easy" },
+    ],
+  },
+  {
     th: "ฉากแนะนำ",
     en: "Showcase",
     entries: [{ icon: "🤖", th: ["AI ทำอะไรได้", "ความสามารถ และด้านน่ากลัวในอนาคต"], en: ["What AI can do", "Its abilities, and its darker future"], open: "ai" }],

@@ -1,6 +1,6 @@
 // สิ่งที่เปิดจากหลายที่ได้ (ปุ่ม กล่องคำสั่ง เทอร์มินัล คำลับ) และความลับที่ให้คนดูตามหา
 
-export type Feature = "palette" | "card" | "present" | "secrets" | "matrix" | "blackhole" | "menu" | "terminal" | "ai" | "psychic" | "glass" | "hack" | "universe" | "rewind" | "blast" | "xray" | "teach";
+export type Feature = "palette" | "card" | "present" | "secrets" | "matrix" | "blackhole" | "menu" | "terminal" | "ai" | "psychic" | "glass" | "hack" | "universe" | "rewind" | "blast" | "xray" | "teach" | "tour" | "read" | "voice" | "easy";
 
 export const openFeature = (name: Feature) => window.dispatchEvent(new CustomEvent("feature", { detail: name }));
 

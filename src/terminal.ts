@@ -58,6 +58,10 @@ export function answer(input: string, facts: Facts): Answer {
     case "universe":
     case "teach":
     case "xray":
+    case "tour":
+    case "read":
+    case "voice":
+    case "easy":
       return { lines: [], open: command, close: true };
     case "heaven":
       return { lines: [], heaven: true, close: true };

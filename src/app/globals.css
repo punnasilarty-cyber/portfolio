@@ -4596,3 +4596,137 @@ body:has(#calm:checked) .fx-word {
 .edu-tried li::marker {
   color: var(--a);
 }
+
+/* the helpers (tour, reading aloud, voice) share one bar at the foot of the screen */
+.helper {
+  position: fixed;
+  z-index: 55;
+  bottom: 0.75rem;
+  left: 50%;
+  display: grid;
+  gap: 0.5rem;
+  width: min(36rem, calc(100vw - 1rem));
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--a2);
+  border-radius: 14px;
+  background: #101114;
+  box-shadow: 0 14px 40px -10px #000;
+  line-height: 1.5;
+  translate: -50% 0;
+}
+.helper > p {
+  font-weight: 600;
+}
+.helper > .helper-note {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 400;
+}
+.helper > div:last-child {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+.helper small {
+  margin-right: auto;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.helper button {
+  padding: 0.3rem 0.7rem;
+  border: 1px solid color-mix(in srgb, var(--a2) 60%, transparent);
+  border-radius: 8px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+.helper button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.helper button[aria-pressed="true"] {
+  background: var(--a1);
+}
+.helper-robot {
+  position: absolute;
+  right: 0.5rem;
+  bottom: 100%;
+  width: 3.5rem;
+}
+.helper-bar {
+  height: 3px;
+  border-radius: 3px;
+  background: var(--a2);
+  transform-origin: left;
+  animation: helper-run linear forwards;
+}
+.helper-bar.is-paused {
+  animation-play-state: paused;
+}
+@keyframes helper-run {
+  from {
+    transform: scaleX(0);
+  }
+}
+.is-toured,
+.is-read {
+  outline: 3px solid var(--a2);
+  outline-offset: 6px;
+  border-radius: 12px;
+}
+::highlight(reading) {
+  background: #facc15;
+  color: #111;
+}
+
+/* easy reading: larger and clearer, nothing moving or decorating */
+html[data-easy] {
+  font-size: 120%;
+}
+html[data-easy]::before,
+html[data-easy]::after {
+  display: none;
+}
+html[data-easy] body {
+  --muted: #eceef2;
+  background: #000;
+  color: #fff;
+  line-height: 1.8;
+}
+html[data-easy] :is(.fx-band, .fx-number, .robot, #top > section:first-child > canvas) {
+  display: none;
+}
+html[data-easy] main :is(p, li, small, dd, dt, figcaption) {
+  color: #fff;
+}
+html[data-easy] main a:not(.solx-btn-primary) {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+html[data-easy] main :is(.solx-card, .about) {
+  border-color: #8a8f99;
+}
+html[data-easy] :focus-visible {
+  outline: 3px solid #facc15;
+  outline-offset: 3px;
+}
+.easy-off {
+  position: fixed;
+  z-index: 45;
+  bottom: 0.75rem;
+  left: 50%;
+  padding: 0.5rem 1rem;
+  border: 2px solid #facc15;
+  border-radius: 999px;
+  background: #000;
+  color: #fff;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  translate: -50% 0;
+}
+
+/* the page robot and the corner button step aside for the helper bar */
+body:has(.helper) :is(.robot, .to-top) {
+  display: none;
+}
