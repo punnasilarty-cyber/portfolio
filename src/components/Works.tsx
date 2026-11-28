@@ -6,6 +6,7 @@ import { Reveal } from "@/components/Reveal";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { StaggerText } from "@/components/StaggerText";
 import { groupsOf, sectionOf, sections, works as defaults, type SectionId, type Work } from "@/content";
+import { FirstPage } from "@/components/PdfPages";
 import { Viewer, type Shown } from "@/components/Viewer";
 import { checkToken, deleteFile, fromBase64, readFile, writeFile } from "@/github";
 import { addressOf, DOCUMENT_TYPES, MAX_DOCUMENT_BYTES, MAX_PICTURES, moved, picturesOf, safeName, unusedFiles } from "@/items";
@@ -493,13 +494,13 @@ function WorkCard({ work, pictureUrl }: { work: Work; pictureUrl: (path: string)
     const view = viewOf(work.link!, navigator.pdfViewerEnabled);
     if (!view) return;
     event.preventDefault();
-    setShown({ ...view, title: work.title, href: work.link! });
+    setShown({ ...view, title: work.title, href: work.link!, from: event.currentTarget.closest("li") });
   }
 
   return (
     <SpotlightCard className="flex h-full flex-col">
       {pictures.length > 0 && (
-        <button type="button" onClick={() => setShown({ kind: "image", src: pictures[0], href: pictures[0], title: work.title, gallery: pictures })} className="work-picture aspect-video bg-black/40">
+        <button type="button" onClick={(event) => setShown({ kind: "image", src: pictures[0], href: pictures[0], title: work.title, gallery: pictures, from: event.currentTarget.closest("li") })} className="work-picture aspect-video bg-black/40">
           {/* eslint-disable-next-line @next/next/no-img-element -- a static export serves images as they are */}
           <img src={pictures[0]} alt={work.title} className={`h-full w-full ${fit}`} />
           <span>{pictures.length > 1 ? `ดูรูปทั้งหมด ${pictures.length} รูป` : "ดูภาพเต็ม"}</span>
@@ -510,6 +511,8 @@ function WorkCard({ work, pictureUrl }: { work: Work; pictureUrl: (path: string)
         <a href={work.link} onClick={openFile} target="_blank" rel="noopener noreferrer" tabIndex={-1} aria-hidden="true" className={`work-file work-file--${kind.toLowerCase()}`}>
           <b>{kind}</b>
           <span>กดเพื่อเปิดอ่าน</span>
+          {/* a Word file cannot be drawn here, so its cover comes from the PDF of the same name when there is one */}
+          {(kind === "PDF" || kind === "Word") && <FirstPage src={work.link!.replace(/.docx?(?=$|[?#])/i, ".pdf")} />}
         </a>
       )}
       <div className="flex flex-1 flex-col gap-2 p-5">

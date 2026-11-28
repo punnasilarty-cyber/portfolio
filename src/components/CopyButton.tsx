@@ -12,6 +12,8 @@ export function CopyButton({ value }: { value: string }) {
     return () => clearTimeout(reset);
   }, [message]);
 
+  const copied = message === "คัดลอกแล้ว";
+
   return (
     <button
       type="button"
@@ -21,8 +23,13 @@ export function CopyButton({ value }: { value: string }) {
           () => setMessage("คัดลอกไม่ได้ กดค้างที่ชื่อแทน"),
         )
       }
-      className="solx-btn-ghost mt-2 justify-self-center px-4 py-1.5 text-xs"
+      className={`solx-btn-ghost mt-2 justify-self-center px-4 py-1.5 text-xs ${copied ? "is-copied" : ""}`}
     >
+      {copied && (
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="copy-tick">
+          <path d="m4 12.5 5 5L20 6.5" pathLength="1" />
+        </svg>
+      )}
       <span aria-live="polite">{message || "คัดลอก"}</span>
     </button>
   );

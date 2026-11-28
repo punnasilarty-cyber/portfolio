@@ -90,7 +90,7 @@ export function LearningRoute({ project }: { project?: Work }) {
       <p className="text-center text-xs text-[var(--muted)]">ระยะทางตามถนนระหว่างสองโรงเรียนราว {ROAD_KM.toFixed(1)} กม.</p>
 
       <div className="edu-journey" style={{ "--a": color } as React.CSSProperties}>
-        <Student step={step} stage={entry.stage} color={color} walking={walking} />
+        <Student step={step} stage={entry.stage} color={color} walking={walking} cheer={atSecondSchool} />
         <div className="min-w-0">
           <p className="edu-year">
             {entry.year} <span>{entry.grade}</span>

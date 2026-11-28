@@ -2,7 +2,7 @@ import { useState } from "react";
 import { PdfPages } from "@/components/PdfPages";
 import type { View } from "@/viewer";
 
-export type Shown = View & { title: string; /** where the file itself lives */ href: string; /** all the pictures to step through */ gallery?: string[] };
+export type Shown = View & { title: string; /** where the file itself lives */ href: string; /** all the pictures to step through */ gallery?: string[]; /** the card the window grows out of and shrinks back into */ from?: Element | null };
 
 /** a full-screen window over the page for one picture or file */
 export function Viewer({ shown, onClose }: { shown: Shown; onClose: () => void }) {
@@ -12,6 +12,23 @@ export function Viewer({ shown, onClose }: { shown: Shown; onClose: () => void }
   const gallery = shown.gallery && shown.gallery.length > 1 ? shown.gallery : null;
   const picture = gallery ? gallery[at] : shown.src;
 
+  /** moves the window between its card and full size; nothing when animation is stopped */
+  function grow(dialog: HTMLDialogElement, back = false) {
+    if (!shown.from || document.querySelector<HTMLInputElement>("#calm")?.checked) return;
+    const card = shown.from.getBoundingClientRect();
+    const open = dialog.getBoundingClientRect();
+    const x = card.x + card.width / 2 - open.x - open.width / 2;
+    const y = card.y + card.height / 2 - open.y - open.height / 2;
+    const frames = [{ transform: `translate(${x}px, ${y}px) scale(${card.width / open.width}, ${card.height / open.height})`, opacity: 0 }, { transform: "none", opacity: 1 }];
+    return dialog.animate(back ? frames.reverse() : frames, { duration: 360, easing: "cubic-bezier(0.2, 0.8, 0.2, 1)", fill: back ? "forwards" : "none" });
+  }
+
+  function close(dialog: HTMLDialogElement) {
+    const leaving = grow(dialog, true);
+    if (leaving) leaving.onfinish = () => dialog.close();
+    else dialog.close();
+  }
+
   function step(by: number) {
     setAt((now) => (now + by + gallery!.length) % gallery!.length);
     setFull(false);
@@ -20,9 +37,17 @@ export function Viewer({ shown, onClose }: { shown: Shown; onClose: () => void }
     <dialog
       // a native modal: traps focus and closes on Escape
       ref={(dialog) => {
-        if (dialog && !dialog.open) dialog.showModal();
+        if (dialog && !dialog.open) {
+          dialog.showModal();
+          grow(dialog);
+        }
       }}
       onClose={onClose}
+      // Escape shrinks it away too
+      onCancel={(event) => {
+        event.preventDefault();
+        close(event.currentTarget);
+      }}
       onKeyDown={(event) => {
         if (gallery && event.key === "ArrowLeft") step(-1);
         if (gallery && event.key === "ArrowRight") step(1);
@@ -35,7 +60,7 @@ export function Viewer({ shown, onClose }: { shown: Shown; onClose: () => void }
         <a href={gallery ? picture : shown.href} target="_blank" rel="noopener noreferrer" className="solx-btn-ghost px-3 py-1.5 text-xs">
           เปิดแท็บใหม่
         </a>
-        <button autoFocus onClick={(event) => event.currentTarget.closest("dialog")!.close()} className="solx-btn-primary px-4 py-1.5 text-xs">
+        <button autoFocus onClick={(event) => close(event.currentTarget.closest("dialog")!)} className="solx-btn-primary px-4 py-1.5 text-xs">
           ปิด
         </button>
       </header>

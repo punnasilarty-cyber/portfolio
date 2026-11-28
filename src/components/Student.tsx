@@ -1,12 +1,13 @@
 /** a made-up student who grows with the year (0 = ป.1, 11 = ม.6); not a likeness of anyone */
-export function Student({ step, stage, color, walking }: { step: number; stage: number; color: string; walking: boolean }) {
+export function Student({ step, stage, color, walking, cheer }: { step: number; stage: number; color: string; walking: boolean; /** at a new school: jumps and waves once */ cheer: boolean }) {
   const size = 0.68 + (step / 11) * 0.32;
 
   return (
-    <svg viewBox="0 0 100 150" role="img" aria-label="ตัวละครชายสมมติ ผมหน้าม้าซอย เสื้อนักเรียนแขนสั้น กางเกง ถุงเท้า และรองเท้าสีน้ำตาล" className={`edu-kid ${walking ? "is-walking" : ""}`}>
+    <svg viewBox="0 0 100 150" role="img" aria-label="ตัวละครชายสมมติ ผมหน้าม้าซอย เสื้อนักเรียนแขนสั้น กางเกง ถุงเท้า และรองเท้าสีน้ำตาล" className={`edu-kid ${walking ? "is-walking" : ""} ${cheer ? "is-cheering" : ""}`}>
       <ellipse cx="50" cy="143" rx={26 * size} ry="4" fill="rgba(0,0,0,0.35)" />
       {/* grows from the feet up */}
       <g className="edu-kid-body" style={{ transform: `scale(${size})` }}>
+      <g className="edu-kid-jump">
         {[0, 1].map((leg) => (
           <g key={leg} className={`edu-kid-leg edu-kid-leg-${leg}`}>
             <rect x={39 + leg * 13} y="100" width="9" height="38" rx="4" fill="#e8b48c" />
@@ -27,10 +28,15 @@ export function Student({ step, stage, color, walking }: { step: number; stage: 
         {/* top of the shorts, over both legs */}
         <path d="M35 93h30v10l-13 1-2-4-2 4-13-1z" fill="#a5815a" />
         <path d="M50 97v5M40 98l-1 7M60 98l1 7" stroke="#8a6a47" strokeWidth="0.8" />
-        {/* bare arms under short sleeves */}
-        <path d="M36 70l-6 22M64 70l6 22" stroke="#e8b48c" strokeWidth="6" strokeLinecap="round" />
+        {/* bare arms under short sleeves; the left one is its own group so it can wave */}
+        <g className="edu-kid-wave">
+          <path d="M36 70l-6 22" stroke="#e8b48c" strokeWidth="6" strokeLinecap="round" />
+          <path d="M39 61l-11 18 9 4 5-12z" fill="#dcd9f2" stroke="#b9b4dc" strokeWidth="0.6" />
+          <circle cx="29.5" cy="93" r="4.2" fill="#e8b48c" />
+        </g>
+        <path d="M64 70l6 22" stroke="#e8b48c" strokeWidth="6" strokeLinecap="round" />
         {/* pale lavender shirt: sleeves, body, open collar, buttons and chest pocket */}
-        <path d="M39 61l-11 18 9 4 5-12zM61 61l11 18-9 4-5-12z" fill="#dcd9f2" stroke="#b9b4dc" strokeWidth="0.6" />
+        <path d="M61 61l11 18-9 4-5-12z" fill="#dcd9f2" stroke="#b9b4dc" strokeWidth="0.6" />
         <path d="M38 61q12-6 24 0l3 33H35z" fill="#dcd9f2" />
         <path d="M45 59l5 12 5-12z" fill="#e8b48c" />
         <path d="M45 58l5 13-9-4zM55 58l-5 13 9-4z" fill="#ebe9fb" stroke="#b9b4dc" strokeWidth="0.6" />
@@ -42,7 +48,6 @@ export function Student({ step, stage, color, walking }: { step: number; stage: 
         {/* brown leather belt with a brass buckle */}
         <rect x="35" y="92" width="30" height="5" rx="1" fill="#8a3b1e" />
         <rect x="46.5" y="91.5" width="7" height="6" rx="1" fill="none" stroke="#d4a843" strokeWidth="1.5" />
-        <circle cx="29.5" cy="93" r="4.2" fill="#e8b48c" />
         <circle cx="70.5" cy="93" r="4.2" fill="#e8b48c" />
         {/* a laptop joins in with the science and technology years */}
         {stage === 2 && (
@@ -63,6 +68,13 @@ export function Student({ step, stage, color, walking }: { step: number; stage: 
         <ellipse cx="43" cy="42" rx="2.3" ry="1.9" fill="#1c1917" />
         <ellipse cx="57" cy="42" rx="2.3" ry="1.9" fill="#1c1917" />
         <path d="M45 49q6 2 11-2" fill="none" stroke="#9a5b45" strokeWidth="1.5" strokeLinecap="round" />
+      </g>
+      </g>
+      {/* sparkles, seen only while cheering */}
+      <g className="edu-kid-sparks" fill="#fde047">
+        {[[16, 40], [84, 34], [12, 82], [88, 76], [72, 12]].map(([x, y]) => (
+          <path key={x} d={`M${x} ${y - 6}l1.6 4.4 4.4 1.6-4.4 1.6-1.6 4.4-1.6-4.4-4.4-1.6 4.4-1.6z`} />
+        ))}
       </g>
     </svg>
   );
