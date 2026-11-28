@@ -12,6 +12,7 @@ export const EN: Record<string, string> = {
   เกียรติบัตร: "Certificates",
   ติดต่อ: "Contact",
   เมนูหลัก: "Main menu",
+  ตำแหน่งในหน้า: "Position on the page",
   กลับขึ้นบนสุด: "Back to top",
   ดูประวัติ: "My education",
   เกี่ยวกับฉัน: "About me",

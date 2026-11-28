@@ -5,6 +5,7 @@ import { CopyButton } from "@/components/CopyButton";
 import { HeroMotion } from "@/components/HeroMotion";
 import { LangToggle } from "@/components/LangToggle";
 import { Loader } from "@/components/Loader";
+import { SectionDots } from "@/components/SectionDots";
 import { StaggerText } from "@/components/StaggerText";
 import { Terminal } from "@/components/Terminal";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -145,6 +146,7 @@ export default function HomePage() {
         </section>
       </main>
 
+      <SectionDots places={menu} />
       <ToTop />
 
       {/* the extra bottom room keeps the corner button off the text */}

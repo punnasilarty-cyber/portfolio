@@ -371,14 +371,15 @@ body::before {
 }
 
 /* entrance animation */
+/* moves with `translate`, which leaves `transform` free for the scroll layers in motion.ts */
 @keyframes solx-fade-up {
   from {
     opacity: 0;
-    transform: translateY(18px);
+    translate: 0 18px;
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    translate: 0 0;
   }
 }
 
@@ -1482,6 +1483,73 @@ div.viewer-body {
   /* below this size phones zoom the page when the field is pressed */
   font-size: 1rem;
   outline: none;
+}
+
+/* a colour change spreads as a circle (ThemeToggle), so the usual cross-fade is off */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+/* where the reader is, at the right edge of wide screens; the name shows on hover and focus */
+.dots {
+  position: fixed;
+  top: 50%;
+  right: 0.35rem;
+  z-index: 30;
+  display: none;
+  flex-direction: column;
+  translate: 0 -50%;
+}
+@media (min-width: 1024px) {
+  .dots {
+    display: flex;
+  }
+}
+.dots a {
+  position: relative;
+  display: grid;
+  width: 1.5rem;
+  height: 1.5rem;
+  place-items: center;
+}
+.dots a::after {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.3);
+  transition: height 0.25s ease, background 0.25s ease;
+}
+.dots a[aria-current]::after {
+  height: 1.25rem;
+  background: var(--a2);
+}
+.dots span {
+  position: absolute;
+  right: 1.75rem;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  background: #171717;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+.dots a:hover span,
+.dots a:focus-visible span {
+  opacity: 1;
+}
+
+.download-all {
+  display: grid;
+  justify-items: center;
+  gap: 0.4rem;
+  margin: -1rem 0 2rem;
+  font-size: 0.8rem;
+  color: var(--accent-soft);
 }
 
 /* the drawing in an empty section */

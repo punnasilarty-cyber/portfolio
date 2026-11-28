@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "lint": "eslint",
-    "test": "node --test test/github.test.ts test/vault.test.ts test/iso.test.ts test/journey.test.ts test/viewer.test.ts test/groups.test.ts test/items.test.ts test/loading.test.ts test/translations.test.ts test/terminal.test.ts",
+    "test": "node --test test/github.test.ts test/vault.test.ts test/iso.test.ts test/journey.test.ts test/viewer.test.ts test/groups.test.ts test/items.test.ts test/loading.test.ts test/translations.test.ts test/terminal.test.ts test/zip.test.ts",
     "deploy": "node scripts/deploy.mjs"
   },
   "dependencies": {

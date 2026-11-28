@@ -6,6 +6,7 @@ import { Reveal } from "@/components/Reveal";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { StaggerText } from "@/components/StaggerText";
 import { groupsOf, sectionOf, sections, works as defaults, type SectionId, type Work } from "@/content";
+import { DownloadAll } from "@/components/DownloadAll";
 import { EmptyArt } from "@/components/Graphics";
 import { FirstPage } from "@/components/PdfPages";
 import { Viewer, type Shown } from "@/components/Viewer";
@@ -210,6 +211,12 @@ export function Works() {
   // education is a fixed timeline in content.ts
   const editable = sections.filter((section) => section.id !== "education");
   const inSection = (id: SectionId) => (works ?? []).map((work, index) => ({ work, index })).filter(({ work }) => sectionOf(work) === id);
+  // the project's documents under their own names, and its pictures under their card's title
+  const files = inSection("is2").flatMap(({ work }) => {
+    const pictures = picturesOf(work).map((path) => ({ name: safeName(`${work.title}.jpg`), url: pictureUrl(path) }));
+    if (!work.link || !fileKindOf(work.link)) return pictures;
+    return [...pictures, { name: safeName(decodeURIComponent(work.link.split(/[?#]/)[0].split("/").pop()!)), url: work.link }];
+  });
 
   return (
     <>
@@ -225,6 +232,7 @@ export function Works() {
               <StaggerText text={t(section.title)} />
             </h2>
           </Reveal>
+          {section.id === "is2" && files.length > 1 && <DownloadAll files={files} name="IS2-Punnasin.zip" />}
           {section.id === "education" ? (
             <Education project={inSection("is2").find(({ work }) => work.image)?.work} />
           ) : works && inSection(section.id).length === 0 ? (

@@ -19,9 +19,12 @@ export function useMotion(content: unknown) {
       const context = gsap.context(() => {
         gsap.fromTo(".fx-progress", { scaleX: 0 }, { scaleX: 1, ease: "none", scrollTrigger: { start: 0, end: "max", scrub: 0.3 } });
 
-        // the opening block sinks and fades; only the text moves, the code wall behind it stays put
+        // the opening comes apart in layers: each sinks at its own pace, the code wall slowest, while the text fades
         const hero = { trigger: "#top > section:first-child", start: "top top", end: "bottom top", scrub: 0.6 };
-        gsap.to(".hero-content", { y: 120, opacity: 0, ease: "none", scrollTrigger: hero });
+        const layers = gsap.timeline({ scrollTrigger: hero, defaults: { ease: "none" } });
+        layers.to(".hero-content", { opacity: 0 }, 0);
+        const depths = { "#top > section:first-child > canvas": 70, ".hero-content h1": 90, ".hero-content > p": 160, ".hero-content > div": 230 };
+        Object.entries(depths).forEach(([part, y]) => layers.to(part, { y }, 0));
 
         // the band of section names keeps drifting
         gsap.to(".fx-track", { xPercent: -50, duration: 40, ease: "none", repeat: -1 });
