@@ -365,6 +365,8 @@ export function Works() {
                     // its place in the pile sets how low it sticks
                     <li key={`${index}-${work.title}`} style={{ "--i": group.items.findIndex((item) => item.index === index) } as React.CSSProperties}>
                       <WorkCard work={work} pictureUrl={pictureUrl} />
+                      {/* light running on to the next card of the project (globals.css) */}
+                      {section.id === "is2" && <i aria-hidden="true" className="work-link" />}
                     </li>
                   ))}
                 </ul>

@@ -15,6 +15,9 @@ export function WorkCard({ work, pictureUrl }: { work: Work; pictureUrl: (path: 
   const { english, t } = useLang();
   const [shown, setShown] = useState<Shown | null>(null);
   const [full, setFull] = useState(false);
+  const [flipped, setFlipped] = useState(false);
+  // the back tells what was learned, or about the work while that has not been written yet
+  const behind = work.learned || work.summary;
   const paths = picturesOf(work);
   const pictures = paths.map(pictureUrl);
   const captions = paths.map((path) => t(work.captions?.[path] ?? ""));
@@ -41,39 +44,68 @@ export function WorkCard({ work, pictureUrl }: { work: Work; pictureUrl: (path: 
 
   return (
     <>
-      <SpotlightCard className="flex h-full flex-col">
-        {pictures.length > 0 && (
-          <button type="button" onClick={(event) => showPictures(0, event.currentTarget.closest("li"))} className="work-picture aspect-video bg-black/40">
-            {/* eslint-disable-next-line @next/next/no-img-element -- a static export serves images as they are */}
-            <img src={pictures[0]} alt={captions[0] || t(work.title)} className={`h-full w-full ${fit}`} />
-            <span>{pictures.length > 1 ? (english ? `View all ${pictures.length} pictures` : `ดูรูปทั้งหมด ${pictures.length} รูป`) : t("ดูภาพเต็ม")}</span>
+      {/* turns over from the corner tab, so the buttons on the front stay easy to reach; moving away turns it back */}
+      <div className={flipped ? "flip is-flipped" : "flip"} onPointerLeave={(event) => event.pointerType === "mouse" && setFlipped(false)}>
+        <div className="flip-inner">
+          <div className="flip-front" inert={flipped}>
+            <SpotlightCard className="flex h-full flex-col">
+              {pictures.length > 0 && (
+                <button type="button" onClick={(event) => showPictures(0, event.currentTarget.closest("li"))} className="work-picture aspect-video bg-black/40">
+                  {/* eslint-disable-next-line @next/next/no-img-element -- a static export serves images as they are */}
+                  <img src={pictures[0]} alt={captions[0] || t(work.title)} className={`h-full w-full ${fit}`} />
+                  <span>{pictures.length > 1 ? (english ? `View all ${pictures.length} pictures` : `ดูรูปทั้งหมด ${pictures.length} รูป`) : t("ดูภาพเต็ม")}</span>
+                </button>
+              )}
+              {pictures.length === 0 && link && kind && (
+                // a second way into the same file as the button below, so keyboards and screen readers skip it
+                <a href={link} onClick={(event) => openFile(event, link, t(work.title))} target="_blank" rel="noopener noreferrer" tabIndex={-1} aria-hidden="true" className={`work-file work-file--${kind.toLowerCase()}`}>
+                  <b>{kind}</b>
+                  <span>{t("กดเพื่อเปิดอ่าน")}</span>
+                  {/* a Word file cannot be drawn here, so its cover comes from the PDF of the same name when there is one */}
+                  {(kind === "PDF" || kind === "Word") && <FirstPage src={link.replace(/.docx?(?=$|[?#])/i, ".pdf")} />}
+                </a>
+              )}
+              <div className="flex flex-1 flex-col gap-2 p-5">
+                <p className="text-xs text-[var(--accent-soft)]">{t(work.kind)}</p>
+                <h3 className="font-bold">{t(work.title)}</h3>
+                <p className="text-sm whitespace-pre-line text-[var(--muted)]">{t(work.summary)}</p>
+                <div className="mt-auto flex flex-wrap gap-2 pt-1">
+                  {link && (
+                    <a href={link} onClick={(event) => openFile(event, link, t(work.title))} target="_blank" rel="noopener noreferrer" className="solx-btn-ghost px-4 py-2 text-sm">
+                      {t("เปิดดู")}
+                    </a>
+                  )}
+                  <button type="button" onClick={() => setFull(true)} aria-label={`${t("รายละเอียด")} ${t(work.title)}`} className="solx-btn-ghost px-4 py-2 text-sm">
+                    {t("รายละเอียด")}
+                  </button>
+                </div>
+              </div>
+            </SpotlightCard>
+          </div>
+          {behind && (
+            <div className="flip-back" inert={!flipped}>
+              <p>{work.learned ? t("สิ่งที่ได้เรียนรู้") : english ? "About this work" : "เกี่ยวกับผลงานนี้"}</p>
+              <b>{t(work.title)}</b>
+              <div>{t(behind)}</div>
+              <button type="button" onClick={() => setFull(true)} className="solx-btn-ghost px-4 py-2 text-sm">
+                {t("รายละเอียด")}
+              </button>
+            </div>
+          )}
+        </div>
+        {behind && (
+          <button
+            type="button"
+            aria-pressed={flipped}
+            // a mouse turns the card by pointing; a finger or the keyboard presses to turn it either way
+            onPointerEnter={(event) => event.pointerType === "mouse" && setFlipped(true)}
+            onClick={(event) => setFlipped((event.nativeEvent as PointerEvent).pointerType === "mouse" || !flipped)}
+            className="flip-tab"
+          >
+            <span aria-hidden="true">↻</span> {flipped ? (english ? "Turn back" : "พลิกกลับ") : english ? "Turn over" : "พลิกดู"}
           </button>
         )}
-        {pictures.length === 0 && link && kind && (
-          // a second way into the same file as the button below, so keyboards and screen readers skip it
-          <a href={link} onClick={(event) => openFile(event, link, t(work.title))} target="_blank" rel="noopener noreferrer" tabIndex={-1} aria-hidden="true" className={`work-file work-file--${kind.toLowerCase()}`}>
-            <b>{kind}</b>
-            <span>{t("กดเพื่อเปิดอ่าน")}</span>
-            {/* a Word file cannot be drawn here, so its cover comes from the PDF of the same name when there is one */}
-            {(kind === "PDF" || kind === "Word") && <FirstPage src={link.replace(/.docx?(?=$|[?#])/i, ".pdf")} />}
-          </a>
-        )}
-        <div className="flex flex-1 flex-col gap-2 p-5">
-          <p className="text-xs text-[var(--accent-soft)]">{t(work.kind)}</p>
-          <h3 className="font-bold">{t(work.title)}</h3>
-          <p className="text-sm whitespace-pre-line text-[var(--muted)]">{t(work.summary)}</p>
-          <div className="mt-auto flex flex-wrap gap-2 pt-1">
-            {link && (
-              <a href={link} onClick={(event) => openFile(event, link, t(work.title))} target="_blank" rel="noopener noreferrer" className="solx-btn-ghost px-4 py-2 text-sm">
-                {t("เปิดดู")}
-              </a>
-            )}
-            <button type="button" onClick={() => setFull(true)} aria-label={`${t("รายละเอียด")} ${t(work.title)}`} className="solx-btn-ghost px-4 py-2 text-sm">
-              {t("รายละเอียด")}
-            </button>
-          </div>
-        </div>
-      </SpotlightCard>
+      </div>
 
       {full && (
         <dialog

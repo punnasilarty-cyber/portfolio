@@ -1729,7 +1729,7 @@ div.viewer-body {
 /* the project's cards as a pile: each sticks a little lower than the one before and is covered by the next */
 .deck {
   display: grid;
-  gap: 2.5rem;
+  gap: 3.5rem;
   max-width: 52rem;
   margin: 0 auto;
   padding-bottom: 1.5rem;
@@ -2660,6 +2660,121 @@ body.is-presenting .about {
   }
   to {
     transform-origin: top center;
+  }
+}
+
+/* a card turning over */
+.flip {
+  position: relative;
+  height: 100%;
+  perspective: 1400px;
+}
+.flip-inner {
+  position: relative;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.3, 0.7, 0.2, 1);
+}
+.flip.is-flipped .flip-inner {
+  transform: rotateY(180deg);
+}
+/* the faces swap halfway through the turn, which holds even where a browser still draws the far side */
+.flip-front,
+.flip-back {
+  backface-visibility: hidden;
+  transition: visibility 0s 0.25s;
+}
+.flip-front {
+  height: 100%;
+}
+.flip-back {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 1.25rem;
+  border: 1px solid var(--a2);
+  border-radius: var(--radius-card);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--a1) 28%, #101114), #101114 70%);
+  transform: rotateY(180deg);
+  visibility: hidden;
+}
+.flip.is-flipped .flip-front {
+  visibility: hidden;
+}
+.flip.is-flipped .flip-back {
+  visibility: visible;
+}
+.flip-back > p {
+  color: var(--a2);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+.flip-back > b {
+  padding-right: 5rem;
+  font-size: 1.05rem;
+}
+.flip-back > div {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  color: #e4e4e7;
+  font-size: 0.9rem;
+  white-space: pre-line;
+}
+.flip-tab {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 3;
+  padding: 0.25rem 0.7rem;
+  border: 1px solid var(--a2);
+  border-radius: 999px;
+  background: rgba(10, 11, 13, 0.85);
+  font-size: 0.72rem;
+  cursor: pointer;
+}
+
+/* light running from one card of the project to the next */
+.work-link {
+  display: none;
+}
+.deck > li:not(:last-child) > .work-link,
+.deck:has(~ .deck) > li:last-child > .work-link {
+  position: absolute;
+  top: 100%;
+  left: calc(50% - 6px);
+  display: block;
+  width: 12px;
+  height: 3.5rem;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 5px, var(--a2) 3px, transparent 5px),
+    radial-gradient(circle at 50% calc(100% - 5px), var(--a2) 3px, transparent 5px),
+    linear-gradient(var(--a1), var(--a1)) center / 2px 100% no-repeat;
+}
+/* the longer way over the next group's heading */
+.deck:has(~ .deck) > li:last-child > .work-link {
+  height: 7.25rem;
+}
+.work-link::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 4px;
+  width: 4px;
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(transparent 40%, var(--a2) 75%, #fff 90%, transparent);
+  translate: 0 -100%;
+  /* each link starts a little after the one above, so the light seems to travel on */
+  animation: work-link 1.6s calc(var(--i) * 0.5s) linear infinite;
+}
+@keyframes work-link {
+  to {
+    translate: 0 100%;
   }
 }
 
