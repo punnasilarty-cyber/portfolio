@@ -20,3 +20,13 @@ test("buildings of a school never overlap and stay on their ground", () => {
     });
   }
 });
+
+// paintOrder only sorts footprints that do not overlap
+test("nothing standing in the Sura model overlaps", () => {
+  const { buildings, salas = [], trees, palms = [], silverPalms = [], sign, flag } = LAYOUTS["โรงเรียนสุรวิทยาคาร"];
+  const spot = ([x, y]: [number, number], r = 1): Rect => [x - r, y - r, r * 2, r * 2];
+  const all = [...buildings.map((b) => b.at), ...salas.map((s) => s.at), ...[...trees, ...palms, ...silverPalms].map((p) => spot(p)), sign, spot(flag, 3)];
+  all.forEach(([x, y, w, d], i) => {
+    for (const [u, v, s, t] of all.slice(i + 1)) assert.ok(!(x < u + s && u < x + w && y < v + t && v < y + d), `${[x, y, w, d]} overlaps ${[u, v, s, t]}`);
+  });
+});

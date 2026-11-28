@@ -83,7 +83,22 @@ function Roof({ at: [x, y, w, d], eaves, rise, roof, vault }: { at: Rect; eaves:
   );
 }
 
-function Block({ at, floors, roof, wall = CREAM, band = "#fffdf6", vault, open, pilotis, towers = [], storey, trim, main }: Building & { storey: number; trim: string }) {
+/** rows of panels on the south slope of a hipped roof that runs east-west */
+function Solar({ at: [x, y, w, d], eaves, rise }: { at: Rect; eaves: number; rise: number }) {
+  const [inset, eave] = [Math.min(w, d) * 0.45, Math.min(w, d) * 0.12];
+  const point = (px: number, up: number): [number, number, number] => [px, y + d + eave - up * (d / 2 + eave), eaves + up * rise + 0.15];
+  const step = (w - inset * 2) / Math.floor((w - inset * 2) / 6);
+  return (
+    <g fill="#274a7c" stroke="#9db4d6" strokeWidth="0.25">
+      {Array.from({ length: Math.round((w - inset * 2) / step) }, (_, i) => {
+        const from = x + inset + i * step;
+        return <polygon key={i} points={face(point(from + 0.4, 0.2), point(from + step - 0.4, 0.2), point(from + step - 0.4, 0.82), point(from + 0.4, 0.82))} />;
+      })}
+    </g>
+  );
+}
+
+function Block({ at, floors, roof, wall = CREAM, band = "#fffdf6", vault, open, pilotis, towers = [], number, solar, storey, trim, main }: Building & { storey: number; trim: string }) {
   const [x, y, w, d] = at;
   const [x1, y1] = [x + w, y + d];
   const height = floors === 1 ? storey * 1.4 : storey;
@@ -147,6 +162,11 @@ function Block({ at, floors, roof, wall = CREAM, band = "#fffdf6", vault, open, 
             {Array.from({ length: floors }, (_, floor) => (
               <polygon key={floor} points={south(tower[0] + tower[2] * 0.2, tower[2] * 0.6, y1 + 3, floor * height + height * 0.35, floor * height + height * 0.8)} fill="#52767d" />
             ))}
+            {number && (
+              <text transform={onWall(tower[0] + tower[2] / 2, y1 + 3.2, height * 2)} textAnchor="middle" y="1.5" fontSize="4.6" fontWeight="700" fill="#0f5f57">
+                {number}
+              </text>
+            )}
           </g>
         );
       })}
@@ -158,7 +178,43 @@ function Block({ at, floors, roof, wall = CREAM, band = "#fffdf6", vault, open, 
       )}
       <g className="sc-roof">
         <Roof at={at} eaves={eaves} rise={rise} roof={roof} vault={vault} />
+        {solar && <Solar at={at} eaves={eaves} rise={rise} />}
       </g>
+    </g>
+  );
+}
+
+/** a palm: a thin trunk under a crown of fronds */
+function Palm({ at: [x, y], size, silver }: { at: Spot; size: number; silver?: boolean }) {
+  const [cx, cy] = iso(x, y).split(",").map(Number);
+  const top = silver ? -17 : -30;
+  return (
+    <g transform={`translate(${cx} ${cy}) scale(${size})`}>
+      <g className="sc-pop">
+        <ellipse rx="9" ry="4" fill="rgba(0,0,0,0.3)" />
+        <path d={`M0 0Q2 ${top / 2} 0 ${top}`} fill="none" stroke="#8b6b45" strokeWidth="2.6" />
+        <g transform={`translate(0 ${top})`} fill={silver ? "#a9c4c0" : "#2f9a45"} stroke={silver ? "#6f918f" : "#1d6b30"} strokeWidth="0.7">
+          <path d="M0 0Q-8 -10 -18 -2Q-9 -4 0 0ZM0 0Q8 -10 18 -2Q9 -4 0 0ZM0 0Q-15 0 -14 11Q-9 3 0 0ZM0 0Q15 0 14 11Q9 3 0 0ZM0 0Q-7 -15 2 -17Q-1 -8 0 0ZM0 0Q10 -13 14 -11Q6 -7 0 0Z" />
+          {silver && <circle r="7" />}
+        </g>
+      </g>
+    </g>
+  );
+}
+
+/** a goal frame standing on an end line of the field, which runs north-south */
+function Goal({ x, y, depth }: { x: number; y: number; depth: number }) {
+  return <path d={`M${iso(x + depth, y - 6)}L${iso(x, y - 6, 6)}L${iso(x, y + 6, 6)}L${iso(x + depth, y + 6)}M${iso(x, y - 6)}L${iso(x, y - 6, 6)}M${iso(x, y + 6)}L${iso(x, y + 6, 6)}`} fill="none" stroke="#f5f5f4" strokeWidth="0.7" />;
+}
+
+/** a turquoise fence with white posts along one edge of the grounds */
+function Fence({ at }: { at: Rect }) {
+  const [x, y, w, d] = at;
+  const posts: Spot[] = Array.from({ length: Math.floor(Math.max(w, d) / 7) + 1 }, (_, i) => (w > d ? [x + i * 7, y + d] : [x + w, y + i * 7]));
+  return (
+    <g>
+      <Box at={at} h={2.4} color="#45c4b4" />
+      <path d={posts.map(([px, py]) => `M${iso(px, py)}L${iso(px, py, 4)}`).join("")} stroke="#f2f4ef" strokeWidth="0.9" />
     </g>
   );
 }
@@ -200,6 +256,10 @@ export function SchoolScene({ school, logo, wall, trim }: { school: string; logo
   const layout = LAYOUTS[school];
   if (!layout) return null;
   const { viewBox, ground, storey, roads = [], ponds = [], paving = [], field, buildings, salas = [], trees, treeSize, flag, sign } = layout;
+  const { podium, gate, palms = [], silverPalms = [], fences = [], goals } = layout;
+  // the far fences go under everything standing, the near (front) ones over it
+  const far = fences.filter(([, , w, d]) => d > w);
+  const near = fences.filter(([, , w, d]) => w >= d);
   const [fx, fy, fw, fd] = field;
   const hall = buildings.find((building) => building.main)!;
   const [hx, hy, hw, hd] = hall.at;
@@ -226,10 +286,13 @@ export function SchoolScene({ school, logo, wall, trim }: { school: string; logo
     })),
     ...salas.map((sala) => ({ at: sala.at, node: <Sala {...sala} /> })),
     ...trees.map((at) => ({ at: [at[0] - 1, at[1] - 1, 2, 2] as Rect, node: <Tree at={at} size={treeSize} /> })),
+    ...palms.map((at) => ({ at: [at[0] - 1, at[1] - 1, 2, 2] as Rect, node: <Palm at={at} size={treeSize} /> })),
+    ...silverPalms.map((at) => ({ at: [at[0] - 1, at[1] - 1, 2, 2] as Rect, node: <Palm at={at} size={treeSize} silver /> })),
     {
       at: [flag[0] - 3, flag[1] - 3, 6, 6] as Rect,
       node: (
         <g className="sc-flagpole">
+          {podium && <Box at={[flag[0] - 5, flag[1] - 2, 10, 4]} h={3} color={podium} />}
           <path d={`M${iso(flag[0], flag[1])}L${iso(flag[0], flag[1], pole)}`} stroke="#e7e5e4" strokeWidth={storey > 10 ? 1.8 : 0.9} />
           <g className="sc-flag">
             <g transform={onWall(flag[0] + 0.5, flag[1], pole)}>
@@ -246,13 +309,14 @@ export function SchoolScene({ school, logo, wall, trim }: { school: string; logo
       at: sign,
       node: (
         <g className="sc-sign">
-          <Box at={sign} h={signHeight} color={wall} />
+          <Box at={sign} h={signHeight} color={gate ? "#e9e7e0" : wall} />
           <g transform={onWall(sx + sw / 2, sy + sd + 0.2, signHeight / 2)}>
-            <rect x={-sw * 0.46} y={-signHeight * 0.38} width={sw * 0.92} height={signHeight * 0.76} rx={sw * 0.02} fill="#fafaf9" />
-            <text textAnchor="middle" y={sw * 0.04} fontSize={sw * 0.115} fontWeight="700" fill="#1c1917">
+            <rect x={-sw * 0.46} y={-signHeight * 0.38} width={sw * 0.92} height={signHeight * 0.76} rx={sw * 0.02} fill={gate ? "#17191c" : "#fafaf9"} />
+            <text textAnchor="middle" y={sw * 0.04} fontSize={sw * 0.115} fontWeight="700" fill={gate ? "#e8c568" : "#1c1917"}>
               {school.replace("โรงเรียน", "")}
             </text>
           </g>
+          {gate && [sx - 1.6, sx + sw].map((px) => <Box key={px} at={[px, sy + 0.5, 1.6, 2]} h={signHeight * 1.6} color="#f2f1ea" />)}
         </g>
       ),
     },
@@ -277,8 +341,20 @@ export function SchoolScene({ school, logo, wall, trim }: { school: string; logo
         <path d={`M${iso(fx + fw / 2, fy + fd * 0.05)}L${iso(fx + fw / 2, fy + fd * 0.95)}`} />
         <ellipse transform={`translate(${iso(fx + fw / 2, fy + fd / 2).replace(",", " ")})`} rx={fw * 0.12} ry={fw * 0.07} />
       </g>
+      {goals && (
+        <>
+          <Goal x={fx + fw * 0.04} y={fy + fd / 2} depth={-3} />
+          <Goal x={fx + fw * 0.96} y={fy + fd / 2} depth={3} />
+        </>
+      )}
+      {far.map((at) => (
+        <Fence key={at.join()} at={at} />
+      ))}
       {standing.map(({ at, node }) => (
         <g key={at.join()}>{node}</g>
+      ))}
+      {near.map((at) => (
+        <Fence key={at.join()} at={at} />
       ))}
     </svg>
   );
