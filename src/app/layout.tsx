@@ -24,6 +24,8 @@ export const metadata: Metadata = {
   title,
   description: profile.intro,
   icons: { icon: `${base}/icon.svg`, apple: `${base}/apple-icon.png` },
+  // lets phones and computers install the site like an app
+  manifest: `${base}/manifest.webmanifest`,
   openGraph: { type: "website", locale: "th_TH", url: siteUrl, siteName: title, title, description: profile.intro, images: [card] },
   twitter: { card: "summary_large_image", title, description: profile.intro, images: [card] },
 };

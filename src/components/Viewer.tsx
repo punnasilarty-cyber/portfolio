@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { PdfPages } from "@/components/PdfPages";
+import { Unfold } from "@/components/Unfold";
 import { useLang } from "@/i18n";
 import type { View } from "@/viewer";
 
@@ -14,6 +15,13 @@ export function Viewer({ shown, onClose }: { shown: Shown; onClose: () => void }
   const gallery = shown.gallery && shown.gallery.length > 1 ? shown.gallery : null;
   const picture = gallery ? gallery[at] : shown.src;
   const caption = shown.captions?.[at];
+  // the window opens as a leaflet unfolding when there is a cover to fold: the picture, or a document's drawn first page
+  const [cover, setCover] = useState(() => {
+    if (document.querySelector("#calm:checked")) return null;
+    if (shown.kind === "image") return picture;
+    const page = shown.from?.querySelector<HTMLCanvasElement>(".work-file canvas");
+    return page && !page.hidden ? page.toDataURL("image/jpeg", 0.85) : null;
+  });
 
   /** moves the window between its card and full size; nothing when animation is stopped */
   function grow(dialog: HTMLDialogElement, back = false) {
@@ -42,7 +50,7 @@ export function Viewer({ shown, onClose }: { shown: Shown; onClose: () => void }
       ref={(dialog) => {
         if (dialog && !dialog.open) {
           dialog.showModal();
-          grow(dialog);
+          if (!cover) grow(dialog);
         }
       }}
       onClose={onClose}
@@ -58,6 +66,7 @@ export function Viewer({ shown, onClose }: { shown: Shown; onClose: () => void }
       aria-label={shown.title}
       className="viewer"
     >
+      {cover && <Unfold src={cover} onDone={() => setCover(null)} />}
       <header>
         <p>{shown.title}</p>
         <a href={gallery ? picture : shown.href} target="_blank" rel="noopener noreferrer" className="solx-btn-ghost px-3 py-1.5 text-xs">

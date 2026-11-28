@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { openHeaven } from "@/components/Heaven";
-import { foundSecret, openFeature } from "@/features";
+import { foundSecret, onFeature, openFeature } from "@/features";
 import { setEnglish, useLang } from "@/i18n";
 import { useSite } from "@/site-store";
 import { answer } from "@/terminal";
@@ -34,6 +34,8 @@ export function Terminal() {
     window.addEventListener("keydown", pressed);
     return () => window.removeEventListener("keydown", pressed);
   }, []);
+
+  useEffect(() => onFeature("terminal", open), []);
 
   // the newest answer stays in view
   useEffect(() => {

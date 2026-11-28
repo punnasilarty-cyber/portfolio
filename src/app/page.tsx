@@ -8,6 +8,10 @@ import { Robot } from "@/components/Robot";
 import { HeroMotion } from "@/components/HeroMotion";
 import { Heaven, openHeaven } from "@/components/Heaven";
 import { Matrix } from "@/components/Matrix";
+import { Menu } from "@/components/Menu";
+import { Blackhole } from "@/components/Blackhole";
+import { Offline } from "@/components/Offline";
+import { Warp } from "@/components/Warp";
 import { Palette } from "@/components/Palette";
 import { Present } from "@/components/Present";
 import { Secrets } from "@/components/Secrets";
@@ -51,6 +55,11 @@ export default function HomePage() {
           </nav>
           {/* the two corners of the bar on narrow screens, a pair at its end on wide ones */}
           <div className="contents lg:flex lg:gap-2">
+            <button type="button" onClick={() => openFeature("menu")} aria-label={english ? "All features" : "เมนูฟีเจอร์ทั้งหมด"} title={english ? "All features" : "เมนูฟีเจอร์ทั้งหมด"} className="menu-open">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true">
+                <path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z" />
+              </svg>
+            </button>
             <button type="button" onClick={() => openFeature("palette")} aria-label={english ? "Search and commands (Ctrl+K)" : "ค้นหาและคำสั่ง (Ctrl+K)"} title="Ctrl+K" className="palette-open">
               <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true">
                 <circle cx="11" cy="11" r="6.5" />
@@ -179,6 +188,9 @@ export default function HomePage() {
       <Matrix />
       <Palette />
       <Present />
+      <Menu />
+      <Blackhole />
+      <Warp />
 
       {/* the extra bottom room keeps the corner button off the text */}
       <footer className="bg-[#18181b] px-5 pt-6 pb-20 text-center text-xs text-[var(--muted)]">
@@ -187,6 +199,7 @@ export default function HomePage() {
         <label className="mt-3 flex items-center justify-center gap-2">
           <input id="calm" type="checkbox" /> {t("หยุดแอนิเมชัน")}
         </label>
+        <Offline />
         <Terminal />
         <Secrets />
         <button type="button" onClick={openHeaven} aria-label="Made in Heaven" className="heaven-open">

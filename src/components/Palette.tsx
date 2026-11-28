@@ -43,6 +43,7 @@ export function Palette() {
         };
       }).filter((item) => item.label);
       const actions = [
+        { label: say("เมนูฟีเจอร์ทั้งหมด", "All features"), words: "menu features เมนู ฟีเจอร์", run: () => openFeature("menu") },
         { label: say("โหมดนำเสนอ", "Presentation mode"), words: "present slide นำเสนอ สไลด์", run: () => openFeature("present") },
         { label: say("สมุดความลับ", "Secret book"), words: "secret ความลับ", run: () => openFeature("secrets") },
         ...THEMES.map((theme) => ({ label: `${say("สีธีม", "Theme")}: ${THEME_NAMES[theme][english ? "en" : "th"]}`, words: `theme color สี ธีม ${theme} ${THEME_NAMES[theme].th}`, run: () => setTheme(theme) })),

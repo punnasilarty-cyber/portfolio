@@ -1,6 +1,6 @@
 // สิ่งที่เปิดจากหลายที่ได้ (ปุ่ม กล่องคำสั่ง เทอร์มินัล คำลับ) และความลับที่ให้คนดูตามหา
 
-export type Feature = "palette" | "card" | "present" | "secrets" | "timestop" | "matrix";
+export type Feature = "palette" | "card" | "present" | "secrets" | "timestop" | "matrix" | "blackhole" | "menu" | "terminal";
 
 export const openFeature = (name: Feature) => window.dispatchEvent(new CustomEvent("feature", { detail: name }));
 
@@ -12,7 +12,7 @@ export function onFeature(name: Feature, run: () => void) {
 }
 
 /** words typed anywhere on the page; read by the keys' places, so any keyboard language works */
-export const WORDS: Record<string, "timestop" | "matrix"> = { timestop: "timestop", matrix: "matrix" };
+export const WORDS: Record<string, "timestop" | "matrix" | "blackhole"> = { timestop: "timestop", matrix: "matrix", blackhole: "blackhole" };
 
 /** the word these latest keys end with, if any */
 export const wordTyped = (keys: string) => Object.keys(WORDS).find((word) => keys.endsWith(word));
@@ -46,3 +46,18 @@ export function search<T extends { words: string }>(items: T[], query: string): 
 
 /** the next slide, stopping at the first and the last */
 export const slideAfter = (at: number, step: number, count: number) => Math.max(0, Math.min(count - 1, at + step));
+
+const TURNS = 1.25;
+
+/** where a pulled piece is, k of the way (0 to 1) along a winding path from home to a hole at (dx, dy) from it */
+export function spiral(k: number, dx: number, dy: number): [number, number] {
+  // the line from the hole back to the piece, turning and shortening
+  const turn = k * TURNS * Math.PI * 2;
+  const left = (1 - k) ** 1.5;
+  return [dx - (dx * Math.cos(turn) - dy * Math.sin(turn)) * left, dy - (dx * Math.sin(turn) + dy * Math.cos(turn)) * left];
+}
+
+export const WARP = { lasts: 800, jumpAt: 0.5 };
+
+/** how much the tunnel hides the page at time t (0 to 1): fully while it jumps underneath */
+export const warpVeil = (t: number) => Math.max(0, Math.min(1, t / 0.4, (1 - t) / 0.35));
