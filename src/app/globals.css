@@ -648,10 +648,29 @@ header nav a {
 header nav a.fx-active {
   color: var(--foreground);
 }
-header nav a.fx-active,
 header nav a:hover,
 header nav a:focus-visible {
   background-size: 80% 2px;
+}
+header nav a {
+  position: relative;
+  z-index: 1;
+}
+.nav-slide {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  left: 0;
+  width: 0;
+  border-bottom: 2px solid var(--a2);
+  border-radius: 0.5rem;
+  background: color-mix(in srgb, var(--a2) 20%, transparent);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    transform 0.45s cubic-bezier(0.3, 1.25, 0.5, 1),
+    width 0.35s ease,
+    opacity 0.25s ease;
 }
 
 body:has(#calm:checked) *,
@@ -1208,6 +1227,12 @@ html:has(#calm:checked)::after {
 }
 div.viewer-body {
   overflow: auto;
+}
+.viewer-fly {
+  position: fixed;
+  max-width: none;
+  object-fit: cover;
+  pointer-events: none;
 }
 .viewer-picture {
   display: block;
@@ -3690,4 +3715,9 @@ html[data-loading] .solx-animate-in {
 .solx-card.contact-card:focus-visible {
   border-color: var(--accent-soft);
   background: rgba(255, 255, 255, 0.08);
+}
+
+/* stopped animation leaves every word fully lit, whatever the scroll animation had set */
+body:has(#calm:checked) .fx-word {
+  opacity: 1 !important;
 }

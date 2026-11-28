@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, type MouseEvent } from "react";
+import { useState, type MouseEvent, type SyntheticEvent } from "react";
 import { FirstPage } from "@/components/PdfPages";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { Viewer, type Shown } from "@/components/Viewer";
 import { sectionOf, type Work } from "@/content";
+import { grow } from "@/grow";
 import { useLang } from "@/i18n";
 import { documentsOf, picturesOf } from "@/items";
 import { fileKindOf, viewOf } from "@/viewer";
@@ -14,7 +15,14 @@ export function WorkCard({ work, pictureUrl }: { work: Work; pictureUrl: (path: 
   const fit = sectionOf(work) === "certificates" ? "object-contain" : "object-cover";
   const { english, t } = useLang();
   const [shown, setShown] = useState<Shown | null>(null);
-  const [full, setFull] = useState(false);
+  // the card the details window grew out of, while it is open
+  const [full, setFull] = useState<Element | null>(null);
+  const openDetails = (event: SyntheticEvent) => setFull(event.currentTarget.closest("li") ?? event.currentTarget);
+  function closeDetails(dialog: HTMLDialogElement) {
+    const leaving = grow(dialog, full, true);
+    if (leaving) leaving.onfinish = () => dialog.close();
+    else dialog.close();
+  }
   const [flipped, setFlipped] = useState(false);
   // the back tells what was learned, or about the work while that has not been written yet
   const behind = work.learned || work.summary;
@@ -75,7 +83,7 @@ export function WorkCard({ work, pictureUrl }: { work: Work; pictureUrl: (path: 
                       {t("เปิดดู")}
                     </a>
                   )}
-                  <button type="button" onClick={() => setFull(true)} aria-label={`${t("รายละเอียด")} ${t(work.title)}`} className="solx-btn-ghost px-4 py-2 text-sm">
+                  <button type="button" onClick={openDetails} aria-label={`${t("รายละเอียด")} ${t(work.title)}`} className="solx-btn-ghost px-4 py-2 text-sm">
                     {t("รายละเอียด")}
                   </button>
                 </div>
@@ -87,7 +95,7 @@ export function WorkCard({ work, pictureUrl }: { work: Work; pictureUrl: (path: 
               <p>{work.learned ? t("สิ่งที่ได้เรียนรู้") : english ? "About this work" : "เกี่ยวกับผลงานนี้"}</p>
               <b>{t(work.title)}</b>
               <div>{t(behind)}</div>
-              <button type="button" onClick={() => setFull(true)} className="solx-btn-ghost px-4 py-2 text-sm">
+              <button type="button" onClick={openDetails} className="solx-btn-ghost px-4 py-2 text-sm">
                 {t("รายละเอียด")}
               </button>
             </div>
@@ -110,10 +118,18 @@ export function WorkCard({ work, pictureUrl }: { work: Work; pictureUrl: (path: 
       {full && (
         <dialog
           ref={(dialog) => {
-            if (dialog && !dialog.open) dialog.showModal();
+            if (dialog && !dialog.open) {
+              dialog.showModal();
+              grow(dialog, full);
+            }
+          }}
+          onCancel={(event) => {
+            if (event.target !== event.currentTarget) return;
+            event.preventDefault();
+            closeDetails(event.currentTarget);
           }}
           // the picture window opened from here closes on its own, without taking this one along
-          onClose={(event) => event.target === event.currentTarget && setFull(false)}
+          onClose={(event) => event.target === event.currentTarget && setFull(null)}
           aria-label={t(work.title)}
           className="detail"
         >
@@ -122,7 +138,7 @@ export function WorkCard({ work, pictureUrl }: { work: Work; pictureUrl: (path: 
               <p>{t(work.kind)}</p>
               <h3>{t(work.title)}</h3>
             </div>
-            <button autoFocus type="button" onClick={(event) => event.currentTarget.closest("dialog")!.close()} className="solx-btn-primary px-4 py-1.5 text-xs">
+            <button autoFocus type="button" onClick={(event) => closeDetails(event.currentTarget.closest("dialog")!)} className="solx-btn-primary px-4 py-1.5 text-xs">
               {t("ปิด")}
             </button>
           </header>
@@ -150,7 +166,7 @@ export function WorkCard({ work, pictureUrl }: { work: Work; pictureUrl: (path: 
                 <div className="detail-pictures">
                   {pictures.map((picture, i) => (
                     <figure key={picture}>
-                      <button type="button" onClick={() => showPictures(i, null)}>
+                      <button type="button" onClick={(event) => showPictures(i, event.currentTarget)}>
                         {/* eslint-disable-next-line @next/next/no-img-element -- a static export serves images as they are */}
                         <img src={picture} alt={captions[i] || `${t(work.title)} ${i + 1}`} loading="lazy" />
                       </button>

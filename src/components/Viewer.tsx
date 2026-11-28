@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { PdfPages } from "@/components/PdfPages";
+import { fly, grow } from "@/grow";
 import { useLang } from "@/i18n";
 import type { View } from "@/viewer";
 
@@ -15,19 +16,11 @@ export function Viewer({ shown, onClose }: { shown: Shown; onClose: () => void }
   const picture = gallery ? gallery[at] : shown.src;
   const caption = shown.captions?.[at];
 
-  /** moves the window between its card and full size; nothing when animation is stopped */
-  function grow(dialog: HTMLDialogElement, back = false) {
-    if (!shown.from || document.querySelector<HTMLInputElement>("#calm")?.checked) return;
-    const card = shown.from.getBoundingClientRect();
-    const open = dialog.getBoundingClientRect();
-    const x = card.x + card.width / 2 - open.x - open.width / 2;
-    const y = card.y + card.height / 2 - open.y - open.height / 2;
-    const frames = [{ transform: `translate(${x}px, ${y}px) scale(${card.width / open.width}, ${card.height / open.height})`, opacity: 0 }, { transform: "none", opacity: 1 }];
-    return dialog.animate(back ? frames.reverse() : frames, { duration: 360, easing: "cubic-bezier(0.2, 0.8, 0.2, 1)", fill: back ? "forwards" : "none" });
-  }
+  /** a picture travels from its thumbnail; anything else, the window grows out of the card */
+  const move = (dialog: HTMLDialogElement, back = false) => fly(dialog, shown.from, back) ?? grow(dialog, shown.from, back);
 
   function close(dialog: HTMLDialogElement) {
-    const leaving = grow(dialog, true);
+    const leaving = move(dialog, true);
     if (leaving) leaving.onfinish = () => dialog.close();
     else dialog.close();
   }
@@ -42,7 +35,7 @@ export function Viewer({ shown, onClose }: { shown: Shown; onClose: () => void }
       ref={(dialog) => {
         if (dialog && !dialog.open) {
           dialog.showModal();
-          grow(dialog);
+          move(dialog);
         }
       }}
       onClose={onClose}

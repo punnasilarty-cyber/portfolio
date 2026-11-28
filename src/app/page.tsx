@@ -1,5 +1,6 @@
 "use client";
 
+import { AboutText } from "@/components/AboutText";
 import { ButtonLean } from "@/components/ButtonLean";
 import { ContactIcon } from "@/components/ContactIcon";
 import { CopyButton } from "@/components/CopyButton";
@@ -13,6 +14,7 @@ import { Universe } from "@/components/Universe";
 import { AiShow } from "@/components/AiShow";
 import { Matrix } from "@/components/Matrix";
 import { Menu } from "@/components/Menu";
+import { NavSlide } from "@/components/NavSlide";
 import { Blackhole } from "@/components/Blackhole";
 import { Blast } from "@/components/Blast";
 import { Rewind } from "@/components/Rewind";
@@ -30,7 +32,7 @@ import { Terminal } from "@/components/Terminal";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ToTop } from "@/components/ToTop";
 import { Works } from "@/components/Works";
-import { aboutWhole, profile, sections, siteUrl } from "@/content";
+import { profile, sections, siteUrl } from "@/content";
 import { useLang } from "@/i18n";
 import { useSite } from "@/site-store";
 
@@ -51,7 +53,8 @@ export default function HomePage() {
           <a href="#top" aria-label={`${profile.name} ${t("กลับขึ้นบนสุด")}`}>
             <span className="text-sm leading-none font-bold whitespace-nowrap sm:text-lg">{profile.name}</span>
           </a>
-          <nav aria-label={t("เมนูหลัก")} className="solx-scrollbar flex max-w-full overflow-x-auto text-sm whitespace-nowrap">
+          <nav aria-label={t("เมนูหลัก")} className="solx-scrollbar relative flex max-w-full overflow-x-auto text-sm whitespace-nowrap">
+            <NavSlide />
             {menu.map((item) => (
               <a key={item.id} href={`#${item.id}`} className="rounded-lg px-3 py-2 text-[var(--muted)] hover:text-[var(--foreground)]">
                 {t(item.title)}
@@ -116,23 +119,7 @@ export default function HomePage() {
               {english ? "What AI can do" : "AI ทำอะไรได้"}
             </button>
           </div>
-          <div>
-            {about.map((paragraph) => (
-              <p key={paragraph}>
-                {/* split keeps the matched phrases at the odd positions */}
-                {t(paragraph)
-                  .split(aboutWhole).map((part, i) =>
-                  i % 2 ? (
-                    <span key={i} className="whitespace-nowrap">
-                      {part}
-                    </span>
-                  ) : (
-                    part
-                  ),
-                )}
-              </p>
-            ))}
-          </div>
+          <AboutText paragraphs={about.map((paragraph) => t(paragraph))} />
         </section>
 
         {/* decoration only: the same names are in the menu */}
