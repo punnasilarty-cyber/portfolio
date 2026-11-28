@@ -51,6 +51,7 @@ export function answer(input: string, facts: Facts): Answer {
     case "matrix":
     case "timestop":
     case "blackhole":
+    case "psychic":
       return { lines: [], open: command, close: true };
     case "heaven":
       return { lines: [], heaven: true, close: true };

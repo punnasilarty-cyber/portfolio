@@ -15,6 +15,7 @@ import { Offline } from "@/components/Offline";
 import { Warp } from "@/components/Warp";
 import { Palette } from "@/components/Palette";
 import { Present } from "@/components/Present";
+import { Psychic } from "@/components/Psychic";
 import { Secrets } from "@/components/Secrets";
 import { TimeStop } from "@/components/TimeStop";
 import { openFeature } from "@/features";
@@ -195,6 +196,7 @@ export default function HomePage() {
       <AiShow />
       <Menu />
       <Blackhole />
+      <Psychic />
       <Warp />
 
       {/* the extra bottom room keeps the corner button off the text */}

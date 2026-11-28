@@ -14,10 +14,10 @@ export function Blackhole() {
   return on ? <Hole onDone={() => setOn(false)} /> : null;
 }
 
-/** the pieces to pull: the largest things on screen that are still small next to it */
-function pieces(from: Element, found: HTMLElement[] = []) {
+/** the loose pieces of the screen, for this and the psychic power: the largest things on screen that are still small next to it */
+export function pieces(from: Element, found: HTMLElement[] = []) {
   for (const child of from.children) {
-    if (!(child instanceof HTMLElement || child instanceof SVGSVGElement) || child.matches("dialog, script, style, .hole")) continue;
+    if (!(child instanceof HTMLElement || child instanceof SVGSVGElement) || child.matches("dialog, script, style, .hole, .psychic")) continue;
     const box = child.getBoundingClientRect();
     const style = getComputedStyle(child);
     if (style.display === "none" || style.visibility === "hidden") continue;

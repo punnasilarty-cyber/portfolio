@@ -1,6 +1,6 @@
 // สิ่งที่เปิดจากหลายที่ได้ (ปุ่ม กล่องคำสั่ง เทอร์มินัล คำลับ) และความลับที่ให้คนดูตามหา
 
-export type Feature = "palette" | "card" | "present" | "secrets" | "timestop" | "matrix" | "blackhole" | "menu" | "terminal" | "ai";
+export type Feature = "palette" | "card" | "present" | "secrets" | "timestop" | "matrix" | "blackhole" | "menu" | "terminal" | "ai" | "psychic";
 
 export const openFeature = (name: Feature) => window.dispatchEvent(new CustomEvent("feature", { detail: name }));
 
@@ -12,7 +12,7 @@ export function onFeature(name: Feature, run: () => void) {
 }
 
 /** words typed anywhere on the page; read by the keys' places, so any keyboard language works */
-export const WORDS: Record<string, "timestop" | "matrix" | "blackhole"> = { timestop: "timestop", matrix: "matrix", blackhole: "blackhole" };
+export const WORDS: Record<string, "timestop" | "matrix" | "blackhole" | "psychic"> = { timestop: "timestop", matrix: "matrix", blackhole: "blackhole", psychic: "psychic" };
 
 /** the word these latest keys end with, if any */
 export const wordTyped = (keys: string) => Object.keys(WORDS).find((word) => keys.endsWith(word));

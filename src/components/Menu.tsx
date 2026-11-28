@@ -32,6 +32,7 @@ const GROUPS: { th: string; en: string; entries: Entry[] }[] = [
       { icon: "⏸", th: ["หยุดเวลา", "ทุกอย่างค้าง 5 วินาที"], en: ["Time stop", "Everything freezes for 5 seconds"], open: "timestop" },
       { icon: "🌧", th: ["ฝนรหัส", "ตัวอักษรไหลรวมเป็นชื่อ"], en: ["Code rain", "Falling letters gather into a name"], open: "matrix" },
       { icon: "🌀", th: ["หลุมดำ", "ดูดทั้งหน้าแล้วคายกลับ"], en: ["Black hole", "Swallows the page and throws it back"], open: "blackhole" },
+      { icon: "🖐", th: ["พลังจิต", "จับของบนหน้าเว็บเหวี่ยงได้"], en: ["Psychic power", "Grab the page's pieces and throw them"], open: "psychic" },
     ],
   },
 ];
