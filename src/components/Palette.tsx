@@ -43,6 +43,7 @@ export function Palette() {
         };
       }).filter((item) => item.label);
       const actions = [
+        { label: say("AI ทำอะไรได้", "What AI can do"), words: "ai artificial intelligence เอไอ ปัญญาประดิษฐ์ หุ่นยนต์", run: () => openFeature("ai") },
         { label: say("เมนูฟีเจอร์ทั้งหมด", "All features"), words: "menu features เมนู ฟีเจอร์", run: () => openFeature("menu") },
         { label: say("โหมดนำเสนอ", "Presentation mode"), words: "present slide นำเสนอ สไลด์", run: () => openFeature("present") },
         { label: say("สมุดความลับ", "Secret book"), words: "secret ความลับ", run: () => openFeature("secrets") },

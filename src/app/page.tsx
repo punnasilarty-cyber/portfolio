@@ -7,6 +7,7 @@ import { Deck } from "@/components/Deck";
 import { Robot } from "@/components/Robot";
 import { HeroMotion } from "@/components/HeroMotion";
 import { Heaven, openHeaven } from "@/components/Heaven";
+import { AiShow } from "@/components/AiShow";
 import { Matrix } from "@/components/Matrix";
 import { Menu } from "@/components/Menu";
 import { Blackhole } from "@/components/Blackhole";
@@ -107,6 +108,9 @@ export default function HomePage() {
             <button type="button" onClick={() => openFeature("present")} className="solx-btn-ghost px-4 py-2 text-sm">
               {english ? "Present" : "โหมดนำเสนอ"}
             </button>
+            <button type="button" onClick={() => openFeature("ai")} className="solx-btn-ghost px-4 py-2 text-sm">
+              {english ? "What AI can do" : "AI ทำอะไรได้"}
+            </button>
           </div>
           <div>
             {about.map((paragraph) => (
@@ -188,6 +192,7 @@ export default function HomePage() {
       <Matrix />
       <Palette />
       <Present />
+      <AiShow />
       <Menu />
       <Blackhole />
       <Warp />

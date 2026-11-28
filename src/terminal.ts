@@ -26,6 +26,7 @@ export function answer(input: string, facts: Facts): Answer {
           `theme <${THEMES.join("|")}>  ${say("เปลี่ยนสี", "change colour")}`,
           `lang <th|en>  ${say("เปลี่ยนภาษา", "change language")}`,
           `present      ${say("โหมดนำเสนอ", "presentation mode")}`,
+          `ai           ${say("AI ทำอะไรได้", "what AI can do")}`,
           `clear · exit`,
         ],
       };
@@ -44,6 +45,7 @@ export function answer(input: string, facts: Facts): Answer {
     case "goto":
       return PLACES.includes(value) ? { lines: [], goto: value, close: true } : usage(PLACES);
     case "present":
+    case "ai":
       return { lines: [], open: command, close: true };
     // not listed by help
     case "matrix":

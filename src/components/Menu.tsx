@@ -10,6 +10,11 @@ type Entry = { icon: string; th: [name: string, what: string]; en: [name: string
 
 const GROUPS: { th: string; en: string; entries: Entry[] }[] = [
   {
+    th: "ฉากแนะนำ",
+    en: "Showcase",
+    entries: [{ icon: "🤖", th: ["AI ทำอะไรได้", "ความสามารถ และด้านน่ากลัวในอนาคต"], en: ["What AI can do", "Its abilities, and its darker future"], open: "ai" }],
+  },
+  {
     th: "เครื่องมือ",
     en: "Tools",
     entries: [

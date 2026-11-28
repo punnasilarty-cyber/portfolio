@@ -2778,6 +2778,396 @@ body.is-presenting .about {
   }
 }
 
+/* what AI can do: a full-screen stage with the robot beside it */
+.ai[open] {
+  width: 100vw;
+  max-width: none;
+  height: 100dvh;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: radial-gradient(60rem 40rem at 50% 40%, color-mix(in srgb, var(--a1) 22%, transparent), transparent 70%), #08090c;
+  color: var(--foreground);
+}
+.ai-room {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 100%;
+  padding: 0.75rem 1rem;
+  text-align: center;
+}
+.ai-bar {
+  display: flex;
+  gap: 0.35rem;
+  width: min(52rem, 100%);
+}
+.ai-bar li {
+  flex: 1;
+}
+.ai-bar button {
+  display: block;
+  width: 100%;
+  padding: 0.5rem 0;
+  cursor: pointer;
+}
+.ai-bar button::before,
+.ai-bar i {
+  display: block;
+  height: 4px;
+  border-radius: 4px;
+}
+/* the filled part is drawn over the empty track */
+.ai-bar button::before {
+  content: "";
+  margin-bottom: -4px;
+  background: rgba(255, 255, 255, 0.18);
+}
+.ai-bar i {
+  position: relative;
+  background: var(--a2);
+  transform-origin: left;
+}
+.ai h2 {
+  margin-top: auto;
+  font-size: clamp(1.4rem, 5vw, 2.4rem);
+  font-weight: 800;
+}
+.ai-floor {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 1rem;
+  width: min(52rem, 100%);
+}
+.ai-robot {
+  flex: none;
+  width: clamp(4rem, 16vw, 9rem);
+}
+.ai-robot svg {
+  display: block;
+  width: 100%;
+  animation: robot-float 1.4s ease-in-out infinite alternate;
+}
+.ai-stage {
+  display: grid;
+  flex: 1;
+  place-items: center;
+  min-width: 0;
+  min-height: min(17rem, 38dvh);
+  padding: 1rem;
+  border: 1px solid color-mix(in srgb, var(--a2) 55%, transparent);
+  border-radius: 16px;
+  background: rgba(16, 17, 20, 0.9);
+}
+.ai-stage > * {
+  width: min(100%, 34rem);
+}
+.ai-stage svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 32dvh;
+  border-radius: 10px;
+}
+.ai-part {
+  opacity: 0;
+  translate: 0 0.5rem;
+  transition: opacity 0.35s, translate 0.35s;
+}
+.ai-part.is-in {
+  opacity: 1;
+  translate: 0 0;
+}
+.ai-line {
+  min-height: 2em;
+  font-size: clamp(1.2rem, 4.5vw, 1.9rem);
+  font-weight: 700;
+}
+.ai-answer {
+  color: var(--a2);
+}
+.ai-words ul,
+.ai-abilities {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 0.75rem auto;
+}
+.ai-words li,
+.ai-abilities li {
+  padding: 0.35rem 0.75rem;
+  border: 1px solid var(--a2);
+  border-radius: 999px;
+}
+.ai-words small {
+  display: block;
+  color: var(--muted);
+  font-size: 0.65rem;
+}
+.ai-code {
+  text-align: left;
+}
+.ai-ask {
+  min-height: 2.4rem;
+  margin: 0 auto 0.6rem;
+  padding: 0.5rem 0.8rem;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--a1) 30%, transparent);
+  font-size: 0.9rem;
+}
+.ai-code pre {
+  min-height: 7.5rem;
+  overflow: auto;
+  padding: 0.75rem;
+  border-radius: 10px;
+  background: #050607;
+  color: #a7f3d0;
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: clamp(0.68rem, 2.6vw, 0.95rem);
+}
+.ai-run {
+  margin-top: 0.6rem;
+  color: var(--a2);
+  font-family: ui-monospace, Consolas, monospace;
+  font-weight: 700;
+}
+.ai-meter {
+  margin-top: 0.4rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+}
+.ai-hear .ai-line {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  white-space: pre-wrap;
+}
+.ai-steps {
+  display: grid;
+  gap: 0.5rem;
+  text-align: left;
+}
+.ai-steps li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.25rem 1rem;
+  padding: 0.5rem 0.9rem;
+  border-left: 3px solid var(--a2);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+}
+.ai-steps small {
+  color: var(--muted);
+}
+.ai-steps b {
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 1.15rem;
+}
+.ai-end p {
+  font-size: clamp(1.1rem, 4vw, 1.6rem);
+  font-weight: 700;
+}
+.ai-end b {
+  display: block;
+  margin-top: 1rem;
+  color: var(--a2);
+  font-size: clamp(1.5rem, 6vw, 2.5rem);
+}
+.ai-caption {
+  min-height: 3em;
+  max-width: 36rem;
+  color: #e4e4e7;
+}
+/* the controls stay within reach while a long scene is scrolled */
+.ai-controls {
+  z-index: 2; /* above the dark scenes' shading */
+  position: sticky;
+  bottom: 0.5rem;
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: auto;
+  padding: 0.35rem;
+  border-radius: 999px;
+  background: rgba(8, 9, 12, 0.92);
+}
+.ai-more {
+  display: grid;
+  gap: 0.6rem;
+  width: min(52rem, 100%);
+  text-align: left;
+}
+@media (min-width: 52rem) {
+  .ai-more {
+    grid-template-columns: 1.5fr 1fr 1fr;
+  }
+}
+.ai-more section {
+  padding: 0.6rem 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: rgba(16, 17, 20, 0.9);
+  font-size: 0.82rem;
+}
+.ai-more h3 {
+  margin-bottom: 0.3rem;
+  color: var(--a2);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.ai-more ol {
+  list-style: decimal;
+  padding-left: 1.1rem;
+}
+.ai-field {
+  max-width: min(100%, 32dvh);
+  margin: 0 auto;
+}
+.ai-end ul {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0.9rem auto 0;
+  font-size: 0.95rem;
+}
+.ai-controls button {
+  min-width: 2.75rem;
+  padding: 0.4rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+}
+.ai-controls button:hover:not(:disabled) {
+  border-color: var(--a2);
+}
+.ai-controls button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.ai small {
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+/* the dark side: everything turns to warning red, with fine lines over the room and a slow breathing shadow.
+   Nothing flashes */
+.ai[open] {
+  transition: background-color 1.2s;
+}
+.ai.is-dark {
+  --a1: #7f1d1d;
+  --a2: #ff4d4d;
+  background: radial-gradient(60rem 40rem at 50% 40%, rgba(127, 29, 29, 0.4), transparent 70%), #050102;
+}
+.ai.is-dark::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: repeating-linear-gradient(transparent 0 3px, rgba(0, 0, 0, 0.22) 3px 4px);
+  box-shadow: inset 0 0 9rem 2rem rgba(120, 0, 0, 0.55);
+  animation: ai-breathe 3.2s ease-in-out infinite alternate;
+}
+@keyframes ai-breathe {
+  from {
+    opacity: 0.65;
+  }
+}
+.ai.is-dark h2 {
+  text-shadow: 3px 0 0 rgba(255, 0, 60, 0.65), -3px 0 0 rgba(0, 200, 255, 0.45);
+}
+.ai.is-dark .ai-robot svg {
+  filter: drop-shadow(0 0 14px #ff2020);
+}
+.ai.is-dark .ai-robot {
+  scale: 1.12;
+}
+.ai.is-dark .robot-eyes circle,
+.ai.is-dark .robot-lamp {
+  fill: #ff2020;
+}
+.ai-bar li.is-dark button::before {
+  background: rgba(255, 77, 77, 0.35);
+}
+.ai-turn p {
+  min-height: 2.2em;
+  font-size: clamp(1.15rem, 4.5vw, 1.8rem);
+}
+.ai-turn b {
+  color: var(--a2);
+}
+.ai-call {
+  margin-top: 0.6rem;
+  color: #fecaca;
+  font-weight: 700;
+}
+.ai-flood {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  justify-content: center;
+  gap: 0.35rem;
+  height: min(13rem, 30dvh);
+  overflow: hidden;
+}
+.ai-flood li {
+  padding: 0.25rem 0.6rem;
+  border: 1px solid var(--a2);
+  border-radius: 8px;
+  background: rgba(127, 29, 29, 0.45);
+  font-size: 0.75rem;
+}
+.ai-log {
+  display: grid;
+  gap: 0.4rem;
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 0.85rem;
+}
+.ai-log li {
+  padding: 0.4rem 0.7rem;
+  border-left: 3px solid var(--a2);
+  background: #0b0304;
+}
+.ai-log li:last-child {
+  color: var(--a2);
+  font-weight: 700;
+}
+.ai-halt {
+  margin-top: 0.7rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* on a narrow screen the robot stands above the stage */
+@media (max-width: 40rem) {
+  .ai-room {
+    gap: 0.45rem;
+  }
+  .ai-robot {
+    width: 3.25rem;
+  }
+  .ai-more section {
+    padding: 0.45rem 0.7rem;
+    font-size: 0.78rem;
+  }
+  .ai-floor {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .ai-stage {
+    flex: none;
+    width: 100%;
+    min-height: min(14rem, 30dvh);
+    padding: 0.6rem;
+  }
+}
+
 /* the drawing in an empty section */
 /* the whole drawing floats, which the graphics card can do by itself */
 .empty-art {
