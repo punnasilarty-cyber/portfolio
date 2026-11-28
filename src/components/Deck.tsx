@@ -12,17 +12,24 @@ export function Deck() {
     const draw = () => {
       frame = 0;
       const calm = !!document.querySelector("#calm:checked");
-      document.querySelectorAll(".deck").forEach((deck) => {
+      // everything is measured first and changed afterwards, so the layout is worked out only once
+      const changes = Array.from(document.querySelectorAll(".deck")).flatMap((deck) => {
         const cards = Array.from(deck.children) as HTMLElement[];
-        cards.forEach((card, i) => {
-          const next = cards[i + 1]?.getBoundingClientRect();
-          const box = card.getBoundingClientRect();
+        const boxes = cards.map((card) => card.getBoundingClientRect());
+        return cards.map((card, i) => {
+          const [box, next] = [boxes[i], boxes[i + 1]];
           // how much of this card the next one has come over, 0 to 1
-          const covered = calm || !next ? 0 : Math.min(1, Math.max(0, (box.bottom - next.top) / box.height));
-          card.style.scale = covered ? String(1 - covered * 0.07) : "";
-          card.style.filter = covered ? `brightness(${1 - covered * 0.55})` : "";
+          return [card, calm || !next ? 0 : Math.min(1, Math.max(0, (box.bottom - next.top) / box.height))] as const;
         });
       });
+      for (const [card, covered] of changes) {
+        const dim = covered.toFixed(2);
+        if (card.dataset.covered === dim) continue;
+        card.dataset.covered = dim;
+        card.style.scale = covered ? String(1 - covered * 0.07) : "";
+        // a dark sheet over the card (globals.css) costs far less than recolouring the card itself
+        card.style.setProperty("--dim", String(covered * 0.55));
+      }
     };
     const moved = () => {
       frame ||= requestAnimationFrame(draw);

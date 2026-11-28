@@ -8,6 +8,20 @@ async function loadPdfjs() {
   return pdfjs;
 }
 
+/** resolves once the page has not been scrolled for a moment; drawing waits for this so it never makes scrolling stutter */
+let lastScroll = 0;
+if (typeof window !== "undefined") window.addEventListener("scroll", () => (lastScroll = performance.now()), { passive: true });
+function whenStill(): Promise<void> {
+  return new Promise((resolve) => {
+    const check = () => {
+      const left = 220 - (performance.now() - lastScroll);
+      if (left <= 0) resolve();
+      else setTimeout(check, left);
+    };
+    check();
+  });
+}
+
 /** the first sheet of a PDF over a card's coloured cover, which stays as it is when the file cannot be drawn */
 export function FirstPage({ src }: { src: string }) {
   const canvas = useRef<HTMLCanvasElement>(null);
@@ -22,6 +36,22 @@ export function FirstPage({ src }: { src: string }) {
         if (!entry.isIntersecting) return;
         near.disconnect();
         (async () => {
+          const context = sheet.getContext("2d")!;
+          // drawn on an earlier visit: put the picture back, with no need for the reader at all
+          const key = `cover:${src}`;
+          const kept = localStorage.getItem(key);
+          if (kept) {
+            const picture = new Image();
+            picture.src = kept;
+            await picture.decode();
+            if (closed) return;
+            sheet.width = picture.width;
+            sheet.height = picture.height;
+            context.drawImage(picture, 0, 0);
+            sheet.hidden = false;
+            return;
+          }
+          await whenStill();
           const pdfjs = await loadPdfjs();
           if (closed) return;
           const task = pdfjs.getDocument({ url: src, disableAutoFetch: true, disableStream: true });
@@ -30,9 +60,19 @@ export function FirstPage({ src }: { src: string }) {
           const viewport = page.getViewport({ scale: 520 / page.getViewport({ scale: 1 }).width });
           sheet.width = Math.floor(viewport.width);
           sheet.height = Math.floor(viewport.height);
-          await page.render({ canvas: sheet, viewport }).promise;
+          await whenStill();
+          const drawing = page.render({ canvas: sheet, viewport });
+          // between pieces of the page, stand aside again if the reader has moved on
+          drawing.onContinue = (go: () => void) => void whenStill().then(go);
+          await drawing.promise;
           sheet.hidden = false;
           stop();
+          await whenStill();
+          try {
+            localStorage.setItem(key, sheet.toDataURL("image/jpeg", 0.82));
+          } catch {
+            // no room left: the cover is simply drawn again next time
+          }
         })().catch(() => {});
       },
       { rootMargin: "300px" },

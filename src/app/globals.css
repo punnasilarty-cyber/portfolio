@@ -568,6 +568,9 @@ main {
 
 /* a quiet strip of section names between two hairlines, fading at both ends */
 .fx-band {
+  /* left alone, drift and all, while it is out of sight */
+  content-visibility: auto;
+  contain-intrinsic-size: auto 4rem;
   margin: 1rem 0 2rem;
   padding: 1rem 0;
   overflow: hidden;
@@ -576,6 +579,8 @@ main {
   mask-image: linear-gradient(90deg, transparent, #000 15%, #000 85%, transparent);
 }
 .fx-track {
+  /* moved by the graphics card alone, so it costs the page nothing while it drifts */
+  animation: fx-drift 40s linear infinite;
   display: flex;
   width: max-content;
   font-size: clamp(0.95rem, 2.2vw, 1.25rem);
@@ -596,6 +601,12 @@ main {
   border-radius: 50%;
   background: var(--accent);
   box-shadow: 0 0 8px var(--accent);
+}
+
+@keyframes fx-drift {
+  to {
+    transform: translateX(-50%);
+  }
 }
 
 /* on hover a card glows and a sheen crosses it; the tilt itself is in SpotlightCard */
@@ -1732,6 +1743,15 @@ div.viewer-body {
 .deck > li:focus-within {
   z-index: 5;
 }
+.deck > li::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-card);
+  background: #000;
+  opacity: var(--dim, 0);
+  pointer-events: none;
+}
 .deck .solx-card {
   box-shadow: 0 -14px 34px -20px #000;
 }
@@ -1772,7 +1792,10 @@ div.viewer-body {
   display: block;
   width: 100%;
   cursor: pointer;
-  animation: robot-float 2.6s ease-in-out infinite alternate;
+}
+.robot.is-speaking .robot-body,
+.robot:hover .robot-body {
+  animation: robot-float 0.65s ease-in-out 6 alternate;
 }
 .robot-lamp,
 .robot-eyes circle {
@@ -1780,14 +1803,21 @@ div.viewer-body {
 }
 .robot-eyes {
   transform-origin: 32px 26.5px;
-  animation: robot-blink 4.2s infinite;
 }
 .robot-arm {
   transform-origin: 19px 48px;
-  animation: robot-point 1.3s ease-in-out infinite alternate;
+}
+/* blinking and pointing only while it speaks: moving parts inside a drawing make the page work on every frame */
+.robot.is-speaking .robot-eyes,
+.robot:hover .robot-eyes {
+  animation: robot-blink 2s 2;
+}
+.robot.is-speaking .robot-arm,
+.robot:hover .robot-arm {
+  animation: robot-point 0.65s ease-in-out 6 alternate;
 }
 .robot svg.is-up .robot-arm {
-  animation: none;
+  animation: none !important;
   rotate: 150deg;
 }
 .robot p {
@@ -1880,7 +1910,8 @@ div.viewer-body {
   font-size: 1.75rem;
   line-height: 1;
   cursor: pointer;
-  animation: heaven-call 2.4s ease-in-out infinite alternate;
+  /* a still glow: a pulsing one kept the page busy on every frame */
+  box-shadow: 0 0 20px 1px rgba(253, 230, 138, 0.3);
   transition: scale 0.2s ease, border-color 0.2s ease;
 }
 .heaven-open span {
@@ -1897,14 +1928,6 @@ div.viewer-body {
 }
 .heaven-open:active {
   scale: 0.95;
-}
-@keyframes heaven-call {
-  from {
-    box-shadow: 0 0 0 0 rgba(253, 230, 138, 0);
-  }
-  to {
-    box-shadow: 0 0 22px 2px rgba(253, 230, 138, 0.4);
-  }
 }
 .heaven[open] {
   width: 100vw;
@@ -1995,27 +2018,20 @@ div.viewer-body {
 }
 
 /* the drawing in an empty section */
+/* the whole drawing floats, which the graphics card can do by itself */
 .empty-art {
   margin: 0 auto 0.5rem;
   color: #a1a1aa;
-}
-.empty-float {
   animation: empty-float 3.5s ease-in-out infinite alternate;
-}
-.empty-spark {
-  animation: empty-blink 1.6s ease-in-out infinite alternate;
 }
 @keyframes empty-float {
   to {
     translate: 0 -6px;
   }
 }
-@keyframes empty-blink {
-  from {
-    opacity: 0.15;
-  }
-}
 .work-empty {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 12rem;
   max-width: 28rem;
   margin: 0 auto;
   padding: 1.25rem;

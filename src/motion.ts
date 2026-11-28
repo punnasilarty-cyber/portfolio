@@ -26,8 +26,6 @@ export function useMotion(content: unknown) {
         const depths = { "#top > section:first-child > canvas": 70, ".hero-content h1": 90, ".hero-content > p": 160, ".hero-content > div": 230 };
         Object.entries(depths).forEach(([part, y]) => layers.to(part, { y }, 0));
 
-        // the band of section names keeps drifting
-        gsap.to(".fx-track", { xPercent: -50, duration: 40, ease: "none", repeat: -1 });
         gsap.utils.toArray<HTMLElement>("main section[id]").forEach((section) => {
           const heading = section.querySelector("h2");
           gsap.from(heading, {
