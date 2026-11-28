@@ -9,6 +9,7 @@ import { groupsOf, sectionOf, sections, works as defaults, type SectionId, type 
 import { EmptyArt } from "@/components/Graphics";
 import { FirstPage } from "@/components/PdfPages";
 import { Viewer, type Shown } from "@/components/Viewer";
+import { useLang } from "@/i18n";
 import { checkToken, deleteFile, fromBase64, readFile, writeFile } from "@/github";
 import { addressOf, DOCUMENT_TYPES, MAX_DOCUMENT_BYTES, MAX_PICTURES, moved, picturesOf, safeName, unusedFiles } from "@/items";
 import { useMotion } from "@/motion";
@@ -36,6 +37,7 @@ async function toJpeg(file: File) {
 
 /** every category of the page; the owner unlocks editing in place with a password */
 export function Works() {
+  const { english, t } = useLang();
   const [works, setWorks] = useState<Work[] | null>(null);
   // the plain token stays in memory only
   const [token, setToken] = useState("");
@@ -219,8 +221,8 @@ export function Works() {
           </span>
           {/* only the heading waits for scrolling: a tall grid might never be "visible enough" */}
           <Reveal>
-            <h2 aria-label={section.title} className="mb-10 text-center text-2xl font-semibold sm:text-4xl">
-              <StaggerText text={section.title} />
+            <h2 aria-label={t(section.title)} className="mb-10 text-center text-2xl font-semibold sm:text-4xl">
+              <StaggerText text={t(section.title)} />
             </h2>
           </Reveal>
           {section.id === "education" ? (
@@ -228,14 +230,14 @@ export function Works() {
           ) : works && inSection(section.id).length === 0 ? (
             <div className="work-empty">
               <EmptyArt section={section.id} />
-              <p>กำลังรวบรวม{section.title}</p>
+              <p>{english ? `${t(section.title)}: coming soon` : `กำลังรวบรวม${section.title}`}</p>
             </div>
           ) : (
             // while loading, one empty list holds the space
             (works ? groupsOf(inSection(section.id), ({ work }) => work.group) : [{ name: "", items: [] }]).map((group) => (
               <Fragment key={group.name}>
-                {group.name && <h3 className="work-group">{group.name}</h3>}
-                <ul aria-label={group.name || undefined} className="grid min-h-40 gap-5 sm:grid-cols-2 lg:grid-cols-3" aria-busy={!works}>
+                {group.name && <h3 className="work-group">{t(group.name)}</h3>}
+                <ul aria-label={group.name ? t(group.name) : undefined} className="grid min-h-40 gap-5 sm:grid-cols-2 lg:grid-cols-3" aria-busy={!works}>
                   {group.items.map(({ work, index }) => (
                     <li key={`${index}-${work.title}`}>
                       <WorkCard work={work} pictureUrl={pictureUrl} />
@@ -250,9 +252,9 @@ export function Works() {
 
       {!token && (
         <div className="fixed bottom-4 left-4 z-40">
-          <button disabled={!works || busy} onClick={openPanel} aria-label="เข้าสู่โหมดแก้ไข" className="secret-btn">
+          <button disabled={!works || busy} onClick={openPanel} aria-label={t("เข้าสู่โหมดแก้ไข")} className="secret-btn">
             <Lock />
-            <span aria-hidden="true">แก้ไข</span>
+            <span aria-hidden="true">{t("แก้ไข")}</span>
           </button>
           {!panel && message && (
             <p role="alert" className="solx-card mt-2 max-w-60 p-2 text-xs text-[var(--accent-soft)]">
@@ -488,6 +490,7 @@ function Lock() {
 function WorkCard({ work, pictureUrl }: { work: Work; pictureUrl: (path: string) => string }) {
   // a certificate must show whole, other photos may be cropped to fill
   const fit = sectionOf(work) === "certificates" ? "object-contain" : "object-cover";
+  const { english, t } = useLang();
   const [shown, setShown] = useState<Shown | null>(null);
   const pictures = picturesOf(work).map(pictureUrl);
   const kind = work.link ? fileKindOf(work.link) : null;
@@ -498,34 +501,34 @@ function WorkCard({ work, pictureUrl }: { work: Work; pictureUrl: (path: string)
     const view = viewOf(work.link!, navigator.pdfViewerEnabled);
     if (!view) return;
     event.preventDefault();
-    setShown({ ...view, title: work.title, href: work.link!, from: event.currentTarget.closest("li") });
+    setShown({ ...view, title: t(work.title), href: work.link!, from: event.currentTarget.closest("li") });
   }
 
   return (
     <SpotlightCard className="flex h-full flex-col">
       {pictures.length > 0 && (
-        <button type="button" onClick={(event) => setShown({ kind: "image", src: pictures[0], href: pictures[0], title: work.title, gallery: pictures, from: event.currentTarget.closest("li") })} className="work-picture aspect-video bg-black/40">
+        <button type="button" onClick={(event) => setShown({ kind: "image", src: pictures[0], href: pictures[0], title: t(work.title), gallery: pictures, from: event.currentTarget.closest("li") })} className="work-picture aspect-video bg-black/40">
           {/* eslint-disable-next-line @next/next/no-img-element -- a static export serves images as they are */}
-          <img src={pictures[0]} alt={work.title} className={`h-full w-full ${fit}`} />
-          <span>{pictures.length > 1 ? `ดูรูปทั้งหมด ${pictures.length} รูป` : "ดูภาพเต็ม"}</span>
+          <img src={pictures[0]} alt={t(work.title)} className={`h-full w-full ${fit}`} />
+          <span>{pictures.length > 1 ? (english ? `View all ${pictures.length} pictures` : `ดูรูปทั้งหมด ${pictures.length} รูป`) : t("ดูภาพเต็ม")}</span>
         </button>
       )}
       {pictures.length === 0 && kind && (
         // a second way into the same file as the button below, so keyboards and screen readers skip it
         <a href={work.link} onClick={openFile} target="_blank" rel="noopener noreferrer" tabIndex={-1} aria-hidden="true" className={`work-file work-file--${kind.toLowerCase()}`}>
           <b>{kind}</b>
-          <span>กดเพื่อเปิดอ่าน</span>
+          <span>{t("กดเพื่อเปิดอ่าน")}</span>
           {/* a Word file cannot be drawn here, so its cover comes from the PDF of the same name when there is one */}
           {(kind === "PDF" || kind === "Word") && <FirstPage src={work.link!.replace(/.docx?(?=$|[?#])/i, ".pdf")} />}
         </a>
       )}
       <div className="flex flex-1 flex-col gap-2 p-5">
-        <p className="text-xs text-[var(--accent-soft)]">{work.kind}</p>
-        <h3 className="font-bold">{work.title}</h3>
-        <p className="text-sm whitespace-pre-line text-[var(--muted)]">{work.summary}</p>
+        <p className="text-xs text-[var(--accent-soft)]">{t(work.kind)}</p>
+        <h3 className="font-bold">{t(work.title)}</h3>
+        <p className="text-sm whitespace-pre-line text-[var(--muted)]">{t(work.summary)}</p>
         {work.link && (
           <a href={work.link} onClick={openFile} target="_blank" rel="noopener noreferrer" className="solx-btn-ghost mt-auto self-start px-4 py-2 text-sm">
-            เปิดดู
+            {t("เปิดดู")}
           </a>
         )}
       </div>

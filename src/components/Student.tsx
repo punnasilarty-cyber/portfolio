@@ -1,9 +1,12 @@
+import { useLang } from "@/i18n";
+
 /** a made-up student who grows with the year (0 = ป.1, 11 = ม.6); not a likeness of anyone */
 export function Student({ step, stage, color, walking, cheer }: { step: number; stage: number; color: string; walking: boolean; /** at a new school: jumps and waves once */ cheer: boolean }) {
+  const { t } = useLang();
   const size = 0.68 + (step / 11) * 0.32;
 
   return (
-    <svg viewBox="0 0 100 150" role="img" aria-label="ตัวละครชายสมมติ ผมหน้าม้าซอย เสื้อนักเรียนแขนสั้น กางเกง ถุงเท้า และรองเท้าสีน้ำตาล" className={`edu-kid ${walking ? "is-walking" : ""} ${cheer ? "is-cheering" : ""}`}>
+    <svg viewBox="0 0 100 150" role="img" aria-label={t("ตัวละครชายสมมติ ผมหน้าม้าซอย เสื้อนักเรียนแขนสั้น กางเกง ถุงเท้า และรองเท้าสีน้ำตาล")} className={`edu-kid ${walking ? "is-walking" : ""} ${cheer ? "is-cheering" : ""}`}>
       <ellipse cx="50" cy="143" rx={26 * size} ry="4" fill="rgba(0,0,0,0.35)" />
       {/* grows from the feet up */}
       <g className="edu-kid-body" style={{ transform: `scale(${size})` }}>

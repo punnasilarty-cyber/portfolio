@@ -1,4 +1,5 @@
 // ฉากโรงเรียนจำลองแบบไอโซเมตริก วาดด้วย SVG ล้วน ผังและที่มาอยู่ใน school-layouts.ts
+import { useLang } from "@/i18n";
 import { paintOrder } from "./iso";
 import { LAYOUTS, type Building, type Rect, type Spot } from "./school-layouts";
 
@@ -253,6 +254,7 @@ function Tree({ at: [x, y], size }: { at: Spot; size: number }) {
 }
 
 export function SchoolScene({ school, logo, wall, trim }: { school: string; logo: string; wall: string; trim: string }) {
+  const { english, t } = useLang();
   const layout = LAYOUTS[school];
   if (!layout) return null;
   const { viewBox, ground, storey, roads = [], ponds = [], paving = [], field, buildings, salas = [], trees, treeSize, flag, sign } = layout;
@@ -312,8 +314,8 @@ export function SchoolScene({ school, logo, wall, trim }: { school: string; logo
           <Box at={sign} h={signHeight} color={gate ? "#e9e7e0" : wall} />
           <g transform={onWall(sx + sw / 2, sy + sd + 0.2, signHeight / 2)}>
             <rect x={-sw * 0.46} y={-signHeight * 0.38} width={sw * 0.92} height={signHeight * 0.76} rx={sw * 0.02} fill={gate ? "#17191c" : "#fafaf9"} />
-            <text textAnchor="middle" y={sw * 0.04} fontSize={sw * 0.115} fontWeight="700" fill={gate ? "#e8c568" : "#1c1917"}>
-              {school.replace("โรงเรียน", "")}
+            <text textAnchor="middle" textLength={english ? sw * 0.86 : undefined} lengthAdjust="spacingAndGlyphs" y={sw * 0.04} fontSize={sw * 0.115} fontWeight="700" fill={gate ? "#e8c568" : "#1c1917"}>
+              {t(school).replace("โรงเรียน", "").replace(" School", "")}
             </text>
           </g>
           {gate && [sx - 1.6, sx + sw].map((px) => <Box key={px} at={[px, sy + 0.5, 1.6, 2]} h={signHeight * 1.6} color="#f2f1ea" />)}
@@ -323,7 +325,7 @@ export function SchoolScene({ school, logo, wall, trim }: { school: string; logo
   ]);
 
   return (
-    <svg viewBox={viewBox} role="img" aria-label={`ผังจำลอง${school}`} className="edu-scene-art">
+    <svg viewBox={viewBox} role="img" aria-label={english ? `Model of ${t(school)}` : `ผังจำลอง${school}`} className="edu-scene-art">
       <Box at={ground} z={-10} h={10} color="#55604a" />
       {roads.map((road) => (
         <polygon key={road.join()} points={slab(road)} fill="#3f4247" />

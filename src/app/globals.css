@@ -1320,6 +1320,27 @@ div.viewer-body {
 .work-file--excel {
   --file: #15803d;
 }
+/* the language switch: a corner of the header on narrow screens, the end of its row on wide ones */
+.lang-toggle {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.5rem;
+  padding: 0.15rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-button);
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.lang-toggle:hover {
+  border-color: var(--accent-soft);
+}
+@media (min-width: 1024px) {
+  .lang-toggle {
+    position: static;
+    flex: none;
+  }
+}
 /* the drawing in an empty section */
 .empty-art {
   margin: 0 auto 0.5rem;

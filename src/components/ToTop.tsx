@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLang } from "@/i18n";
 
 /** a corner button back to the top, once the reader is well down the page */
 export function ToTop() {
+  const { t } = useLang();
   const [shown, setShown] = useState(false);
 
   useEffect(() => {
@@ -21,7 +23,7 @@ export function ToTop() {
 
   if (!shown) return null;
   return (
-    <button type="button" onClick={go} aria-label="กลับขึ้นบนสุด" className="to-top">
+    <button type="button" onClick={go} aria-label={t("กลับขึ้นบนสุด")} className="to-top">
       <span aria-hidden="true">↑</span>
     </button>
   );

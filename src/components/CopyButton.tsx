@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLang } from "@/i18n";
 
 /** copies a handle that has no web address of its own */
 export function CopyButton({ value }: { value: string }) {
+  const { t } = useLang();
   const [message, setMessage] = useState("");
 
   useEffect(() => {
@@ -30,7 +32,7 @@ export function CopyButton({ value }: { value: string }) {
           <path d="m4 12.5 5 5L20 6.5" pathLength="1" />
         </svg>
       )}
-      <span aria-live="polite">{message || "คัดลอก"}</span>
+      <span aria-live="polite">{t(message || "คัดลอก")}</span>
     </button>
   );
 }

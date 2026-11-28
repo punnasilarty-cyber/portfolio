@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { isEnglish, useLang } from "@/i18n";
 
 /** pdf.js, fetched only when a file has to be drawn; the legacy build also runs on older phones */
 async function loadPdfjs() {
@@ -49,6 +50,7 @@ export function FirstPage({ src }: { src: string }) {
 
 /** draws a PDF sheet by sheet with pdf.js, for browsers that cannot show one in a frame */
 export function PdfPages({ src, title }: { src: string; title: string }) {
+  const { t } = useLang();
   const holder = useRef<HTMLDivElement>(null);
   const [status, setStatus] = useState("กำลังเปิดไฟล์…");
 
@@ -71,11 +73,11 @@ export function PdfPages({ src, title }: { src: string; title: string }) {
         canvas.width = Math.floor(viewport.width);
         canvas.height = Math.floor(viewport.height);
         canvas.setAttribute("role", "img");
-        canvas.setAttribute("aria-label", `${title} หน้า ${number} จาก ${file.numPages}`);
+        canvas.setAttribute("aria-label", isEnglish() ? `${title}, page ${number} of ${file.numPages}` : `${title} หน้า ${number} จาก ${file.numPages}`);
         await page.render({ canvas, viewport }).promise;
         if (closed) return;
         box.append(canvas);
-        setStatus(number < file.numPages ? `กำลังเปิดหน้า ${number + 1} จาก ${file.numPages}…` : "");
+        setStatus(number === file.numPages ? "" : isEnglish() ? `Opening page ${number + 1} of ${file.numPages}…` : `กำลังเปิดหน้า ${number + 1} จาก ${file.numPages}…`);
       }
     })().catch(() => {
       if (!closed) setStatus("เปิดไฟล์ในหน้านี้ไม่ได้ ลองกด “เปิดแท็บใหม่”");
@@ -90,7 +92,7 @@ export function PdfPages({ src, title }: { src: string; title: string }) {
   return (
     <div className="viewer-body viewer-pages">
       <div ref={holder} />
-      <p role="status">{status}</p>
+      <p role="status">{t(status)}</p>
     </div>
   );
 }

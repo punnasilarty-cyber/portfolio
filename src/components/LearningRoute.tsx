@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { Student } from "@/components/Student";
 import { education, type Work } from "@/content";
+import { useLang } from "@/i18n";
 import { yearAt, yearsOf } from "@/journey";
 import { MAP_HEIGHT, MAP_WIDTH, PINS, PROVINCE, ROAD, ROAD_KM } from "@/map-data";
+import { englishGrade } from "@/translations";
 
 const base = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 const years = yearsOf(education);
@@ -12,6 +14,7 @@ const STATUS = { past: "เรียนจบแล้ว", now: "กำลั�
 export function LearningRoute({ project }: { project?: Work }) {
   // one pin per school, in the order first reached
   const pins = education.filter((stop, i) => education.findIndex((other) => other.school === stop.school) === i);
+  const { english, t } = useLang();
   const [step, setStep] = useState(0);
   // the student walks only while the page is moving
   const [walking, setWalking] = useState(false);
@@ -19,6 +22,8 @@ export function LearningRoute({ project }: { project?: Work }) {
   const stage = education[entry.stage];
   const color = stage.schoolColors?.[1]?.hex ?? "#f87171";
   const atSecondSchool = stage.school !== education[0].school;
+  const year = english ? entry.year - 543 : entry.year;
+  const grade = english ? englishGrade(entry.grade) : entry.grade;
 
   // the journey follows the reader down the stage cards
   useEffect(() => {
@@ -51,12 +56,12 @@ export function LearningRoute({ project }: { project?: Work }) {
       <svg
         viewBox={`0 0 ${MAP_WIDTH} ${MAP_HEIGHT}`}
         role="img"
-        aria-label={`แผนที่จังหวัดสุรินทร์ เส้นทางจาก${pins.map((pin) => pin.school).join(" ไป")} ${ROAD_KM} กิโลเมตร`}
+        aria-label={english ? `Map of Surin Province: the ${ROAD_KM} km road from ${pins.map((pin) => t(pin.school)).join(" to ")}` : `แผนที่จังหวัดสุรินทร์ เส้นทางจาก${pins.map((pin) => pin.school).join(" ไป")} ${ROAD_KM} กิโลเมตร`}
         className="edu-map-art"
       >
         <path d={PROVINCE} className="edu-province" />
         <text x={MAP_WIDTH / 2} y="110" textAnchor="middle" className="edu-map-label">
-          จังหวัดสุรินทร์
+          {t("จังหวัดสุรินทร์")}
         </text>
         <path d={ROAD} className="edu-road-under" />
         {/* the road lights up once the journey has moved to the second school */}
@@ -74,7 +79,7 @@ export function LearningRoute({ project }: { project?: Work }) {
               </clipPath>
               <image href={base + pin.logo} x="-13.5" y="-13.5" width="27" height="27" clipPath={`url(#${id})`} />
               <text y="-24" textAnchor="middle" className="edu-pin-label">
-                {pin.school.replace("โรงเรียน", "")}
+                {t(pin.school).replace("โรงเรียน", "").replace(" School", "")}
               </text>
             </g>
           );
@@ -83,28 +88,28 @@ export function LearningRoute({ project }: { project?: Work }) {
         <g className="edu-traveller" style={{ offsetPath: `path("${ROAD}")`, offsetDistance: atSecondSchool ? "100%" : "0%" }}>
           <circle cy="22" r="9" fill="#fff" stroke="#dc2626" strokeWidth="2.5" />
           <text y="26" textAnchor="middle" fontSize="11" fontWeight="800" fill="#7f1d1d">
-            {entry.grade.replace(".", "")}
+            {english ? `${grade[0]}${grade.slice(-1)}` : grade.replace(".", "")}
           </text>
         </g>
       </svg>
-      <p className="text-center text-xs text-[var(--muted)]">ระยะทางตามถนนระหว่างสองโรงเรียนราว {ROAD_KM.toFixed(1)} กม.</p>
+      <p className="text-center text-xs text-[var(--muted)]">{english ? `About ${ROAD_KM.toFixed(1)} km by road between the two schools` : `ระยะทางตามถนนระหว่างสองโรงเรียนราว ${ROAD_KM.toFixed(1)} กม.`}</p>
 
       <div className="edu-journey" style={{ "--a": color } as React.CSSProperties}>
         <Student step={step} stage={entry.stage} color={color} walking={walking} cheer={atSecondSchool} />
         <div className="min-w-0">
           <p className="edu-year">
-            {entry.year} <span>{entry.grade}</span>
+            {year} <span>{grade}</span>
           </p>
-          <p className={`edu-status is-${entry.when}`}>{STATUS[entry.when]}</p>
-          <p className="font-bold">{stage.school}</p>
+          <p className={`edu-status is-${entry.when}`}>{t(STATUS[entry.when])}</p>
+          <p className="font-bold">{t(stage.school)}</p>
           <p className="text-xs text-[var(--muted)]">
-            ปีที่ {step + 1} จาก {years.length} บนเส้นทางการเรียน
+            {english ? `Year ${step + 1} of ${years.length} on the learning journey` : `ปีที่ ${step + 1} จาก ${years.length} บนเส้นทางการเรียน`}
           </p>
-          {stage.program && <p className="text-sm text-[#e4e4e7]">{stage.program}</p>}
+          {stage.program && <p className="text-sm text-[#e4e4e7]">{t(stage.program)}</p>}
           {/* the owner keeps the คำขวัญ on the stage card only */}
           {stage.mottos.filter((motto) => motto.label !== "คำขวัญ").map((motto) => (
             <p key={motto.text} className="text-xs text-[#d4d4d8]">
-              {motto.label} {motto.text}
+              {motto.label && t(motto.label)} {t(motto.text)}
             </p>
           ))}
         </div>
@@ -116,20 +121,20 @@ export function LearningRoute({ project }: { project?: Work }) {
           {/* eslint-disable-next-line @next/next/no-img-element -- a static export serves images as they are */}
           <img src={base + project.image} alt="" />
           <span>
-            <b>ผลงาน IS ในช่วง ม.4</b>
-            <small>{project.title}</small>
-            <em>ดูผลงานและรายงานในหมวด IS2 →</em>
+            <b>{t("ผลงาน IS ในช่วง ม.4")}</b>
+            <small>{t(project.title)}</small>
+            <em>{t("ดูผลงานและรายงานในหมวด IS2 →")}</em>
           </span>
         </a>
       )}
 
-      <div className="edu-progress" role="progressbar" aria-label="ความคืบหน้าบนเส้นทางการเรียน" aria-valuemin={1} aria-valuemax={years.length} aria-valuenow={step + 1} aria-valuetext={`${entry.year} ${entry.grade}`}>
+      <div className="edu-progress" role="progressbar" aria-label={t("ความคืบหน้าบนเส้นทางการเรียน")} aria-valuemin={1} aria-valuemax={years.length} aria-valuenow={step + 1} aria-valuetext={`${year} ${grade}`}>
         {years.map((item, i) => (
           <span key={item.year} className={i <= step ? "is-done" : ""} />
         ))}
       </div>
-      <p className="text-center text-xs text-[#e4e4e7]">เลื่อนหน้าจอเพื่อเดินทางตามปีการศึกษา</p>
-      <p className="text-center text-[11px] text-[var(--muted)]">ตัวละครสมมติ ไม่ใช่ภาพบุคคลจริง</p>
+      <p className="text-center text-xs text-[#e4e4e7]">{t("เลื่อนหน้าจอเพื่อเดินทางตามปีการศึกษา")}</p>
+      <p className="text-center text-[11px] text-[var(--muted)]">{t("ตัวละครสมมติ ไม่ใช่ภาพบุคคลจริง")}</p>
     </div>
   );
 }

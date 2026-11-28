@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { LearningRoute } from "@/components/LearningRoute";
 import { SchoolScene } from "@/components/SchoolScene";
 import { education, type Work } from "@/content";
+import { useLang } from "@/i18n";
+import { englishPeriod } from "@/translations";
 
 const base = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
@@ -15,6 +17,7 @@ export function Education({ project }: { project?: Work }) {
   // one scene per school, in the order first reached
   const schools = education.filter((stop, i) => education.findIndex((other) => other.school === stop.school) === i);
 
+  const { english, t } = useLang();
   const [view, setView] = useState<(typeof VIEWS)[number]["id"]>("route");
   // the animations are rebuilt for the view now showing, which also measures its new height
   useEffect(() => {
@@ -24,10 +27,10 @@ export function Education({ project }: { project?: Work }) {
   return (
     <div className={view === "route" ? "edu edu--route" : "edu"}>
       <figure className="edu-stage-wrap">
-        <div role="group" aria-label="เลือกมุมมอง" className="edu-tabs">
+        <div role="group" aria-label={t("เลือกมุมมอง")} className="edu-tabs">
           {VIEWS.map(({ id, label }) => (
             <button key={id} type="button" aria-pressed={view === id} onClick={() => setView(id)}>
-              {label}
+              {t(label)}
             </button>
           ))}
         </div>
@@ -40,13 +43,13 @@ export function Education({ project }: { project?: Work }) {
                 wall={stop.schoolColors?.[0]?.hex ?? "#7f1d1d"}
                 trim={stop.schoolColors?.[1]?.hex ?? "#f87171"}
               />
-              <p className="edu-scene-name">{stop.school}</p>
+              <p className="edu-scene-name">{t(stop.school)}</p>
             </div>
           ))}
         </div>
         {/* unmounted while away, so its drawing plays again on every visit */}
         {view === "route" && <LearningRoute project={project} />}
-        <figcaption className="mt-2 text-center text-[11px] text-[var(--muted)]">{VIEWS.find(({ id }) => id === view)!.note}</figcaption>
+        <figcaption className="mt-2 text-center text-[11px] text-[var(--muted)]">{t(VIEWS.find(({ id }) => id === view)!.note)}</figcaption>
       </figure>
 
       <div className="edu-list">
@@ -61,26 +64,26 @@ export function Education({ project }: { project?: Work }) {
             <div className="edu-card solx-card">
               <p className="flex flex-wrap items-center gap-x-3 gap-y-1">
                 <span className="edu-step">{String(i + 1).padStart(2, "0")}</span>
-                <span className="edu-level">{stop.level}</span>
-                {stop.current && <span className="edu-now">กำลังศึกษา</span>}
+                <span className="edu-level">{t(stop.level)}</span>
+                {stop.current && <span className="edu-now">{t("กำลังศึกษา")}</span>}
               </p>
-              {stop.program && <p className="edu-program">{stop.program}</p>}
-              <p className="mt-1 text-sm text-[var(--muted)]">ปีการศึกษา {stop.period}</p>
+              {stop.program && <p className="edu-program">{t(stop.program)}</p>}
+              <p className="mt-1 text-sm text-[var(--muted)]">{english ? `Academic years ${englishPeriod(stop.period)}` : `ปีการศึกษา ${stop.period}`}</p>
               <div className="mt-4 flex items-center gap-4">
                 {/* eslint-disable-next-line @next/next/no-img-element -- a static export serves images as they are */}
-                <img src={base + stop.logo} alt={`ตรา${stop.school}`} className="edu-logo" />
-                <h3 className="text-xl font-bold sm:text-2xl">{stop.school}</h3>
+                <img src={base + stop.logo} alt={english ? `Crest of ${t(stop.school)}` : `ตรา${stop.school}`} className="edu-logo" />
+                <h3 className="text-xl font-bold sm:text-2xl">{t(stop.school)}</h3>
               </div>
               <ul className="mt-4 space-y-1.5 text-sm">
                 {stop.mottos.map((motto) => (
                   <li key={motto.text} className="edu-fact">
-                    {motto.label} {motto.text}
+                    {motto.label && t(motto.label)} {t(motto.text)}
                   </li>
                 ))}
               </ul>
               <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
                 <a href={stop.website} target="_blank" rel="noopener noreferrer" className="solx-btn-ghost px-4 py-2 text-sm">
-                  เว็บไซต์โรงเรียน <span aria-hidden="true">↗</span>
+                  {t("เว็บไซต์โรงเรียน")} <span aria-hidden="true">↗</span>
                 </a>
               </div>
             </div>

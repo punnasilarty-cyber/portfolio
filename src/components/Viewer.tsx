@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { PdfPages } from "@/components/PdfPages";
+import { useLang } from "@/i18n";
 import type { View } from "@/viewer";
 
 export type Shown = View & { title: string; /** where the file itself lives */ href: string; /** all the pictures to step through */ gallery?: string[]; /** the card the window grows out of and shrinks back into */ from?: Element | null };
@@ -7,6 +8,7 @@ export type Shown = View & { title: string; /** where the file itself lives */ h
 /** a full-screen window over the page for one picture or file */
 export function Viewer({ shown, onClose }: { shown: Shown; onClose: () => void }) {
   // a picture fits the window until pressed, then shows at its own size and scrolls
+  const { english, t } = useLang();
   const [full, setFull] = useState(false);
   const [at, setAt] = useState(0);
   const gallery = shown.gallery && shown.gallery.length > 1 ? shown.gallery : null;
@@ -58,18 +60,18 @@ export function Viewer({ shown, onClose }: { shown: Shown; onClose: () => void }
       <header>
         <p>{shown.title}</p>
         <a href={gallery ? picture : shown.href} target="_blank" rel="noopener noreferrer" className="solx-btn-ghost px-3 py-1.5 text-xs">
-          เปิดแท็บใหม่
+          {t("เปิดแท็บใหม่")}
         </a>
         <button autoFocus onClick={(event) => close(event.currentTarget.closest("dialog")!)} className="solx-btn-primary px-4 py-1.5 text-xs">
-          ปิด
+          {t("ปิด")}
         </button>
       </header>
       {shown.kind === "image" ? (
         <div className="viewer-body">
           <button type="button" aria-pressed={full} onClick={() => setFull(!full)} className={full ? "viewer-picture is-full" : "viewer-picture"}>
             {/* eslint-disable-next-line @next/next/no-img-element -- a static export serves images as they are */}
-            <img src={picture} alt={gallery ? `${shown.title} รูปที่ ${at + 1}` : shown.title} />
-            <span className="sr-only">{full ? "ย่อให้พอดีจอ" : "ขยายเท่าขนาดจริง"}</span>
+            <img src={picture} alt={gallery ? `${shown.title} ${english ? "picture" : "รูปที่"} ${at + 1}` : shown.title} />
+            <span className="sr-only">{t(full ? "ย่อให้พอดีจอ" : "ขยายเท่าขนาดจริง")}</span>
           </button>
         </div>
       ) : shown.kind === "pages" ? (
@@ -80,13 +82,13 @@ export function Viewer({ shown, onClose }: { shown: Shown; onClose: () => void }
       {gallery && (
         <footer>
           <button type="button" onClick={() => step(-1)} className="solx-btn-ghost px-4 py-1.5 text-xs">
-            ← ก่อนหน้า
+            {t("← ก่อนหน้า")}
           </button>
           <span aria-live="polite">
             {at + 1} / {gallery.length}
           </span>
           <button type="button" onClick={() => step(1)} className="solx-btn-ghost px-4 py-1.5 text-xs">
-            ถัดไป →
+            {t("ถัดไป →")}
           </button>
         </footer>
       )}
