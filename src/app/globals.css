@@ -1862,20 +1862,45 @@ div.viewer-body {
   }
 }
 
-/* the secret: a faint star in the footer, and the window it opens over everything */
+/* the star at the end of the page, big enough for a thumb, and the window it opens over everything */
 .heaven-open {
-  display: block;
-  margin: 0.5rem auto 0;
-  padding: 0.25rem 0.75rem;
-  opacity: 0.25;
+  display: grid;
+  width: 3.75rem;
+  height: 3.75rem;
+  margin: 1rem auto 0;
+  place-items: center;
+  border: 1px solid rgba(253, 230, 138, 0.55);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(253, 230, 138, 0.18), transparent 70%);
+  color: #fde68a;
+  font-size: 1.75rem;
+  line-height: 1;
   cursor: pointer;
-  transition: opacity 0.3s ease, rotate 0.6s ease, color 0.3s ease;
+  animation: heaven-call 2.4s ease-in-out infinite alternate;
+  transition: scale 0.2s ease, border-color 0.2s ease;
+}
+.heaven-open span {
+  transition: rotate 0.6s ease;
 }
 .heaven-open:hover,
 .heaven-open:focus-visible {
-  opacity: 1;
+  scale: 1.12;
+  border-color: #fde68a;
+}
+.heaven-open:hover span,
+.heaven-open:focus-visible span {
   rotate: 180deg;
-  color: #fde68a;
+}
+.heaven-open:active {
+  scale: 0.95;
+}
+@keyframes heaven-call {
+  from {
+    box-shadow: 0 0 0 0 rgba(253, 230, 138, 0);
+  }
+  to {
+    box-shadow: 0 0 22px 2px rgba(253, 230, 138, 0.4);
+  }
 }
 .heaven[open] {
   width: 100vw;
