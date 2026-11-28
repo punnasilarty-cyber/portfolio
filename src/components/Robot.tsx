@@ -37,7 +37,7 @@ export function Robot() {
   }
 
   return (
-    <div className={said === at ? "robot" : "robot is-speaking"}>
+    <div className={said === at ? "robot" : "robot is-speaking"} data-at={at}>
       <p aria-live="polite">{SAY[at][english ? "en" : "th"]}</p>
       <button type="button" onClick={() => setAway(true)} aria-label={english ? "Hide the helper" : "ซ่อนหุ่นยนต์ผู้ช่วย"} className="robot-close">
         ×

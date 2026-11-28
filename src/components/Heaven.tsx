@@ -1,16 +1,17 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { END, lineAt, momentAt, WHITE_FULL } from "@/heaven";
+import { lineAt, momentAt, WHITE_FULL } from "@/heaven";
 import { createScene } from "@/heaven-draw";
+import { playHeaven } from "@/heaven-sound";
 import { useLang } from "@/i18n";
 import { isTheme, nextTheme, setTheme } from "@/theme";
 
 const WORD = "heaven";
 export const openHeaven = () => window.dispatchEvent(new Event("made-in-heaven"));
 
-/** stopped by the page's own box; or the device asks for less motion, and then the scene waits to be asked */
-const stillness = () => (document.querySelector("#calm:checked") ? "stopped" : matchMedia("(prefers-reduced-motion: reduce)").matches ? "ask" : "play");
+/** stopped by the page's own box; otherwise the scene waits to be asked, with or without sound */
+const stillness = () => (document.querySelector("#calm:checked") ? "stopped" : "ask");
 
 /** the secret: type "heaven", use the terminal, or find the small star in the footer */
 export function Heaven() {
@@ -43,7 +44,16 @@ function Scene({ onDone }: { onDone: () => void }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const [line, setLine] = useState(() => lineAt(0, english));
   // decided once as it opens
-  const [mode, setMode] = useState(stillness);
+  const [mode, setMode] = useState<"stopped" | "ask" | "play">(stillness);
+  const silence = useRef<() => void>(undefined);
+  // the sound ends with the window, however it was closed
+  useEffect(() => () => silence.current?.(), []);
+
+  function begin(sound: boolean) {
+    // made inside the press, which is when a browser allows sound to start
+    if (sound) silence.current = playHeaven();
+    setMode("play");
+  }
   const quiet = mode !== "play";
 
   useEffect(() => {
@@ -97,7 +107,7 @@ function Scene({ onDone }: { onDone: () => void }) {
   // with animation stopped it leaves by itself
   useEffect(() => {
     if (mode !== "stopped") return;
-    const timer = setTimeout(onDone, END * 400);
+    const timer = setTimeout(onDone, 5000);
     return () => clearTimeout(timer);
   }, [mode, onDone]);
 
@@ -112,12 +122,17 @@ function Scene({ onDone }: { onDone: () => void }) {
             ? line
             : mode === "stopped"
               ? english ? "The new universe waits. Turn animations on to see it" : "จักรวาลใหม่รออยู่ เปิดแอนิเมชันเพื่อชม"
-              : english ? "A fast, spinning scene of about 12 seconds" : "ฉากหมุนเร็ว ยาวราว 12 วินาที"}
+              : english ? "A fast, spinning scene of about 27 seconds" : "ฉากหมุนเร็ว ยาวราว 27 วินาที"}
         </p>
         {mode === "ask" && (
-          <button type="button" onClick={() => setMode("play")} className="solx-btn-primary px-5 py-2 text-sm">
-            {english ? "Quicken time" : "เร่งเวลา"}
-          </button>
+          <div className="heaven-choice">
+            <button type="button" onClick={() => begin(true)} className="solx-btn-primary px-5 py-2 text-sm">
+              {english ? "Quicken time, with sound" : "เร่งเวลา พร้อมเสียง"}
+            </button>
+            <button type="button" onClick={() => begin(false)} className="solx-btn-ghost px-5 py-2 text-sm">
+              {english ? "Silently" : "แบบไม่มีเสียง"}
+            </button>
+          </div>
         )}
         <button autoFocus type="button" onClick={() => dialog.current!.close()} className="solx-btn-ghost px-4 py-1.5 text-xs">
           {english ? "Skip" : "ข้าม"} (Esc)

@@ -1840,6 +1840,10 @@ div.viewer-body {
   .robot {
     width: 3rem;
   }
+  /* at the end of a narrow page its words would lie over the footer controls */
+  .robot[data-at="contact"] p {
+    visibility: hidden;
+  }
 }
 @keyframes robot-float {
   to {
@@ -1964,8 +1968,16 @@ div.viewer-body {
   text-shadow: none;
   filter: drop-shadow(0 0 6px #000) drop-shadow(0 0 22px rgba(255, 196, 90, 0.55));
 }
+/* set like a comic's subtitle */
 .heaven p {
-  font-size: clamp(1rem, 3.5vw, 1.25rem);
+  font-size: clamp(1.05rem, 3.8vw, 1.6rem);
+  font-weight: 700;
+}
+.heaven-choice {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
 }
 .heaven-veil.is-renewed {
   background: transparent;
