@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { readFound, search, SECRETS, slideAfter, spiral, warpVeil, WARP, wordTyped } from "../src/features.ts";
+import { readFound, search, SECRETS, slideAfter, spiral, wordTyped } from "../src/features.ts";
 import { fill, filesToKeep } from "../scripts/precache.mjs";
 import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -44,11 +44,6 @@ test("a pulled piece starts at home and ends in the hole", () => {
   const near = (a: number[], b: number[]) => a.every((value, i) => Math.abs(value - b[i]) < 1e-9);
   assert.ok(near(spiral(0, 300, -120), [0, 0]));
   assert.ok(near(spiral(1, 300, -120), [300, -120]));
-});
-
-test("the tunnel hides the page completely while it jumps", () => {
-  assert.equal(warpVeil(WARP.jumpAt), 1);
-  assert.deepEqual([warpVeil(0), warpVeil(1)], [0, 0]);
 });
 
 test("the offline list holds the built files, not the editor's, and changes with them", () => {

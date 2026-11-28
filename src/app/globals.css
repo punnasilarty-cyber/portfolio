@@ -1729,7 +1729,7 @@ div.viewer-body {
 /* the project's cards as a pile: each sticks a little lower than the one before and is covered by the next */
 .deck {
   display: grid;
-  gap: 3.5rem;
+  gap: 2.5rem;
   max-width: 52rem;
   margin: 0 auto;
   padding-bottom: 1.5rem;
@@ -2595,16 +2595,6 @@ body.is-presenting .about {
   font-size: 0.75rem;
 }
 
-/* the tunnel between sections */
-.warp {
-  position: fixed;
-  inset: 0;
-  z-index: 65;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-
 /* a cover unfolding like a leaflet: the two sides start folded over the middle, the right one on top */
 .fold {
   position: absolute;
@@ -2773,47 +2763,6 @@ body.is-presenting .about {
   background: rgba(10, 11, 13, 0.85);
   font-size: 0.72rem;
   cursor: pointer;
-}
-
-/* light running from one card of the project to the next */
-.work-link {
-  display: none;
-}
-.deck > li:not(:last-child) > .work-link,
-.deck:has(~ .deck) > li:last-child > .work-link {
-  position: absolute;
-  top: 100%;
-  left: calc(50% - 6px);
-  display: block;
-  width: 12px;
-  height: 3.5rem;
-  overflow: hidden;
-  background:
-    radial-gradient(circle at 50% 5px, var(--a2) 3px, transparent 5px),
-    radial-gradient(circle at 50% calc(100% - 5px), var(--a2) 3px, transparent 5px),
-    linear-gradient(var(--a1), var(--a1)) center / 2px 100% no-repeat;
-}
-/* the longer way over the next group's heading */
-.deck:has(~ .deck) > li:last-child > .work-link {
-  height: 7.25rem;
-}
-.work-link::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 4px;
-  width: 4px;
-  height: 100%;
-  border-radius: 4px;
-  background: linear-gradient(transparent 40%, var(--a2) 75%, #fff 90%, transparent);
-  translate: 0 -100%;
-  /* each link starts a little after the one above, so the light seems to travel on */
-  animation: work-link 1.6s calc(var(--i) * 0.5s) linear infinite;
-}
-@keyframes work-link {
-  to {
-    translate: 0 100%;
-  }
 }
 
 /* what AI can do: a full-screen stage with the robot beside it */

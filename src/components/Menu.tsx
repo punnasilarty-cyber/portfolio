@@ -112,7 +112,6 @@ export function Menu() {
       <section>
         <h4>{english ? "Always working" : "ทำงานเองอัตโนมัติ"}</h4>
         <ul>
-          <li>{english ? "Warp tunnel when a menu link is pressed" : "ประตูวาร์ป: กดเมนูด้านบน"}</li>
           <li>{english ? "Leaflet unfolding when a picture or document is opened" : "แผ่นพับคลี่: กดดูรูปหรือเปิดเอกสาร"}</li>
           <li>{english ? "Works offline and installs from the browser menu" : "เปิดได้ตอนไม่มีเน็ต และติดตั้งเป็นแอปจากเมนูเบราว์เซอร์"}</li>
         </ul>

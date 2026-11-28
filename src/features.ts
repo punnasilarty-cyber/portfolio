@@ -56,8 +56,3 @@ export function spiral(k: number, dx: number, dy: number): [number, number] {
   const left = (1 - k) ** 1.5;
   return [dx - (dx * Math.cos(turn) - dy * Math.sin(turn)) * left, dy - (dx * Math.sin(turn) + dy * Math.cos(turn)) * left];
 }
-
-export const WARP = { lasts: 800, jumpAt: 0.5 };
-
-/** how much the tunnel hides the page at time t (0 to 1): fully while it jumps underneath */
-export const warpVeil = (t: number) => Math.max(0, Math.min(1, t / 0.4, (1 - t) / 0.35));

@@ -12,7 +12,6 @@ import { Matrix } from "@/components/Matrix";
 import { Menu } from "@/components/Menu";
 import { Blackhole } from "@/components/Blackhole";
 import { Offline } from "@/components/Offline";
-import { Warp } from "@/components/Warp";
 import { Palette } from "@/components/Palette";
 import { Present } from "@/components/Present";
 import { Psychic } from "@/components/Psychic";
@@ -197,7 +196,6 @@ export default function HomePage() {
       <Menu />
       <Blackhole />
       <Psychic />
-      <Warp />
 
       {/* the extra bottom room keeps the corner button off the text */}
       <footer className="bg-[#18181b] px-5 pt-6 pb-20 text-center text-xs text-[var(--muted)]">
