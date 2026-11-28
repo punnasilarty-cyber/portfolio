@@ -19,10 +19,11 @@ export default function HomePage() {
   return (
     <>
       <Loader />
-      <header className="sticky top-0 z-40 px-2 pt-2">
+      {/* fades out downward, so what scrolls under does not show around the bar */}
+      <header className="sticky top-0 z-40 bg-linear-to-b from-[#08090a] from-60% to-transparent px-2 pt-2">
         <div aria-hidden="true" className="fx-progress" />
         {/* two rows on narrow screens: the menu is too long to share one with the name */}
-        <div className="relative mx-auto flex max-w-6xl flex-col items-center rounded-lg bg-[#171717]/90 px-3 pt-2 lg:h-14 lg:flex-row lg:justify-between lg:gap-3 lg:pt-0">
+        <div className="relative mx-auto flex max-w-6xl flex-col items-center rounded-lg bg-[#171717] px-3 pt-2 lg:h-14 lg:flex-row lg:justify-between lg:gap-3 lg:pt-0">
           <a href="#top" aria-label={`${profile.name} ${t("กลับขึ้นบนสุด")}`}>
             <span className="text-sm leading-none font-bold whitespace-nowrap sm:text-lg">{profile.name}</span>
           </a>

@@ -19,6 +19,8 @@ export function Education({ project }: { project?: Work }) {
 
   const { english, t } = useLang();
   const [view, setView] = useState<(typeof VIEWS)[number]["id"]>("route");
+  // the card the journey is at stands out from the others
+  const [reading, setReading] = useState(0);
   // the animations are rebuilt for the view now showing, which also measures its new height
   useEffect(() => {
     window.dispatchEvent(new Event("view-change"));
@@ -48,7 +50,7 @@ export function Education({ project }: { project?: Work }) {
           ))}
         </div>
         {/* unmounted while away, so its drawing plays again on every visit */}
-        {view === "route" && <LearningRoute project={project} />}
+        {view === "route" && <LearningRoute project={project} onStage={setReading} />}
         <figcaption className="mt-2 text-center text-[11px] text-[var(--muted)]">{t(VIEWS.find(({ id }) => id === view)!.note)}</figcaption>
       </figure>
 
@@ -57,7 +59,7 @@ export function Education({ project }: { project?: Work }) {
           // the school's colours paint the card
           <article
             key={stop.level}
-            className="edu-stop"
+            className={view === "route" && i === reading ? "edu-stop is-reading" : "edu-stop"}
             data-school={stop.school}
             style={{ "--a": stop.schoolColors?.[1]?.hex ?? "#f87171", "--b": stop.schoolColors?.[0]?.hex ?? "#7f1d1d" } as React.CSSProperties}
           >

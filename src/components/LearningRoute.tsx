@@ -3,15 +3,31 @@ import { Student } from "@/components/Student";
 import { education, type Work } from "@/content";
 import { useLang } from "@/i18n";
 import { yearAt, yearsOf } from "@/journey";
-import { MAP_HEIGHT, MAP_WIDTH, PINS, PROVINCE, ROAD, ROAD_KM } from "@/map-data";
+import { PINS, PROVINCE, ROAD, ROAD_KM } from "@/map-data";
 import { englishGrade } from "@/translations";
 
 const base = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 const years = yearsOf(education);
 const STATUS = { past: "เรียนจบแล้ว", now: "กำลังเรียน", ahead: "ยังมาไม่ถึง (คาดว่า)" };
 
+// the map is framed on the schools, with room around them for their names
+const across = Object.values(PINS).map(([x]) => x);
+const down = Object.values(PINS).map(([, y]) => y);
+const FRAME = { x: Math.min(...across) - 70, y: Math.min(...down) - 50, width: Math.max(...across) - Math.min(...across) + 140, height: Math.max(...down) - Math.min(...down) + 90 };
+
+/** how far down the window a stage card has to come to count as being read; lower on narrow screens, where the panel itself covers the upper half */
+const readingLine = () => window.innerHeight * (window.innerWidth < 900 ? 0.8 : 0.6);
+
+/** brings a school's first stage card to the reading line, so the journey shows its first year */
+function goToSchool(school: string) {
+  const card = document.querySelector(`.edu-stop[data-school="${school}"]`)?.getBoundingClientRect();
+  if (!card) return;
+  const calm = document.querySelector<HTMLInputElement>("#calm")?.checked;
+  window.scrollBy({ top: card.top - readingLine() + card.height * 0.12, behavior: calm ? "instant" : "smooth" });
+}
+
 /** the learning journey: a made-up student moves through the school years along the real road between the schools */
-export function LearningRoute({ project }: { project?: Work }) {
+export function LearningRoute({ project, onStage }: { project?: Work; /** told which stage card the journey is at */ onStage: (stage: number) => void }) {
   // one pin per school, in the order first reached
   const pins = education.filter((stop, i) => education.findIndex((other) => other.school === stop.school) === i);
   const { english, t } = useLang();
@@ -25,6 +41,8 @@ export function LearningRoute({ project }: { project?: Work }) {
   const year = english ? entry.year - 543 : entry.year;
   const grade = english ? englishGrade(entry.grade) : entry.grade;
 
+  useEffect(() => onStage(entry.stage), [entry.stage, onStage]);
+
   // the journey follows the reader down the stage cards
   useEffect(() => {
     let frame = 0;
@@ -32,9 +50,7 @@ export function LearningRoute({ project }: { project?: Work }) {
     const read = () => {
       frame = 0;
       const cards = Array.from(document.querySelectorAll(".edu-stop"), (card) => card.getBoundingClientRect());
-      // lower on narrow screens, where the panel itself covers the upper half
-      const line = window.innerHeight * (window.innerWidth < 900 ? 0.8 : 0.6);
-      setStep(yearAt(cards, line, years));
+      setStep(yearAt(cards, readingLine(), years));
     };
     const moved = () => {
       frame ||= requestAnimationFrame(read);
@@ -54,13 +70,13 @@ export function LearningRoute({ project }: { project?: Work }) {
   return (
     <div className="edu-route-view">
       <svg
-        viewBox={`0 0 ${MAP_WIDTH} ${MAP_HEIGHT}`}
-        role="img"
+        viewBox={`${FRAME.x} ${FRAME.y} ${FRAME.width} ${FRAME.height}`}
+        role="group"
         aria-label={english ? `Map of Surin Province: the ${ROAD_KM} km road from ${pins.map((pin) => t(pin.school)).join(" to ")}` : `แผนที่จังหวัดสุรินทร์ เส้นทางจาก${pins.map((pin) => pin.school).join(" ไป")} ${ROAD_KM} กิโลเมตร`}
         className="edu-map-art"
       >
         <path d={PROVINCE} className="edu-province" />
-        <text x={MAP_WIDTH / 2} y="110" textAnchor="middle" className="edu-map-label">
+        <text x={FRAME.x + FRAME.width - 8} y={FRAME.y + 18} textAnchor="end" className="edu-map-label">
           {t("จังหวัดสุรินทร์")}
         </text>
         <path d={ROAD} className="edu-road-under" />
@@ -71,7 +87,20 @@ export function LearningRoute({ project }: { project?: Work }) {
           const ring = pin.schoolColors?.[1]?.hex ?? "#f87171";
           const id = `edu-clip-${x}`;
           return (
-            <g key={pin.school} transform={`translate(${x} ${y})`}>
+            <g
+              key={pin.school}
+              transform={`translate(${x} ${y})`}
+              role="button"
+              tabIndex={0}
+              aria-label={english ? `Go to ${t(pin.school)}` : `ไปที่${pin.school}`}
+              className="edu-pin"
+              onClick={() => goToSchool(pin.school)}
+              onKeyDown={(event) => {
+                if (event.key !== "Enter" && event.key !== " ") return;
+                event.preventDefault();
+                goToSchool(pin.school);
+              }}
+            >
               {pin.school === stage.school && <circle r="23" fill={ring} opacity="0.3" />}
               <circle r="15" fill="#fff" stroke={ring} strokeWidth="3" />
               <clipPath id={id}>

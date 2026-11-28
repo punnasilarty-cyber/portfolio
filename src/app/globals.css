@@ -840,6 +840,32 @@ html:has(#calm:checked)::after {
   height: auto;
   /* the stages below must stay on screen with it while the column is sticky */
   max-height: min(14rem, 24dvh);
+  border-radius: 10px;
+}
+/* the pins lead to their stage card */
+.edu-pin {
+  cursor: pointer;
+}
+.edu-pin circle {
+  transition: stroke-width 0.2s ease;
+}
+.edu-pin:hover circle,
+.edu-pin:focus-visible circle {
+  stroke-width: 6;
+}
+.edu-pin:focus {
+  outline: none;
+}
+/* on the learning journey the card being read stands out */
+.edu--route .edu-stop {
+  transition: opacity 0.3s ease;
+}
+.edu--route .edu-stop:not(.is-reading, :hover, :focus-within) {
+  opacity: 0.45;
+}
+.edu--route .edu-stop.is-reading .edu-card {
+  border-color: var(--a);
+  box-shadow: 0 0 0 1px var(--a), 0 18px 40px -22px var(--a);
 }
 .edu-province {
   fill: #1a1012;
@@ -1066,7 +1092,7 @@ html:has(#calm:checked)::after {
     padding: 0.5rem;
   }
   .edu--route .edu-map-art {
-    max-height: 13dvh;
+    max-height: 15dvh;
   }
   .edu--route .edu-journey {
     grid-template-columns: 4.5rem minmax(0, 1fr);
