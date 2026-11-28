@@ -38,6 +38,14 @@
   --a4: #fef08a;
   --code-dim: #232b22;
 }
+:root[data-theme="neon"] {
+  --a1: #059669;
+  --a2: #39ff9c;
+  --a3: #8dffc6;
+  --a4: #d1ffe7;
+  --code-dim: #0f2a1f;
+}
+
 :root[data-theme="blue"] {
   --a1: #2563eb;
   --a2: #60a5fa;
@@ -1430,19 +1438,6 @@ div.viewer-body {
 }
 
 /* the hidden command window */
-.terminal-open {
-  display: block;
-  margin: 0.75rem auto 0;
-  padding: 0.15rem 0.6rem;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-button);
-  font-family: ui-monospace, Menlo, Consolas, monospace;
-  cursor: pointer;
-}
-.terminal-open:hover {
-  border-color: var(--a2);
-  color: var(--a3);
-}
 .terminal[open] {
   display: flex;
   flex-direction: column;
@@ -1897,38 +1892,6 @@ div.viewer-body {
 }
 
 /* the star at the end of the page, big enough for a thumb, and the window it opens over everything */
-.heaven-open {
-  display: grid;
-  width: 3.75rem;
-  height: 3.75rem;
-  margin: 1rem auto 0;
-  place-items: center;
-  border: 1px solid rgba(253, 230, 138, 0.55);
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(253, 230, 138, 0.18), transparent 70%);
-  color: #fde68a;
-  font-size: 1.75rem;
-  line-height: 1;
-  cursor: pointer;
-  /* a still glow: a pulsing one kept the page busy on every frame */
-  box-shadow: 0 0 20px 1px rgba(253, 230, 138, 0.3);
-  transition: scale 0.2s ease, border-color 0.2s ease;
-}
-.heaven-open span {
-  transition: rotate 0.6s ease;
-}
-.heaven-open:hover,
-.heaven-open:focus-visible {
-  scale: 1.12;
-  border-color: #fde68a;
-}
-.heaven-open:hover span,
-.heaven-open:focus-visible span {
-  rotate: 180deg;
-}
-.heaven-open:active {
-  scale: 0.95;
-}
 .heaven[open] {
   width: 100vw;
   max-width: none;
@@ -2224,18 +2187,6 @@ div.viewer-body {
   width: 100%;
 }
 
-.secrets-open {
-  display: block;
-  margin: 0.75rem auto 0;
-  padding: 0.3rem 0.9rem;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  cursor: pointer;
-}
-.secrets-open:hover {
-  border-color: #fde68a;
-  color: #fde68a;
-}
 .secret-list {
   display: grid;
   gap: 0.5rem;
@@ -3057,6 +3008,243 @@ body.is-presenting .about {
     min-height: min(14rem, 30dvh);
     padding: 0.6rem;
   }
+}
+
+/* breaking the glass: the page shows through the cracked pane, then the hidden page through the falling pieces */
+.glass[open],
+.universe[open] {
+  width: 100vw;
+  max-width: none;
+  height: 100dvh;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  color: var(--foreground);
+}
+.glass[open] {
+  background: transparent;
+}
+.glass::backdrop {
+  background: transparent;
+}
+.glass canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  cursor: crosshair;
+  touch-action: none;
+}
+.glass.is-broken canvas,
+.glass.is-mending canvas {
+  pointer-events: none;
+}
+.glass-behind {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: radial-gradient(circle, color-mix(in srgb, var(--a1) 45%, #05060a), #05060a 70%);
+  text-align: center;
+  animation: glass-appear 0.7s ease both;
+}
+.glass.is-mending .glass-behind {
+  animation: glass-appear 0.8s ease reverse both;
+}
+.glass-behind svg {
+  width: min(11rem, 40vw);
+  animation: robot-float 1.4s ease-in-out infinite alternate;
+}
+.glass-behind h2 {
+  font-size: clamp(1.3rem, 5vw, 2.2rem);
+  font-weight: 800;
+}
+.glass-behind p {
+  color: var(--a2);
+  font-weight: 700;
+}
+@keyframes glass-appear {
+  from {
+    opacity: 0;
+  }
+}
+.glass-bar {
+  position: absolute;
+  bottom: 1rem;
+  left: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  width: max-content;
+  max-width: calc(100vw - 1rem);
+  translate: -50% 0;
+}
+.glass-bar p {
+  padding: 0.35rem 0.9rem;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.82);
+  font-size: 0.8rem;
+}
+.glass-bar div {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* the make-believe break-in */
+.hack[open] {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: min(36rem, calc(100vw - 1rem));
+  max-height: calc(100dvh - 1rem);
+  margin: auto;
+  padding: 1rem 1.25rem;
+  border: 1px solid #39ff9c;
+  border-radius: 12px;
+  background: #03100a;
+  color: #b9ffd9;
+  font-family: ui-monospace, Consolas, var(--font-seed), monospace;
+  box-shadow: 0 0 40px -10px #39ff9c88;
+}
+.hack::backdrop {
+  background: rgba(0, 0, 0, 0.85);
+}
+.hack header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-weight: 700;
+}
+.hack button {
+  padding: 0.35rem 0.8rem;
+  border: 1px solid #39ff9c88;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+.hack button:hover {
+  background: #39ff9c22;
+}
+.hack-bar {
+  display: flex;
+  gap: 0.35rem;
+}
+.hack-bar li {
+  flex: 1;
+  height: 6px;
+  border-radius: 6px;
+  background: #39ff9c22;
+}
+.hack-bar li.is-open {
+  background: #39ff9c;
+}
+.hack form,
+.hack-won {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.6rem;
+}
+.hack h3 {
+  color: #39ff9c;
+  font-weight: 700;
+}
+.hack pre {
+  width: 100%;
+  padding: 0.8rem;
+  border-radius: 8px;
+  background: #000;
+  color: #fff;
+  font-size: clamp(0.95rem, 4vw, 1.3rem);
+  white-space: pre-wrap;
+}
+.hack label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+.hack input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.4rem 0.6rem;
+  border-bottom: 1px solid #39ff9c;
+  background: transparent;
+  color: #fff;
+  font-size: 1rem;
+  outline: none;
+}
+.hack input:focus-visible {
+  background: #39ff9c14;
+}
+.hack-no {
+  min-height: 1.4em;
+  color: #ff8080;
+}
+.hack-hint {
+  color: #fde68a;
+  font-size: 0.85rem;
+}
+.hack-won {
+  align-items: center;
+  padding: 1.5rem 0;
+  text-align: center;
+}
+.hack-won h3 {
+  font-size: 1.8rem;
+  text-shadow: 0 0 18px #39ff9c;
+}
+.hack small {
+  color: #7dbb9c;
+  font-size: 0.7rem;
+}
+
+/* the pocket universe */
+.universe[open] {
+  display: flex;
+  flex-direction: column;
+  background: #04050a;
+}
+.universe header,
+.universe footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.6rem 0.9rem;
+}
+.universe header p {
+  display: flex;
+  flex-direction: column;
+}
+.universe header span,
+.universe footer span {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+.universe footer {
+  justify-content: center;
+}
+.universe footer span {
+  width: 100%;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.universe canvas {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  cursor: crosshair;
+  touch-action: none;
 }
 
 /* the drawing in an empty section */

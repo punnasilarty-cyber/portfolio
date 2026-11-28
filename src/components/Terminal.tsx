@@ -9,7 +9,7 @@ import { answer } from "@/terminal";
 import { setTheme } from "@/theme";
 import { englishPeriod } from "@/translations";
 
-/** a hidden command window: the small button in the footer, or the key left of 1 */
+/** a hidden command window: opened by the key left of 1, or from the feature menu */
 export function Terminal() {
   const { english, t } = useLang();
   const { about, contacts, education } = useSite();
@@ -68,9 +68,6 @@ export function Terminal() {
 
   return (
     <>
-      <button type="button" onClick={open} aria-label={english ? "Open the terminal" : "เปิดหน้าต่างเทอร์มินัล"} className="terminal-open">
-        &gt;_
-      </button>
       <dialog ref={dialog} aria-label={english ? "Terminal" : "เทอร์มินัล"} className="terminal">
         <header>
           <p>visitor@portfolio</p>

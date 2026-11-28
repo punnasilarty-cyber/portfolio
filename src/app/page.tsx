@@ -6,7 +6,10 @@ import { CopyButton } from "@/components/CopyButton";
 import { Deck } from "@/components/Deck";
 import { Robot } from "@/components/Robot";
 import { HeroMotion } from "@/components/HeroMotion";
-import { Heaven, openHeaven } from "@/components/Heaven";
+import { Glass } from "@/components/Glass";
+import { Hack } from "@/components/Hack";
+import { Heaven } from "@/components/Heaven";
+import { Universe } from "@/components/Universe";
 import { AiShow } from "@/components/AiShow";
 import { Matrix } from "@/components/Matrix";
 import { Menu } from "@/components/Menu";
@@ -196,6 +199,9 @@ export default function HomePage() {
       <Menu />
       <Blackhole />
       <Psychic />
+      <Glass />
+      <Hack />
+      <Universe />
 
       {/* the extra bottom room keeps the corner button off the text */}
       <footer className="bg-[#18181b] px-5 pt-6 pb-20 text-center text-xs text-[var(--muted)]">
@@ -207,9 +213,6 @@ export default function HomePage() {
         <Offline />
         <Terminal />
         <Secrets />
-        <button type="button" onClick={openHeaven} aria-label="Made in Heaven" className="heaven-open">
-          <span aria-hidden="true">✦</span>
-        </button>
       </footer>
     </>
   );

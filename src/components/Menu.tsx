@@ -10,6 +10,14 @@ type Entry = { icon: string; th: [name: string, what: string]; en: [name: string
 
 const GROUPS: { th: string; en: string; entries: Entry[] }[] = [
   {
+    th: "เกมและการทดลอง",
+    en: "Games and experiments",
+    entries: [
+      { icon: "💻", th: ["โหมดแฮ็กเกอร์", "ไขรหัส 3 ด่าน ปลดล็อกธีมลับ"], en: ["Hacker mode", "Three puzzles unlock a secret theme"], open: "hack" },
+      { icon: "🪐", th: ["ควบคุมจักรวาล", "วางดาว เหวี่ยงดาวเคราะห์"], en: ["Rule the universe", "Place stars and throw planets"], open: "universe" },
+    ],
+  },
+  {
     th: "ฉากแนะนำ",
     en: "Showcase",
     entries: [{ icon: "🤖", th: ["AI ทำอะไรได้", "ความสามารถ และด้านน่ากลัวในอนาคต"], en: ["What AI can do", "Its abilities, and its darker future"], open: "ai" }],
@@ -33,6 +41,7 @@ const GROUPS: { th: string; en: string; entries: Entry[] }[] = [
       { icon: "🌧", th: ["ฝนรหัส", "ตัวอักษรไหลรวมเป็นชื่อ"], en: ["Code rain", "Falling letters gather into a name"], open: "matrix" },
       { icon: "🌀", th: ["หลุมดำ", "ดูดทั้งหน้าแล้วคายกลับ"], en: ["Black hole", "Swallows the page and throws it back"], open: "blackhole" },
       { icon: "🖐", th: ["พลังจิต", "จับของบนหน้าเว็บเหวี่ยงได้"], en: ["Psychic power", "Grab the page's pieces and throw them"], open: "psychic" },
+      { icon: "💥", th: ["ทุบกระจก", "แตะสามครั้ง เผยหน้าลับ"], en: ["Break the glass", "Three strikes reveal a hidden page"], open: "glass" },
     ],
   },
 ];

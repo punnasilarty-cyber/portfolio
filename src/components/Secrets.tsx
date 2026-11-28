@@ -6,7 +6,7 @@ import { useLang } from "@/i18n";
 
 const KEY = "secrets";
 
-/** listens for the secret words, keeps the list of what was found, and shows it as a book from the footer */
+/** listens for the secret words, keeps the list of what was found, and shows it as a book from the feature menu */
 export function Secrets() {
   const { english } = useLang();
   const language = english ? "en" : "th";
@@ -72,10 +72,6 @@ export function Secrets() {
 
   return (
     <>
-      <button type="button" onClick={() => openFeature("secrets")} className="secrets-open">
-        {all ? "🏆 " : ""}
-        {title} {found.length}/{SECRETS.length}
-      </button>
       <p role="status" className={news ? "secret-news is-on" : "secret-news"}>
         {news && `${english ? "Secret found" : "พบความลับ"}: ${SECRETS.find((secret) => secret.id === news)!.name[language]} (${found.length}/${SECRETS.length})`}
       </p>

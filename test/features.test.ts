@@ -33,7 +33,7 @@ test("slides stop at both ends", () => {
 
 test("the terminal opens features, and keeps the secret ones out of help", () => {
   const facts = { english: true, about: [], education: [], projects: [], contacts: [] };
-  for (const name of ["present", "matrix", "timestop", "blackhole", "psychic"]) assert.equal(answer(name, facts).open, name);
+  for (const name of ["present", "matrix", "timestop", "blackhole", "psychic", "glass", "hack", "universe"]) assert.equal(answer(name, facts).open, name);
   const help = answer("help", facts).lines.join(" ");
   assert.ok(help.includes("present") && !help.includes("matrix") && !help.includes("timestop"));
   // the ID card is hidden for now
