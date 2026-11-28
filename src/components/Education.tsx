@@ -77,6 +77,21 @@ export function Education() {
                 {stop.logo && <img src={base + stop.logo} alt={english ? `Crest of ${t(stop.school)}` : `ตรา${stop.school}`} className="edu-logo" />}
                 <h3 className="text-xl font-bold sm:text-2xl">{t(stop.school)}</h3>
               </div>
+              {!!stop.tried?.length && (
+                <div className="edu-tried">
+                  <b>{english ? "Back then I" : "ตอนนั้นผม"}</b>
+                  <ul>
+                    {stop.tried.map((line) => (
+                      <li key={line}>{t(line)}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {stop.why && (
+                <p className="edu-tried">
+                  <b>{english ? "Why this stage" : "ที่เลือกสายนี้ เพราะ"}</b> {t(stop.why)}
+                </p>
+              )}
               <ul className="mt-4 space-y-1.5 text-sm">
                 {stop.mottos.map((motto) => (
                   <li key={motto.text} className="edu-fact">

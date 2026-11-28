@@ -4,6 +4,25 @@
 const KIND = "IS2 · Semester 2, academic year 2026";
 
 export const EN: Record<string, string> = {
+  // เส้นทางการเรียนรู้
+  "ชอบเล่นเกมในคอมและมือถือ": "Enjoyed games on computer and phone",
+  "ชอบวิชาคณิตและวิทยาศาสตร์": "Liked maths and science",
+  "ชอบแกะ ต่อ และซ่อมของ": "Liked taking things apart, building and fixing them",
+  "ใช้คอมค้นหาข้อมูลและเรียนรู้ด้วยตัวเอง": "Used a computer to find information and teach myself",
+  "เคยลองเขียนโปรแกรม": "Tried writing programs",
+  "ช่วยเพื่อนหรือคนในบ้านแก้ปัญหาคอมและมือถือ": "Helped friends and family with computer and phone problems",
+  "ชอบคอมและเทคโนโลยี": "I like computers and technology",
+  "คอมพิวเตอร์ · เทคโนโลยี · คณิตศาสตร์": "Computers · Technology · Maths",
+  "นำเทคโนโลยีมาสร้างผลงานหรือเครื่องมือที่ช่วยอำนวยความสะดวกได้จริง": "To build things and tools with technology that truly help",
+  "เก็บข้อมูล": "Gathering data",
+  "แบบสอบถามโครงงานกลุ่ม": "Our group's questionnaire",
+  "วิเคราะห์": "Analysing",
+  "จัดอันดับปัญหาด้วยค่าเฉลี่ย": "Problems ranked by their means",
+  "สื่อสาร": "Communicating",
+  "แผ่นพับให้คนทั่วไปเข้าใจ": "A leaflet anyone can follow",
+  "เทคโนโลยี": "Technology",
+  "ส่องดูว่าเว็บนี้สร้างด้วยอะไร": "See what this site is made of",
+
   // เมนูและหน้าแรก
   หน้าแรก: "Home",
   ประวัติการศึกษา: "Education",

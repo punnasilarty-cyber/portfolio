@@ -1,6 +1,6 @@
 // เนื้อหาที่แก้จากหน้าเว็บได้นอกจากการ์ด: หน้าแรก เกี่ยวกับฉัน ติดต่อ และประวัติการศึกษา
 // เก็บใน site.json บนสาขา gh-pages ช่องไหนไม่มีหรือเสียจะใช้ค่าใน content.ts
-import { contacts, education, profile, type Contact, type Schooling } from "./content.ts";
+import { contacts, education, learning, profile, type Contact, type Learning, type Schooling, type Skill } from "./content.ts";
 import { yearsOf } from "./journey.ts";
 
 export type Site = {
@@ -8,11 +8,12 @@ export type Site = {
   about: string[];
   contacts: Contact[];
   education: Schooling[];
+  learning: Learning;
   /** คำแปลภาษาอังกฤษที่เจ้าของเว็บใส่เอง จับคู่ด้วยข้อความไทย */
   en: Record<string, string>;
 };
 
-export const defaultSite: Site = { intro: profile.intro, about: profile.about, contacts, education, en: {} };
+export const defaultSite: Site = { intro: profile.intro, about: profile.about, contacts, education, learning, en: {} };
 
 /** only addresses that open a page, a mail or a call; anything else, scripts included, is dropped */
 export const safeLink = (value: unknown) => (typeof value === "string" && /^(https?:\/\/|mailto:|tel:)/i.test(value.trim()) ? value.trim() : undefined);
@@ -22,6 +23,21 @@ const isObject = (value: unknown): value is Loose => !!value && typeof value ===
 const text = (value: unknown) => (typeof value === "string" ? value : "");
 const list = (value: unknown) => (Array.isArray(value) ? value.filter(isObject) : []);
 export const texts = (value: unknown): Record<string, string> => (isObject(value) ? Object.fromEntries(Object.entries(value).filter((entry): entry is [string, string] => typeof entry[1] === "string")) : {});
+
+const lines = (value: unknown) => (Array.isArray(value) ? value.map(text).filter((line) => line.trim()) : null);
+/** what was told about a stage before the file could hold it, found by its level */
+const told = (level: string) => education.find((stage) => stage.level === level);
+
+function readLearning(data: unknown): Learning {
+  if (!isObject(data)) return learning;
+  return {
+    interests: text(data.interests),
+    goal: text(data.goal),
+    skills: list(data.skills)
+      .map((skill): Skill => ({ name: text(skill.name), proof: text(skill.proof), work: text(skill.work) || undefined }))
+      .filter((skill) => skill.name.trim()),
+  };
+}
 
 /** why the schooling cannot be shown, or null when it can: the journey reads grades and years out of the text */
 export function stagesProblem(stages: Schooling[]): string | null {
@@ -57,6 +73,9 @@ export function readSite(data: unknown): Site {
       school: text(item.school),
       period: text(item.period),
       program: text(item.program) || undefined,
+      // a missing entry falls back to what content.ts tells; an emptied one is the owner's choice
+      tried: lines(item.tried) ?? told(text(item.level))?.tried,
+      why: typeof item.why === "string" ? item.why || undefined : told(text(item.level))?.why,
       current: item.current === true,
       website: safeLink(item.website) ?? "",
       logo: text(item.logo).startsWith("/") ? text(item.logo) : "",
@@ -74,6 +93,7 @@ export function readSite(data: unknown): Site {
     // an emptied list is the owner's choice
     contacts: channels ?? defaultSite.contacts,
     education: stagesProblem(stages) ? defaultSite.education : stages,
+    learning: readLearning(data.learning),
     en: texts(data.en),
   };
 }
@@ -85,14 +105,25 @@ export type Draft = {
   intro: Pair;
   about: Pair[];
   contacts: { name: Pair; value: string; href: string }[];
-  stages: { level: Pair; school: Pair; period: string; program: Pair; current: boolean; website: string; mottos: { label: Pair; text: Pair }[]; logo: string; schoolColors: Schooling["schoolColors"] }[];
+  learning: { interests: Pair; goal: Pair; skills: { name: Pair; proof: Pair; work: string }[] };
+  stages: { level: Pair; school: Pair; period: string; program: Pair; /** one thing to a line */ tried: Pair; why: Pair; current: boolean; website: string; mottos: { label: Pair; text: Pair }[]; logo: string; schoolColors: Schooling["schoolColors"] }[];
 };
 
 /** `english` gives what the page shows in English now, or the text itself when there is none */
 export function toDraft(site: Site, english: (text: string) => string): Draft {
   const pair = (th = ""): Pair => ({ th, en: th && english(th) !== th ? english(th) : "" });
+  /** lines as one box of text, their English line for line */
+  const block = (list: string[] = []): Pair => {
+    const translated = list.map((line) => pair(line).en);
+    return { th: list.join("\n"), en: translated.some(Boolean) ? translated.join("\n") : "" };
+  };
   return {
     intro: pair(site.intro),
+    learning: {
+      interests: pair(site.learning.interests),
+      goal: pair(site.learning.goal),
+      skills: site.learning.skills.map((skill) => ({ name: pair(skill.name), proof: pair(skill.proof), work: skill.work ?? "" })),
+    },
     about: site.about.map(pair),
     contacts: site.contacts.map((item) => ({ name: pair(item.name), value: item.value, href: item.href ?? "" })),
     stages: site.education.map((stage) => ({
@@ -100,6 +131,8 @@ export function toDraft(site: Site, english: (text: string) => string): Draft {
       school: pair(stage.school),
       period: stage.period,
       program: pair(stage.program),
+      tried: block(stage.tried),
+      why: pair(stage.why),
       current: !!stage.current,
       website: stage.website,
       mottos: stage.mottos.map((motto) => ({ label: pair(motto.label), text: pair(motto.text) })),
@@ -116,6 +149,14 @@ export function fromDraft(draft: Draft): Site {
     const th = pair.th.trim();
     if (th && pair.en.trim()) en[th] = pair.en.trim();
     return th;
+  };
+  /** the lines of one box, each paired with the English line beside it */
+  const keepLines = (pair: Pair) => {
+    const translated = pair.en.split("\n");
+    return pair.th
+      .split("\n")
+      .map((line, i) => keep({ th: line, en: translated[i] ?? "" }))
+      .filter(Boolean);
   };
   const intro = keep(draft.intro);
   const about = draft.about.map(keep).filter(Boolean);
@@ -138,6 +179,8 @@ export function fromDraft(draft: Draft): Site {
       school: keep(stage.school),
       period: stage.period.trim(),
       program: keep(stage.program) || undefined,
+      tried: keepLines(stage.tried),
+      why: keep(stage.why),
       current: stage.current,
       website,
       logo: stage.logo,
@@ -147,5 +190,10 @@ export function fromDraft(draft: Draft): Site {
   });
   const problem = stagesProblem(stages);
   if (problem) throw new Error(problem);
-  return { intro, about, contacts: channels, education: stages, en };
+  const skills = draft.learning.skills.map((skill, i): Skill => {
+    const name = keep(skill.name);
+    if (!name) throw new Error(`ทักษะที่ ${i + 1}: ใส่ชื่อทักษะ`);
+    return { name, proof: keep(skill.proof), work: skill.work.trim() || undefined };
+  });
+  return { intro, about, contacts: channels, education: stages, learning: { interests: keep(draft.learning.interests), goal: keep(draft.learning.goal), skills }, en };
 }

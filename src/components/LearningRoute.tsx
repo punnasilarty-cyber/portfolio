@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import { Student } from "@/components/Student";
-import { learning } from "@/content";
 import { openFeature } from "@/features";
 import { useLang } from "@/i18n";
 import { reach, yearAt, yearsOf } from "@/journey";
@@ -34,10 +33,9 @@ function goToWork(title: string) {
 
 /** the learning journey: each stage hands on to the next, down to the skills of today, their proof, and the goal */
 export function LearningRoute({ onStage }: { /** told which stage card the journey is at */ onStage: (stage: number) => void }) {
-  const { education } = useSite();
+  const { education, learning } = useSite();
   const years = useMemo(() => yearsOf(education), [education]);
   const { english, t } = useLang();
-  const say = english ? "en" : "th";
   const [at, setStep] = useState(0);
   // the student walks only while the page is moving
   const [walking, setWalking] = useState(false);
@@ -132,27 +130,31 @@ export function LearningRoute({ onStage }: { /** told which stage card the journ
       {/* what this stage leads to: the next one, or, today, the skills with their proof */}
       {stage.current ? (
         <div className="edu-skills">
-          <p>
-            <b>{english ? "Interested in" : "สนใจ"}</b> {learning.interests[say]}
-          </p>
+          {learning.interests && (
+            <p>
+              <b>{english ? "Interested in" : "สนใจ"}</b> {t(learning.interests)}
+            </p>
+          )}
           <ul>
-            {learning.skills.map((skill) => {
-              const [name, proof] = skill[say];
+            {learning.skills.map((skill, i) => {
+              const { work } = skill;
               return (
-                <li key={skill.th[0]}>
-                  <button type="button" onClick={() => (skill.work ? goToWork(t(skill.work)) : openFeature("xray"))}>
-                    <b>{name}</b>
+                <li key={`${i} ${skill.name}`}>
+                  <button type="button" disabled={!work} onClick={() => (work === "xray" ? openFeature("xray") : goToWork(t(work!)))}>
+                    <b>{t(skill.name)}</b>
                     <small>
-                      {proof} <span aria-hidden="true">→</span>
+                      {t(skill.proof)} {work && <span aria-hidden="true">→</span>}
                     </small>
                   </button>
                 </li>
               );
             })}
           </ul>
-          <p className="edu-aim">
-            <b>★ {english ? "Heading for" : "มุ่งสู่"}</b> {learning.goal[say]}
-          </p>
+          {learning.goal && (
+            <p className="edu-aim">
+              <b>★ {english ? "Heading for" : "มุ่งสู่"}</b> {t(learning.goal)}
+            </p>
+          )}
         </div>
       ) : (
         next && (
@@ -161,6 +163,7 @@ export function LearningRoute({ onStage }: { /** told which stage card the journ
             <span>
               {nextGrade} · {next.school === stage.school ? (english ? "same school" : "เรียนต่อที่เดิม") : english ? `move to ${t(next.school)}` : `ย้ายมา${next.school}`}
               {next.program && ` · ${t(next.program)}`}
+              {next.why && ` · ${english ? "because " : "เพราะ"}${t(next.why)}`}
             </span>
             <span aria-hidden="true">↓</span>
           </button>

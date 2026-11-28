@@ -50,3 +50,36 @@ test("every document of an item counts as in use", () => {
   assert.deepEqual(filesOf(work), ["works/1/a.pdf", "works/1/ข.docx"]);
   assert.deepEqual(unusedFiles(work, [{ ...work, files: [] }]), ["works/1/ข.docx"]);
 });
+
+test("the stories, skills and goal survive editing and saving, line for line with their English", () => {
+  const value = draft();
+  value.stages[0].tried = { th: "ต่อเลโก้\n\nเล่นเกม", en: "Built bricks\n\nPlayed games" };
+  value.stages[1].tried = { th: "", en: "" };
+  value.stages[2].why = { th: "อยากรู้", en: "Curious" };
+  value.learning.goal = { th: "สร้างของใช้จริง", en: "Build useful things" };
+  value.learning.skills.push({ name: { th: "ทำงานกลุ่ม", en: "Teamwork" }, proof: { th: "", en: "" }, work: " " });
+  const saved = readSite(JSON.parse(JSON.stringify(fromDraft(value))));
+  assert.deepEqual(saved.education[0].tried, ["ต่อเลโก้", "เล่นเกม"]);
+  assert.equal(saved.en["เล่นเกม"], "Played games");
+  // emptied stays empty, rather than coming back from content.ts
+  assert.deepEqual(saved.education[1].tried, []);
+  assert.equal(saved.education[2].why, "อยากรู้");
+  assert.equal(saved.learning.goal, "สร้างของใช้จริง");
+  assert.deepEqual(saved.learning.skills.at(-1), { name: "ทำงานกลุ่ม", proof: "", work: undefined });
+  assert.equal(toDraft(saved, (text) => saved.en[text] ?? text).stages[0].tried.en, "Built bricks\nPlayed games");
+});
+
+test("a file saved before stories existed still shows them, and a skill needs a name", () => {
+  const old = JSON.parse(JSON.stringify(defaultSite));
+  delete old.learning;
+  for (const stage of old.education) {
+    delete stage.tried;
+    delete stage.why;
+  }
+  const read = readSite(old);
+  assert.deepEqual(read.education.map((stage) => stage.tried), defaultSite.education.map((stage) => stage.tried));
+  assert.deepEqual(read.learning, defaultSite.learning);
+  const value = draft();
+  value.learning.skills[0].name.th = "";
+  assert.throws(() => fromDraft(value), /ทักษะที่ 1/);
+});

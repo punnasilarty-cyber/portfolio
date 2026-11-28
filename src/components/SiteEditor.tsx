@@ -62,7 +62,7 @@ function List<T>({ name, items, onChange, blank, children }: { name: string; ite
 const empty = (): Pair => ({ th: "", en: "" });
 
 /** the texts of the front page, the contact channels and the schooling; one save covers all three */
-export function SiteEditor({ tab, busy, onSave }: { tab: SiteTab; busy: boolean; onSave: (make: () => Site) => void }) {
+export function SiteEditor({ tab, busy, works, onSave }: { tab: SiteTab; busy: boolean; /** titles of the work cards, offered as proof of a skill */ works: string[]; onSave: (make: () => Site) => void }) {
   const site = useSite();
   const [draft, setDraft] = useState<Draft>(() => toDraft(site, englishOf));
   // starting over also rebuilds the lists
@@ -102,7 +102,7 @@ export function SiteEditor({ tab, busy, onSave }: { tab: SiteTab; busy: boolean;
           name="ช่วงการศึกษา"
           items={draft.stages}
           onChange={(stages) => change({ stages })}
-          blank={() => ({ level: empty(), school: empty(), period: "", program: empty(), current: false, website: "", mottos: [], logo: "", schoolColors: undefined })}
+          blank={() => ({ level: empty(), school: empty(), period: "", program: empty(), tried: empty(), why: empty(), current: false, website: "", mottos: [], logo: "", schoolColors: undefined })}
         >
           {(stage, set) => (
             <>
@@ -128,6 +128,8 @@ export function SiteEditor({ tab, busy, onSave }: { tab: SiteTab; busy: boolean;
                 />
                 กำลังศึกษาช่วงนี้
               </label>
+              <Both label="ตอนนั้นได้ชอบหรือได้ลองอะไร (บรรทัดละข้อ ไม่บังคับ)" rows={3} value={stage.tried} onChange={(tried) => set({ ...stage, tried })} />
+              <Both label="ที่เลือกเรียนช่วงนี้ เพราะ (ไม่บังคับ)" value={stage.why} onChange={(why) => set({ ...stage, why })} />
               <List name="คติพจน์หรือคำขวัญ" items={stage.mottos} onChange={(mottos) => set({ ...stage, mottos })} blank={() => ({ label: empty(), text: empty() })}>
                 {(motto, put) => (
                   <>
@@ -139,6 +141,24 @@ export function SiteEditor({ tab, busy, onSave }: { tab: SiteTab; busy: boolean;
             </>
           )}
         </List>
+        <h3 className="pt-3 font-bold">เส้นทางการเรียนรู้: ช่วงที่กำลังเรียน</h3>
+        <Both label="สนใจ" value={draft.learning.interests} onChange={(interests) => change({ learning: { ...draft.learning, interests } })} />
+        <List name="ทักษะ" items={draft.learning.skills} onChange={(skills) => change({ learning: { ...draft.learning, skills } })} blank={() => ({ name: empty(), proof: empty(), work: "" })}>
+          {(skill, set) => (
+            <>
+              <Both label="ชื่อทักษะ" value={skill.name} onChange={(name) => set({ ...skill, name })} />
+              <Both label="ยืนยันด้วยอะไร" value={skill.proof} onChange={(proof) => set({ ...skill, proof })} />
+              <Field label="กดแล้วไปที่ผลงาน (เลือกชื่อการ์ด ใส่ xray เพื่อเปิดแว่น หรือเว้นว่าง)" list="editor-works" value={skill.work} onChange={(event) => set({ ...skill, work: event.target.value })} />
+            </>
+          )}
+        </List>
+        <datalist id="editor-works">
+          {[...new Set(works), "xray"].map((title) => (
+            <option key={title} value={title} />
+          ))}
+        </datalist>
+        <Both label="เป้าหมาย" rows={2} value={draft.learning.goal} onChange={(goal) => change({ learning: { ...draft.learning, goal } })} />
+        <p className="text-xs text-[var(--muted)]">ใส่เฉพาะเรื่องจริงของตัวเอง ทุกคนที่เปิดเว็บเห็นข้อความเหล่านี้</p>
         <p className="text-xs text-[var(--muted)]">โมเดลโรงเรียนมีเฉพาะ 2 โรงเรียนที่วาดไว้ ต้องใช้ชื่อภาษาไทยตรงกัน</p>
       </div>
 

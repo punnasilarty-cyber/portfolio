@@ -496,7 +496,7 @@ export function Works() {
             {status}
             {/* kept mounted, so what is typed survives a look at another tab */}
             <div hidden={tab === "cards" || tab === "backup"}>
-              <SiteEditor key={siteSha ?? "new"} tab={tab === "cards" || tab === "backup" ? "home" : tab} busy={busy} onSave={saveSite} />
+              <SiteEditor key={siteSha ?? "new"} tab={tab === "cards" || tab === "backup" ? "home" : tab} busy={busy} works={(works ?? []).map((work) => work.title)} onSave={saveSite} />
             </div>
             {tab === "backup" && <BackupPanel busy={busy} onBackup={backup} onRestore={restore} />}
             <div hidden={tab !== "cards"} className="space-y-3">

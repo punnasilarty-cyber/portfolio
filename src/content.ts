@@ -42,23 +42,23 @@ export const survey = {
   ],
 };
 
+/** ทักษะหนึ่งอย่างกับสิ่งที่ยืนยัน `work` คือชื่อการ์ดผลงานที่กดไปดูได้ ใส่ xray เพื่อเปิดแว่น X-ray หรือเว้นว่าง */
+export type Skill = { name: string; proof: string; work?: string };
+export type Learning = { interests: string; skills: Skill[]; goal: string };
+
 /**
  * เส้นทางการเรียนรู้ช่วงปัจจุบัน: สิ่งที่สนใจ ทักษะที่มีผลงานยืนยัน และเป้าหมาย (จากข้อความ "เกี่ยวกับฉัน")
- * `work` คือชื่อผลงานในเว็บที่กดไปดูได้ ต้องสะกดตรงกับชื่อการ์ด ไม่ใส่แปลว่าหมายถึงเว็บนี้เอง
+ * แก้จากหน้าเว็บได้ ที่นี่คือค่าเริ่มต้น
  */
-export const learning: {
-  interests: { th: string; en: string };
-  goal: { th: string; en: string };
-  skills: { th: [skill: string, proof: string]; en: [skill: string, proof: string]; work?: string }[];
-} = {
-  interests: { th: "คอมพิวเตอร์ · เทคโนโลยี · คณิตศาสตร์", en: "Computers · Technology · Maths" },
-  goal: { th: "นำเทคโนโลยีมาสร้างผลงานหรือเครื่องมือที่ช่วยอำนวยความสะดวกได้จริง", en: "To build things and tools with technology that truly help" },
+export const learning: Learning = {
+  interests: "คอมพิวเตอร์ · เทคโนโลยี · คณิตศาสตร์",
   skills: [
-    { th: ["เก็บข้อมูล", "แบบสอบถามโครงงานกลุ่ม"], en: ["Gathering data", "Our group's questionnaire"], work: "เนื้อหารายงาน" },
-    { th: ["วิเคราะห์", "จัดอันดับปัญหาด้วยค่าเฉลี่ย"], en: ["Analysing", "Problems ranked by their means"], work: "อินโฟกราฟิก: สระน้ำสะอาด เริ่มได้จากพวกเราทุกคน" },
-    { th: ["สื่อสาร", "แผ่นพับให้คนทั่วไปเข้าใจ"], en: ["Communicating", "A leaflet anyone can follow"], work: "แผ่นพับ: ร่วมกันดูแลแหล่งน้ำของเรา" },
-    { th: ["เทคโนโลยี", "ส่องดูว่าเว็บนี้สร้างด้วยอะไร"], en: ["Technology", "See what this site is made of"] },
+    { name: "เก็บข้อมูล", proof: "แบบสอบถามโครงงานกลุ่ม", work: "เนื้อหารายงาน" },
+    { name: "วิเคราะห์", proof: "จัดอันดับปัญหาด้วยค่าเฉลี่ย", work: "อินโฟกราฟิก: สระน้ำสะอาด เริ่มได้จากพวกเราทุกคน" },
+    { name: "สื่อสาร", proof: "แผ่นพับให้คนทั่วไปเข้าใจ", work: "แผ่นพับ: ร่วมกันดูแลแหล่งน้ำของเรา" },
+    { name: "เทคโนโลยี", proof: "ส่องดูว่าเว็บนี้สร้างด้วยอะไร", work: "xray" },
   ],
+  goal: "นำเทคโนโลยีมาสร้างผลงานหรือเครื่องมือที่ช่วยอำนวยความสะดวกได้จริง",
 };
 
 /** หมวดของหน้าเว็บ เรียงตามนี้ ต่อจากหน้าแรก */
@@ -107,6 +107,10 @@ export type Schooling = {
   /** ปีการศึกษา */
   period: string;
   program?: string;
+  /** สิ่งที่ได้ชอบหรือได้ลองตอนนั้น ตามที่เจ้าของเว็บเลือกว่าเป็นเรื่องจริง */
+  tried?: string[];
+  /** เหตุผลที่เลือกเรียนช่วงนี้ */
+  why?: string;
   /** คติพจน์และคำขวัญ ตามที่เจ้าของเว็บให้มา */
   mottos: { label?: string; text: string }[];
   current?: boolean;
@@ -121,6 +125,11 @@ export const education: Schooling[] = [
   {
     level: "ประถมศึกษาปีที่ 1–6",
     period: "2560 – 2565",
+    tried: [
+      "ชอบเล่นเกมในคอมและมือถือ",
+      "ชอบวิชาคณิตและวิทยาศาสตร์",
+      "ชอบแกะ ต่อ และซ่อมของ",
+    ],
     school: "โรงเรียนสังขะวิทยาคม",
     website: "https://skwsc.ac.th/2026/",
     logo: "/schools/sangkha.png",
@@ -133,6 +142,11 @@ export const education: Schooling[] = [
   {
     level: "มัธยมศึกษาปีที่ 1–3",
     period: "2566 – 2568",
+    tried: [
+      "ใช้คอมค้นหาข้อมูลและเรียนรู้ด้วยตัวเอง",
+      "เคยลองเขียนโปรแกรม",
+      "ช่วยเพื่อนหรือคนในบ้านแก้ปัญหาคอมและมือถือ",
+    ],
     school: "โรงเรียนสุรวิทยาคาร",
     website: "https://sura.ac.th/",
     logo: "/schools/sura.png",
@@ -148,6 +162,7 @@ export const education: Schooling[] = [
     level: "มัธยมศึกษาปีที่ 4–6",
     school: "โรงเรียนสุรวิทยาคาร",
     period: "2569 – 2571 (คาดว่าจบ)",
+    why: "ชอบคอมและเทคโนโลยี",
     program: "สายการเรียน วิทย์–เทคโนโลยี",
     current: true,
     website: "https://sura.ac.th/",

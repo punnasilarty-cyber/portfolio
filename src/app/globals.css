@@ -1034,6 +1034,9 @@ html:has(#calm:checked)::after {
   border-color: var(--a);
   background: color-mix(in srgb, var(--a) 20%, transparent);
 }
+.edu-skills button:disabled {
+  cursor: default;
+}
 .edu-skills small {
   color: #d4d4d8;
   font-size: 0.72rem;
@@ -4574,4 +4577,22 @@ body:has(#calm:checked) .fx-word {
   .xray-panel .xray-legend {
     display: none;
   }
+}
+
+/* what each stage was about, on its card */
+.edu-tried {
+  margin-top: 1rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+.edu-tried b {
+  color: var(--a);
+}
+.edu-tried ul {
+  margin-top: 0.25rem;
+  padding-left: 1.1rem;
+  list-style: disc;
+}
+.edu-tried li::marker {
+  color: var(--a);
 }

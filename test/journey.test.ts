@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { education, learning } from "../src/content.ts";
 import { reach, yearAt, yearsOf } from "../src/journey.ts";
+import { toEnglish } from "../src/translations.ts";
 
 test("the schooling stages become twelve consecutive school years", () => {
   const years = yearsOf(education);
@@ -37,7 +38,8 @@ test("the path fills year by year, each stage an equal share, never reaching the
   assert.equal(reach(years, years.findIndex((year) => year.stage === 1), 3), 1 / 3);
 });
 
-test("every skill names its proof in both languages, and a work by the title its card carries", () => {
-  assert.ok(learning.skills.every((skill) => skill.th.every(Boolean) && skill.en.every(Boolean)));
-  assert.equal(learning.skills.filter((skill) => !skill.work).length, 1);
+test("every default skill, story and goal has its English", () => {
+  const texts = [learning.interests, learning.goal, ...learning.skills.flatMap((skill) => [skill.name, skill.proof]), ...education.flatMap((stage) => [...(stage.tried ?? []), stage.why ?? ""])];
+  for (const text of texts) assert.ok(!/[\u0E00-\u0E7F]{4}/.test(toEnglish(text)), "no English for " + text);
+  assert.equal(learning.skills.filter((skill) => skill.work === "xray").length, 1);
 });
