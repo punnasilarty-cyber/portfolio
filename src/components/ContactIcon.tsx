@@ -30,7 +30,8 @@ const ICONS: Record<string, React.ReactNode> = {
 export function ContactIcon({ name }: { name: string }) {
   return (
     <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="contact-icon">
-      {ICONS[name]}
+      {/* a channel added in the editor gets a link sign */}
+      {ICONS[name] ?? <path d="M10 14a4 4 0 0 0 6 .4l3-3a4 4 0 0 0-5.7-5.7l-1.5 1.5M14 10a4 4 0 0 0-6-.4l-3 3a4 4 0 0 0 5.7 5.7l1.5-1.5" />}
     </svg>
   );
 }

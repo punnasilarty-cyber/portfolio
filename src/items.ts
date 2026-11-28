@@ -1,7 +1,9 @@
 // กติกาของรายการที่แก้จากหน้าเว็บ: ชื่อไฟล์ที่อัปโหลด ไฟล์ที่ไม่มีใครใช้แล้ว และการเลื่อนลำดับ
 import { sectionOf, siteUrl, type Work } from "./content.ts";
+import { fileKindOf } from "./viewer.ts";
 
 export const MAX_PICTURES = 20;
+export const MAX_DOCUMENTS = 10;
 export const MAX_DOCUMENT_BYTES = 20 * 1024 * 1024;
 export const DOCUMENT_TYPES = /\.(pdf|docx?|pptx?|xlsx?)$/i;
 
@@ -27,13 +29,32 @@ export const addressOf = (path: string) => siteUrl + path.split("/").map(encodeU
 /** the pictures of an item, cover first */
 export const picturesOf = (work: Work): string[] => (work.image ? [work.image, ...(work.more ?? [])] : (work.more ?? []));
 
+/** the name a file goes by: the end of its address */
+export function nameOf(link: string): string {
+  const end = link.split(/[?#]/)[0].split("/").filter(Boolean).pop() ?? link;
+  try {
+    return decodeURIComponent(end);
+  } catch {
+    return end;
+  }
+}
+
+/** an item's documents: the main link when it is a file, then the others */
+export function documentsOf(work: Work): { link: string; name: string }[] {
+  const main = work.link && fileKindOf(work.link) ? [{ link: work.link, name: nameOf(work.link) }] : [];
+  const others = (work.files ?? []).filter((file) => file.link !== work.link);
+  return [...main, ...others];
+}
+
 /** the files an item keeps in the works/ folder of the site */
 export function filesOf(work: Work): string[] {
   const files = picturesOf(work)
     .filter((picture) => picture.startsWith("/works/"))
     .map((picture) => picture.slice(1));
-  const link = work.link?.split(/[?#]/)[0];
-  if (link?.startsWith(`${siteUrl}works/`)) files.push(decodeURIComponent(link.slice(siteUrl.length)));
+  for (const address of [work.link, ...(work.files ?? []).map((file) => file.link)]) {
+    const link = address?.split(/[?#]/)[0];
+    if (link?.startsWith(`${siteUrl}works/`)) files.push(decodeURIComponent(link.slice(siteUrl.length)));
+  }
   return files;
 }
 

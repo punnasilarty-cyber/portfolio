@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 const REPO = "https://github.com/punnasilarty-cyber/portfolio.git";
-const KEEP = new Set([".git", "works.json", "works", "vault.txt"]); // written by the in-page editor
+const KEEP = new Set([".git", "works.json", "works", "vault.txt", "site.json"]); // written by the in-page editor
 const IDENTITY = "-c user.name=punnasilarty-cyber -c user.email=356074325+punnasilarty-cyber@users.noreply.github.com";
 
 const run = (command, options = {}) => execSync(command, { stdio: "inherit", ...options });

@@ -1,25 +1,34 @@
 "use client";
 
-import { Fragment, useEffect, useState, type FormEvent, type MouseEvent } from "react";
+import { Fragment, useEffect, useState, type FormEvent } from "react";
 import { Education } from "@/components/Education";
 import { Reveal } from "@/components/Reveal";
-import { SpotlightCard } from "@/components/SpotlightCard";
 import { StaggerText } from "@/components/StaggerText";
 import { groupsOf, sectionOf, sections, works as defaults, type SectionId, type Work } from "@/content";
 import { DownloadAll } from "@/components/DownloadAll";
 import { EmptyArt } from "@/components/Graphics";
-import { FirstPage } from "@/components/PdfPages";
-import { Viewer, type Shown } from "@/components/Viewer";
-import { useLang } from "@/i18n";
+import { CardForm } from "@/components/CardForm";
+import { field } from "@/components/Fields";
+import { SiteEditor, type SiteTab } from "@/components/SiteEditor";
+import { WorkCard } from "@/components/WorkCard";
+import { setOwnEnglish, useLang } from "@/i18n";
 import { checkToken, deleteFile, fromBase64, readFile, writeFile } from "@/github";
-import { addressOf, DOCUMENT_TYPES, MAX_DOCUMENT_BYTES, MAX_PICTURES, moved, picturesOf, safeName, unusedFiles } from "@/items";
+import { addressOf, DOCUMENT_TYPES, documentsOf, MAX_DOCUMENT_BYTES, MAX_DOCUMENTS, MAX_PICTURES, moved, picturesOf, safeName, unusedFiles } from "@/items";
 import { useMotion } from "@/motion";
+import { readSite, texts, type Site } from "@/site";
+import { setSite, useSite } from "@/site-store";
 import { seal, unseal } from "@/vault";
-import { fileKindOf, viewOf } from "@/viewer";
+import { uniqueNames } from "@/zip";
 
 const base = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
-const field = "editor-field mt-1 w-full rounded-lg border border-white/15 bg-black/40 px-3 py-2 text-sm text-[var(--foreground)]";
 const DATA = "works.json";
+const SITE = "site.json"; // front page, contacts and schooling
+const TABS = [
+  { id: "cards", label: "ผลงาน" },
+  { id: "home", label: "หน้าแรก" },
+  { id: "contact", label: "ติดต่อ" },
+  { id: "education", label: "การศึกษา" },
+] as const;
 const VAULT = "vault.txt"; // the encrypted token, public on the site
 
 /** shrinks to 1600px JPEG, which also drops the photo's location data */
@@ -54,14 +63,27 @@ export function Works() {
   // the floating editor window; closed shows the page exactly as visitors see it
   const [open, setOpen] = useState(true);
   const [opacity, setOpacity] = useState(95);
+  const [tab, setTab] = useState<"cards" | SiteTab>("cards");
+  const [siteSha, setSiteSha] = useState<string>();
+  const site = useSite();
 
   useEffect(() => {
     // the query string skips the host's cache, so a fresh save shows up
-    fetch(`${base}/works.json?t=${Date.now()}`)
-      .then((response) => (response.ok ? response.json() : defaults))
-      .then((data) => setWorks(Array.isArray(data) ? data : defaults))
-      .catch(() => setWorks(defaults));
+    const load = (name: string) =>
+      fetch(`${base}/${name}?t=${Date.now()}`)
+        .then((response) => (response.ok ? response.json() : null))
+        .catch(() => null);
+    // together, so the cards never show before the words around them
+    Promise.all([load(DATA), load(SITE)]).then(([data, words]) => {
+      setSite(readSite(words));
+      setWorks(Array.isArray(data) ? data : defaults);
+    });
   }, []);
+
+  // the owner's English, from the cards and from the rest of the page
+  useEffect(() => {
+    setOwnEnglish(Object.assign({}, ...(works ?? []).map((work) => texts(work.en)), site.en));
+  }, [works, site]);
 
   useMotion(works);
 
@@ -89,6 +111,9 @@ export function Works() {
       const file = await readFile(value, DATA);
       setWorks(file ? JSON.parse(new TextDecoder().decode(fromBase64(file.content))) : defaults);
       setSha(file?.sha);
+      const words = await readFile(value, SITE);
+      setSite(words ? readSite(JSON.parse(new TextDecoder().decode(fromBase64(words.content)))) : readSite(null));
+      setSiteSha(words?.sha);
       if (!saved) {
         const bytes = new TextEncoder().encode(await seal(value, password));
         await writeFile(value, VAULT, bytes, (await readFile(value, VAULT))?.sha);
@@ -128,6 +153,16 @@ export function Works() {
 
   const pictureUrl = (path: string) => previews[path] ?? `${base}${path}`;
 
+  function saveSite(make: () => Site) {
+    run(async () => {
+      // made first, so a refusal is shown and nothing is written
+      const next = make();
+      setSiteSha(await writeFile(token, SITE, new TextEncoder().encode(JSON.stringify(next, null, 2)), siteSha));
+      setSite(next);
+      setMessage("บันทึกเนื้อหาแล้ว คนอื่นจะเห็นในราว 1–2 นาที");
+    });
+  }
+
   function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -138,13 +173,31 @@ export function Works() {
       if (!text("title")) throw new Error("ใส่ชื่อรายการ");
       if (link && !/^https?:\/\//i.test(link)) throw new Error("ลิงก์ต้องขึ้นต้นด้วย http:// หรือ https://");
       const dropped = data.getAll("drop");
-      const pictures = (old ? picturesOf(old) : []).filter((path) => !dropped.includes(path));
+      const before = old ? picturesOf(old) : [];
+      const pictures = before.filter((path) => !dropped.includes(path));
+      const cover = String(data.get("cover") ?? "");
+      if (pictures.includes(cover)) pictures.unshift(...pictures.splice(pictures.indexOf(cover), 1));
       const added = (data.getAll("pictures") as File[]).filter((file) => file.size);
-      const doc = data.get("document") as File;
+      const removed = data.getAll("dropfile");
+      const documents = (old ? documentsOf(old) : []).filter((file) => !removed.includes(file.link));
+      const uploads = (data.getAll("document") as File[]).filter((file) => file.size);
       // everything is checked before the first upload, so a refusal leaves nothing behind
       if (pictures.length + added.length > MAX_PICTURES) throw new Error(`ใส่รูปได้ไม่เกิน ${MAX_PICTURES} รูปต่อรายการ`);
-      if (doc.size && !DOCUMENT_TYPES.test(doc.name)) throw new Error("ไฟล์เอกสารต้องเป็น PDF, Word, PowerPoint หรือ Excel");
-      if (doc.size > MAX_DOCUMENT_BYTES) throw new Error("ไฟล์เอกสารต้องไม่เกิน 20 MB");
+      if (documents.length + uploads.length > MAX_DOCUMENTS) throw new Error(`ใส่ไฟล์ได้ไม่เกิน ${MAX_DOCUMENTS} ไฟล์ต่อรายการ`);
+      if (uploads.some((file) => !DOCUMENT_TYPES.test(file.name))) throw new Error("ไฟล์เอกสารต้องเป็น PDF, Word, PowerPoint หรือ Excel");
+      if (uploads.some((file) => file.size > MAX_DOCUMENT_BYTES)) throw new Error("ไฟล์เอกสารต้องไม่เกินไฟล์ละ 20 MB");
+      // English typed beside a text is kept under that text
+      const en: Record<string, string> = {};
+      const pair = (name: string) => {
+        const thai = text(name);
+        if (thai && text(`en-${name}`)) en[thai] = text(`en-${name}`);
+        return thai || undefined;
+      };
+      const captions: Record<string, string> = {};
+      before.forEach((path, i) => {
+        const caption = pair(`caption-${i}`);
+        if (caption && pictures.includes(path)) captions[path] = caption;
+      });
       // all pictures are opened first for the same reason
       const jpegs: Blob[] = [];
       for (const file of added) jpegs.push(await toJpeg(file));
@@ -157,23 +210,33 @@ export function Works() {
         pictures.push(`/${name}`);
         setPreviews((map) => ({ ...map, [`/${name}`]: URL.createObjectURL(jpeg) }));
       }
-      let address = link;
-      if (doc.size) {
-        setMessage("กำลังอัปโหลดไฟล์เอกสาร…");
-        // its own folder keeps the file's name for whoever downloads it
-        const path = `works/${stamp}/${safeName(doc.name)}`;
-        await writeFile(token, path, new Uint8Array(await doc.arrayBuffer()));
-        address = addressOf(path);
+      const names = uniqueNames(uploads.map((file) => safeName(file.name)));
+      for (const [i, file] of uploads.entries()) {
+        setMessage(`กำลังอัปโหลดไฟล์ ${i + 1} จาก ${uploads.length}…`);
+        // a folder of its own keeps the file's name for whoever downloads it
+        const path = `works/${stamp}/${names[i]}`;
+        await writeFile(token, path, new Uint8Array(await file.arrayBuffer()));
+        documents.push({ link: addressOf(path), name: names[i] });
       }
+      // the card opens the web link when there is one, otherwise the first file
+      const main = link || documents[0]?.link;
+      const others = documents.filter((file) => file.link !== main);
       const work: Work = {
         section: text("section") as SectionId,
-        group: text("group") || undefined,
-        title: text("title"),
-        kind: text("kind"),
-        summary: text("summary"),
+        group: pair("group"),
+        title: pair("title")!,
+        kind: pair("kind") ?? "",
+        summary: pair("summary") ?? "",
+        date: pair("date"),
+        place: pair("place"),
+        role: pair("role"),
+        learned: pair("learned"),
         image: pictures[0],
         more: pictures.length > 1 ? pictures.slice(1) : undefined,
-        link: address || undefined,
+        link: main || undefined,
+        files: others.length ? others : undefined,
+        captions: Object.keys(captions).length ? captions : undefined,
+        en: Object.keys(en).length ? en : undefined,
       };
       const next = old ? works!.map((item, i) => (i === editing ? work : item)) : [work, ...works!];
       await publish(next);
@@ -208,15 +271,14 @@ export function Works() {
     </p>
   );
   // keeps each item's position in the saved list, which editing and deleting need
-  // education is a fixed timeline in content.ts
+  // education is a fixed timeline, edited under its own tab
   const editable = sections.filter((section) => section.id !== "education");
   const inSection = (id: SectionId) => (works ?? []).map((work, index) => ({ work, index })).filter(({ work }) => sectionOf(work) === id);
   // the project's documents under their own names, and its pictures under their card's title
-  const files = inSection("is2").flatMap(({ work }) => {
-    const pictures = picturesOf(work).map((path) => ({ name: safeName(`${work.title}.jpg`), url: pictureUrl(path) }));
-    if (!work.link || !fileKindOf(work.link)) return pictures;
-    return [...pictures, { name: safeName(decodeURIComponent(work.link.split(/[?#]/)[0].split("/").pop()!)), url: work.link }];
-  });
+  const files = inSection("is2").flatMap(({ work }) => [
+    ...picturesOf(work).map((path) => ({ name: safeName(`${work.title}.jpg`), url: pictureUrl(path) })),
+    ...documentsOf(work).map((file) => ({ name: safeName(file.name), url: file.link })),
+  ]);
 
   return (
     <>
@@ -369,72 +431,30 @@ export function Works() {
             <input type="range" min={30} max={100} value={opacity} onChange={(event) => setOpacity(Number(event.target.value))} className="flex-1 accent-red-500" />
             {opacity}%
           </label>
+          <div role="group" aria-label="เลือกสิ่งที่จะแก้" className="editor-tabs">
+            {TABS.map((item) => (
+              <button key={item.id} type="button" aria-pressed={tab === item.id} onClick={() => setTab(item.id)}>
+                {item.label}
+              </button>
+            ))}
+          </div>
           <div className="space-y-3 overflow-y-auto p-4">
             {status}
+            {/* kept mounted, so what is typed survives a look at another tab */}
+            <div hidden={tab === "cards"}>
+              <SiteEditor key={siteSha ?? "new"} tab={tab === "cards" ? "home" : tab} busy={busy} onSave={saveSite} />
+            </div>
+            <div hidden={tab !== "cards"} className="space-y-3">
             {editing !== null ? (
-              <form key={editing} onSubmit={save} className="space-y-3">
-                <h3 className="font-bold">{current ? `แก้ไข: ${current.title}` : "เพิ่มรายการ"}</h3>
-                <label className="block text-sm">
-                  หมวด
-                  <select name="section" defaultValue={current ? sectionOf(current) : editing} className={field}>
-                    {editable.map((section) => (
-                      <option key={section.id} value={section.id}>
-                        {section.title}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="block text-sm">
-                  หัวข้อย่อย (ไม่บังคับ)
-                  <input name="group" placeholder="รายการที่ใช้ชื่อเดียวกันจะอยู่ด้วยกัน" defaultValue={current?.group} className={field} />
-                </label>
-                <label className="block text-sm">
-                  ชื่อรายการ
-                  <input name="title" required autoFocus defaultValue={current?.title} className={field} />
-                </label>
-                <label className="block text-sm">
-                  ปี หรือประเภท
-                  <input name="kind" placeholder="เช่น ปีการศึกษา 2569" defaultValue={current?.kind} className={field} />
-                </label>
-                <label className="block text-sm">
-                  คำอธิบาย
-                  <textarea name="summary" rows={3} defaultValue={current?.summary} className={field} />
-                </label>
-                <label className="block text-sm">
-                  ลิงก์ (ไม่บังคับ)
-                  <input name="link" type="url" placeholder="https://" defaultValue={current?.link} className={field} />
-                </label>
-                <label className="block text-sm">
-                  ไฟล์ PDF หรือ Word (ไม่บังคับ ไม่เกิน 20 MB)
-                  <input name="document" type="file" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx" className={field} />
-                  <span className="text-xs text-[var(--muted)]">ถ้าเลือกไฟล์ จะใช้แทนลิงก์ด้านบน และใครก็ดาวน์โหลดได้</span>
-                </label>
-                <label className="block text-sm">
-                  รูป (เลือกได้หลายรูป รูปแรกเป็นปก)
-                  <input name="pictures" type="file" accept="image/*" multiple className={field} />
-                </label>
-                {current && picturesOf(current).length > 0 && (
-                  <ul aria-label="รูปที่มีอยู่" className="grid grid-cols-3 gap-2">
-                    {picturesOf(current).map((path, i) => (
-                      <li key={path}>
-                        {/* eslint-disable-next-line @next/next/no-img-element -- a static export serves images as they are */}
-                        <img src={pictureUrl(path)} alt={`รูปที่ ${i + 1}`} className="aspect-square w-full rounded-lg object-cover" />
-                        <label className="mt-1 flex items-center gap-1 text-xs">
-                          <input name="drop" type="checkbox" value={path} /> เอาออก
-                        </label>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-                <div className="flex gap-3">
-                  <button disabled={busy} className="solx-btn-primary px-5 py-2 text-sm">
-                    บันทึก
-                  </button>
-                  <button type="button" disabled={busy} onClick={() => setEditing(null)} className="solx-btn-ghost px-5 py-2 text-sm">
-                    ยกเลิก
-                  </button>
-                </div>
-              </form>
+              <CardForm
+                key={editing}
+                current={current}
+                section={typeof editing === "number" ? "activities" : editing}
+                busy={busy}
+                pictureUrl={pictureUrl}
+                onSubmit={save}
+                onCancel={() => setEditing(null)}
+              />
             ) : (
               editable.map((section) => (
                 <div key={section.id} className="space-y-2">
@@ -478,6 +498,7 @@ export function Works() {
                 </div>
               ))
             )}
+            </div>
           </div>
         </aside>
       )}
@@ -492,55 +513,5 @@ function Lock() {
       <circle cx="12" cy="11" r="2" />
       <path d="M12 13v3" />
     </svg>
-  );
-}
-
-function WorkCard({ work, pictureUrl }: { work: Work; pictureUrl: (path: string) => string }) {
-  // a certificate must show whole, other photos may be cropped to fill
-  const fit = sectionOf(work) === "certificates" ? "object-contain" : "object-cover";
-  const { english, t } = useLang();
-  const [shown, setShown] = useState<Shown | null>(null);
-  const pictures = picturesOf(work).map(pictureUrl);
-  const kind = work.link ? fileKindOf(work.link) : null;
-
-  // a plain press shows the file here; new-tab presses and files the page cannot draw follow the link
-  function openFile(event: MouseEvent<HTMLAnchorElement>) {
-    if (event.ctrlKey || event.metaKey || event.shiftKey) return;
-    const view = viewOf(work.link!, navigator.pdfViewerEnabled);
-    if (!view) return;
-    event.preventDefault();
-    setShown({ ...view, title: t(work.title), href: work.link!, from: event.currentTarget.closest("li") });
-  }
-
-  return (
-    <SpotlightCard className="flex h-full flex-col">
-      {pictures.length > 0 && (
-        <button type="button" onClick={(event) => setShown({ kind: "image", src: pictures[0], href: pictures[0], title: t(work.title), gallery: pictures, from: event.currentTarget.closest("li") })} className="work-picture aspect-video bg-black/40">
-          {/* eslint-disable-next-line @next/next/no-img-element -- a static export serves images as they are */}
-          <img src={pictures[0]} alt={t(work.title)} className={`h-full w-full ${fit}`} />
-          <span>{pictures.length > 1 ? (english ? `View all ${pictures.length} pictures` : `ดูรูปทั้งหมด ${pictures.length} รูป`) : t("ดูภาพเต็ม")}</span>
-        </button>
-      )}
-      {pictures.length === 0 && kind && (
-        // a second way into the same file as the button below, so keyboards and screen readers skip it
-        <a href={work.link} onClick={openFile} target="_blank" rel="noopener noreferrer" tabIndex={-1} aria-hidden="true" className={`work-file work-file--${kind.toLowerCase()}`}>
-          <b>{kind}</b>
-          <span>{t("กดเพื่อเปิดอ่าน")}</span>
-          {/* a Word file cannot be drawn here, so its cover comes from the PDF of the same name when there is one */}
-          {(kind === "PDF" || kind === "Word") && <FirstPage src={work.link!.replace(/.docx?(?=$|[?#])/i, ".pdf")} />}
-        </a>
-      )}
-      <div className="flex flex-1 flex-col gap-2 p-5">
-        <p className="text-xs text-[var(--accent-soft)]">{t(work.kind)}</p>
-        <h3 className="font-bold">{t(work.title)}</h3>
-        <p className="text-sm whitespace-pre-line text-[var(--muted)]">{t(work.summary)}</p>
-        {work.link && (
-          <a href={work.link} onClick={openFile} target="_blank" rel="noopener noreferrer" className="solx-btn-ghost mt-auto self-start px-4 py-2 text-sm">
-            {t("เปิดดู")}
-          </a>
-        )}
-      </div>
-      {shown && <Viewer shown={shown} onClose={() => setShown(null)} />}
-    </SpotlightCard>
   );
 }

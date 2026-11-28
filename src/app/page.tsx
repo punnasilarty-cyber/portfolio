@@ -11,14 +11,16 @@ import { Terminal } from "@/components/Terminal";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ToTop } from "@/components/ToTop";
 import { Works } from "@/components/Works";
-import { aboutWhole, contacts, profile, sections, siteUrl } from "@/content";
+import { aboutWhole, profile, sections, siteUrl } from "@/content";
 import { useLang } from "@/i18n";
+import { useSite } from "@/site-store";
 
 const base = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 const menu = [{ id: "top", title: "หน้าแรก" }, ...sections, { id: "contact", title: "ติดต่อ" }];
 
 export default function HomePage() {
   const { english, t } = useLang();
+  const { intro, about, contacts } = useSite();
   return (
     <>
       <Loader />
@@ -63,7 +65,7 @@ export default function HomePage() {
               </span>
             </h1>
             <p className="solx-animate-in solx-after-title mx-auto mt-3 max-w-2xl py-2 text-base text-[#e4e4e7] [text-shadow:0_0_3px_#08090a,0_0_8px_#08090a,0_0_16px_#08090a] sm:text-lg">
-              {t(profile.intro)}
+              {t(intro)}
             </p>
             <div className="solx-animate-in solx-after-text mt-8 flex justify-center">
               <a href={`#${sections[0].id}`} className="solx-btn-primary px-6 py-3 text-sm sm:text-base">
@@ -77,7 +79,7 @@ export default function HomePage() {
         <section className="about">
           <h2>{t("เกี่ยวกับฉัน")}</h2>
           <div>
-            {profile.about.map((paragraph) => (
+            {about.map((paragraph) => (
               <p key={paragraph}>
                 {/* split keeps the matched phrases at the odd positions */}
                 {t(paragraph)
@@ -116,7 +118,7 @@ export default function HomePage() {
           <h2 className="mb-10 text-center text-2xl font-semibold sm:text-4xl">{t("ติดต่อ")}</h2>
           <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {contacts.map((contact) => (
-              <li key={contact.name}>
+              <li key={`${contact.name} ${contact.value}`}>
                 {contact.href ? (
                   // a mail link opens the mail app, so only web addresses get a new tab
                   <a href={contact.href} {...(contact.href.startsWith("https:") && { target: "_blank", rel: "noopener noreferrer" })} className="solx-card contact-card">

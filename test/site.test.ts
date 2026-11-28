@@ -1,0 +1,52 @@
+import assert from "node:assert/strict";
+import { test } from "node:test";
+import { documentsOf, filesOf, unusedFiles } from "../src/items.ts";
+import { addressOf } from "../src/items.ts";
+import { defaultSite, fromDraft, readSite, toDraft } from "../src/site.ts";
+import { toEnglish } from "../src/translations.ts";
+
+const draft = () => toDraft(defaultSite, (text) => toEnglish(text));
+
+test("an unchanged draft saves the same content, with its English", () => {
+  const saved = fromDraft(draft());
+  assert.equal(saved.intro, defaultSite.intro);
+  assert.deepEqual(saved.education.map((stage) => stage.level), defaultSite.education.map((stage) => stage.level));
+  assert.equal(saved.en[defaultSite.intro], toEnglish(defaultSite.intro));
+  assert.deepEqual(readSite(JSON.parse(JSON.stringify(saved))).contacts, saved.contacts);
+});
+
+test("what cannot be shown is refused with a reason", () => {
+  const broken = (change: (value: ReturnType<typeof draft>) => void) => {
+    const value = draft();
+    change(value);
+    return () => fromDraft(value);
+  };
+  assert.throws(broken((d) => (d.stages[0].level.th = "ประถม")), /ระดับชั้น/);
+  assert.throws(broken((d) => (d.stages[0].period = "2560")), /ปีการศึกษา/);
+  assert.throws(broken((d) => (d.contacts[0].href = "javascript:alert(1)")), /ลิงก์/);
+  assert.throws(broken((d) => (d.stages = [])), /อย่างน้อย/);
+  assert.throws(broken((d) => (d.intro.th = " ")), /หน้าแรก/);
+});
+
+test("a plain hyphen between grades is accepted", () => {
+  const value = draft();
+  value.stages[0].level.th = "ประถมศึกษาปีที่ 1-6";
+  assert.equal(fromDraft(value).education[0].level, "ประถมศึกษาปีที่ 1–6");
+});
+
+test("a damaged file falls back field by field and drops unsafe links", () => {
+  assert.equal(readSite("nonsense"), defaultSite);
+  const site = readSite({ intro: 5, contacts: [{ name: "x", value: "y", href: "javascript:1" }], education: [{ level: "?" }], en: { a: "b", c: 1 } });
+  assert.equal(site.intro, defaultSite.intro);
+  assert.deepEqual(site.contacts, [{ name: "x", value: "y", href: undefined }]);
+  assert.equal(site.education, defaultSite.education);
+  assert.deepEqual(site.en, { a: "b" });
+});
+
+test("every document of an item counts as in use", () => {
+  const [a, b] = [addressOf("works/1/a.pdf"), addressOf("works/1/ข.docx")];
+  const work = { title: "t", kind: "", summary: "", link: a, files: [{ link: b, name: "ข.docx" }] };
+  assert.deepEqual(documentsOf(work).map((file) => file.name), ["a.pdf", "ข.docx"]);
+  assert.deepEqual(filesOf(work), ["works/1/a.pdf", "works/1/ข.docx"]);
+  assert.deepEqual(unusedFiles(work, [{ ...work, files: [] }]), ["works/1/ข.docx"]);
+});

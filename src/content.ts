@@ -18,7 +18,9 @@ export const profile = {
 export const siteUrl = "https://punnasilarty-cyber.github.io/portfolio/";
 
 /** ช่องทางติดต่อท้ายหน้า เจ้าของเว็บเลือกให้เปิดสาธารณะ ไม่มีลิงก์ก็แสดงเป็นข้อความให้คัดลอก */
-export const contacts: { name: string; value: string; href?: string }[] = [
+export type Contact = { name: string; value: string; href?: string };
+
+export const contacts: Contact[] = [
   { name: "อีเมล", value: "punnasilarty@gmail.com", href: "mailto:punnasilarty@gmail.com" },
   { name: "Facebook", value: "Punnasin Namwat", href: "https://www.facebook.com/hopecore.or.real" },
   { name: "Instagram", value: "@justwannabe_7", href: "https://www.instagram.com/justwannabe_7/" },
@@ -63,13 +65,24 @@ export type Work = {
   more?: string[];
   /** ลิงก์ดูของจริง */
   link?: string;
+  /** รายละเอียดที่แสดงในหน้าเต็มของรายการ */
+  date?: string;
+  place?: string;
+  role?: string;
+  learned?: string;
+  /** ไฟล์เอกสารอื่นของรายการเดียวกัน นอกจากลิงก์หลัก */
+  files?: { link: string; name: string }[];
+  /** คำบรรยายใต้รูป จับคู่ด้วยที่อยู่ของรูป */
+  captions?: Record<string, string>;
+  /** คำแปลภาษาอังกฤษของรายการนี้ จับคู่ด้วยข้อความไทย */
+  en?: Record<string, string>;
 };
 
 /**
  * ประวัติการศึกษา แสดงเป็นฉากโรงเรียนจำลองกับการ์ดแต่ละช่วง ไม่ได้แก้จากหน้าเว็บ
  * ปีการศึกษานับย้อนและไปข้างหน้าจาก ม.4 ปีการศึกษา 2569 โดยเรียนต่อเนื่องปีละชั้น
  */
-export const education: {
+export type Schooling = {
   level: string;
   school: string;
   /** ปีการศึกษา */
@@ -83,7 +96,9 @@ export const education: {
   logo: string;
   /** สีประจำโรงเรียน ใช้กับการ์ดและฉากจำลอง ถ้าไม่รู้ให้เว้นไว้ จะใช้สีแดงของเว็บ */
   schoolColors?: { name: string; hex: string }[];
-}[] = [
+};
+
+export const education: Schooling[] = [
   {
     level: "ประถมศึกษาปีที่ 1–6",
     period: "2560 – 2565",

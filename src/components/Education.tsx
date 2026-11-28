@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { LearningRoute } from "@/components/LearningRoute";
 import { SchoolScene } from "@/components/SchoolScene";
-import { education, type Work } from "@/content";
+import { type Work } from "@/content";
 import { useLang } from "@/i18n";
+import { useSite } from "@/site-store";
 import { englishPeriod } from "@/translations";
 
 const base = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
@@ -14,6 +15,7 @@ const VIEWS = [
 
 /** where the schooling happened: the learning route or school models, then a card per stage (see motion.ts) */
 export function Education({ project }: { project?: Work }) {
+  const { education } = useSite();
   // one scene per school, in the order first reached
   const schools = education.filter((stop, i) => education.findIndex((other) => other.school === stop.school) === i);
 
@@ -24,7 +26,7 @@ export function Education({ project }: { project?: Work }) {
   // the animations are rebuilt for the view now showing, which also measures its new height
   useEffect(() => {
     window.dispatchEvent(new Event("view-change"));
-  }, [view]);
+  }, [view, education]);
 
   return (
     <div className={view === "route" ? "edu edu--route" : "edu"}>
@@ -58,7 +60,7 @@ export function Education({ project }: { project?: Work }) {
         {education.map((stop, i) => (
           // the school's colours paint the card
           <article
-            key={stop.level}
+            key={`${i} ${stop.level}`}
             className={view === "route" && i === reading ? "edu-stop is-reading" : "edu-stop"}
             data-school={stop.school}
             style={{ "--a": stop.schoolColors?.[1]?.hex ?? "#f87171", "--b": stop.schoolColors?.[0]?.hex ?? "#7f1d1d" } as React.CSSProperties}
@@ -73,7 +75,7 @@ export function Education({ project }: { project?: Work }) {
               <p className="mt-1 text-sm text-[var(--muted)]">{english ? `Academic years ${englishPeriod(stop.period)}` : `ปีการศึกษา ${stop.period}`}</p>
               <div className="mt-4 flex items-center gap-4">
                 {/* eslint-disable-next-line @next/next/no-img-element -- a static export serves images as they are */}
-                <img src={base + stop.logo} alt={english ? `Crest of ${t(stop.school)}` : `ตรา${stop.school}`} className="edu-logo" />
+                {stop.logo && <img src={base + stop.logo} alt={english ? `Crest of ${t(stop.school)}` : `ตรา${stop.school}`} className="edu-logo" />}
                 <h3 className="text-xl font-bold sm:text-2xl">{t(stop.school)}</h3>
               </div>
               <ul className="mt-4 space-y-1.5 text-sm">
@@ -84,9 +86,11 @@ export function Education({ project }: { project?: Work }) {
                 ))}
               </ul>
               <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
-                <a href={stop.website} target="_blank" rel="noopener noreferrer" className="solx-btn-ghost px-4 py-2 text-sm">
-                  {t("เว็บไซต์โรงเรียน")} <span aria-hidden="true">↗</span>
-                </a>
+                {stop.website && (
+                  <a href={stop.website} target="_blank" rel="noopener noreferrer" className="solx-btn-ghost px-4 py-2 text-sm">
+                    {t("เว็บไซต์โรงเรียน")} <span aria-hidden="true">↗</span>
+                  </a>
+                )}
               </div>
             </div>
           </article>

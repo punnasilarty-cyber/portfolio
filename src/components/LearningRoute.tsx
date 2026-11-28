@@ -1,13 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Student } from "@/components/Student";
-import { education, type Work } from "@/content";
+import { type Work } from "@/content";
 import { useLang } from "@/i18n";
 import { yearAt, yearsOf } from "@/journey";
 import { PINS, PROVINCE, ROAD, ROAD_KM } from "@/map-data";
+import { useSite } from "@/site-store";
 import { englishGrade } from "@/translations";
 
 const base = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
-const years = yearsOf(education);
 const STATUS = { past: "เรียนจบแล้ว", now: "กำลังเรียน", ahead: "ยังมาไม่ถึง (คาดว่า)" };
 
 // the map is framed on the schools, with room around them for their names
@@ -28,12 +28,16 @@ function goToSchool(school: string) {
 
 /** the learning journey: a made-up student moves through the school years along the real road between the schools */
 export function LearningRoute({ project, onStage }: { project?: Work; /** told which stage card the journey is at */ onStage: (stage: number) => void }) {
-  // one pin per school, in the order first reached
-  const pins = education.filter((stop, i) => education.findIndex((other) => other.school === stop.school) === i);
+  const { education } = useSite();
+  const years = useMemo(() => yearsOf(education), [education]);
+  // one pin per school the map knows, in the order first reached
+  const pins = education.filter((stop, i) => PINS[stop.school] && education.findIndex((other) => other.school === stop.school) === i);
   const { english, t } = useLang();
-  const [step, setStep] = useState(0);
+  const [at, setStep] = useState(0);
   // the student walks only while the page is moving
   const [walking, setWalking] = useState(false);
+  // the list may have become shorter in the editor
+  const step = Math.min(at, years.length - 1);
   const entry = years[step];
   const stage = education[entry.stage];
   const color = stage.schoolColors?.[1]?.hex ?? "#f87171";
@@ -65,7 +69,7 @@ export function LearningRoute({ project, onStage }: { project?: Work; /** told w
       cancelAnimationFrame(frame);
       clearTimeout(rest);
     };
-  }, []);
+  }, [years]);
 
   return (
     <div className="edu-route-view">
@@ -106,7 +110,7 @@ export function LearningRoute({ project, onStage }: { project?: Work; /** told w
               <clipPath id={id}>
                 <circle r="13.5" />
               </clipPath>
-              <image href={base + pin.logo} x="-13.5" y="-13.5" width="27" height="27" clipPath={`url(#${id})`} />
+              {pin.logo && <image href={base + pin.logo} x="-13.5" y="-13.5" width="27" height="27" clipPath={`url(#${id})`} />}
               <text y="-24" textAnchor="middle" className="edu-pin-label">
                 {t(pin.school).replace("โรงเรียน", "").replace(" School", "")}
               </text>

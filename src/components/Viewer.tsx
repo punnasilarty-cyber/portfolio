@@ -3,16 +3,17 @@ import { PdfPages } from "@/components/PdfPages";
 import { useLang } from "@/i18n";
 import type { View } from "@/viewer";
 
-export type Shown = View & { title: string; /** where the file itself lives */ href: string; /** all the pictures to step through */ gallery?: string[]; /** the card the window grows out of and shrinks back into */ from?: Element | null };
+export type Shown = View & { title: string; /** where the file itself lives */ href: string; /** all the pictures to step through */ gallery?: string[]; /** a line under each picture */ captions?: string[]; /** the picture to open on */ start?: number; /** the card the window grows out of and shrinks back into */ from?: Element | null };
 
 /** a full-screen window over the page for one picture or file */
 export function Viewer({ shown, onClose }: { shown: Shown; onClose: () => void }) {
   // a picture fits the window until pressed, then shows at its own size and scrolls
   const { english, t } = useLang();
   const [full, setFull] = useState(false);
-  const [at, setAt] = useState(0);
+  const [at, setAt] = useState(shown.start ?? 0);
   const gallery = shown.gallery && shown.gallery.length > 1 ? shown.gallery : null;
   const picture = gallery ? gallery[at] : shown.src;
+  const caption = shown.captions?.[at];
 
   /** moves the window between its card and full size; nothing when animation is stopped */
   function grow(dialog: HTMLDialogElement, back = false) {
@@ -79,6 +80,7 @@ export function Viewer({ shown, onClose }: { shown: Shown; onClose: () => void }
       ) : (
         <iframe src={shown.src} title={shown.title} className="viewer-body" />
       )}
+      {caption && <p className="viewer-caption">{caption}</p>}
       {gallery && (
         <footer>
           <button type="button" onClick={() => step(-1)} className="solx-btn-ghost px-4 py-1.5 text-xs">

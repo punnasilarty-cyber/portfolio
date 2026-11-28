@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { contacts, education, profile } from "@/content";
 import { setEnglish, useLang } from "@/i18n";
+import { useSite } from "@/site-store";
 import { answer } from "@/terminal";
 import { setTheme } from "@/theme";
 import { englishPeriod } from "@/translations";
@@ -10,6 +10,7 @@ import { englishPeriod } from "@/translations";
 /** a hidden command window: the small button in the footer, or the key left of 1 */
 export function Terminal() {
   const { english, t } = useLang();
+  const { about, contacts, education } = useSite();
   const dialog = useRef<HTMLDialogElement>(null);
   const log = useRef<HTMLDivElement>(null);
   const [lines, setLines] = useState<string[]>([]);
@@ -42,7 +43,7 @@ export function Terminal() {
     field.value = "";
     const reply = answer(typed, {
       english,
-      about: profile.about.map(t),
+      about: about.map(t),
       education: education.map((stage) => `${english ? englishPeriod(stage.period) : stage.period}  ${t(stage.level)} · ${t(stage.school)}`),
       // as listed on the page, which includes what was added in the editor
       projects: Array.from(new Set(Array.from(document.querySelectorAll("main section[id] > ul h3"), (title) => title.textContent!))),

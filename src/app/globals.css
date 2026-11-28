@@ -1552,6 +1552,163 @@ div.viewer-body {
   color: var(--accent-soft);
 }
 
+/* the editor's tabs, paired boxes and list entries */
+.editor-tabs {
+  display: flex;
+  gap: 0.25rem;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.editor-tabs button {
+  flex: 1;
+  padding: 0.35rem 0.25rem;
+  border-radius: var(--radius-button);
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+.editor-tabs button[aria-pressed="true"] {
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+}
+.editor-pair {
+  display: grid;
+  gap: 0.35rem;
+}
+.editor-pair > label + label {
+  padding-left: 0.75rem;
+  border-left: 2px solid var(--border);
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+.editor-entry {
+  display: grid;
+  gap: 0.6rem;
+  min-width: 0;
+  padding: 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+}
+.editor-entry legend {
+  padding: 0 0.35rem;
+  color: var(--accent-soft);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.editor-more summary {
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+/* stays reachable at the bottom of a long form */
+.editor-save {
+  position: sticky;
+  bottom: -1rem;
+  z-index: 1;
+  display: flex;
+  gap: 0.75rem;
+  margin: 0 -1rem;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--border);
+  background: #0d0e10;
+}
+
+/* a card's own page, over the site */
+.detail[open] {
+  display: flex;
+  flex-direction: column;
+  width: min(52rem, calc(100vw - 1rem));
+  max-height: calc(100dvh - 1rem);
+  margin: auto;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: #0d0e10;
+  color: var(--foreground);
+  text-align: left;
+}
+.detail::backdrop {
+  background: rgba(0, 0, 0, 0.8);
+}
+.detail header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+}
+.detail header p {
+  color: var(--accent-soft);
+  font-size: 0.75rem;
+}
+.detail header h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+.detail-body {
+  display: grid;
+  gap: 1.25rem;
+  overflow: auto;
+  padding: 1.25rem;
+  font-size: 0.9rem;
+}
+.detail-body p,
+.detail-body dd {
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+.detail-body dl {
+  display: grid;
+  gap: 0.5rem;
+}
+.detail-body dt {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+.detail-body h4 {
+  margin-bottom: 0.5rem;
+  color: var(--accent-soft);
+  font-weight: 700;
+}
+.detail-pictures {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+  gap: 0.75rem;
+}
+.detail-pictures button {
+  display: block;
+  width: 100%;
+  cursor: zoom-in;
+}
+.detail-pictures img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: 8px;
+  background: #000;
+  object-fit: contain;
+}
+.detail-pictures figcaption {
+  margin-top: 0.25rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+.detail-body ul {
+  display: grid;
+  gap: 0.5rem;
+  justify-items: start;
+}
+.detail-body ul a {
+  display: inline-block;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+.viewer-caption {
+  padding: 0.4rem 0.75rem 0;
+  font-size: 0.875rem;
+  text-align: center;
+}
+
 /* the drawing in an empty section */
 .empty-art {
   margin: 0 auto 0.5rem;

@@ -64,6 +64,14 @@ export const EN: Record<string, string> = {
   ดูภาพเต็ม: "View full picture",
   กดเพื่อเปิดอ่าน: "Press to read",
   เปิดดู: "Open",
+  รายละเอียด: "Details",
+  วันที่: "Date",
+  สถานที่: "Place",
+  บทบาทของฉัน: "My role",
+  สิ่งที่ได้เรียนรู้: "What I learned",
+  รูปภาพ: "Pictures",
+  ไฟล์เอกสาร: "Documents",
+  เปิดลิงก์: "Open the link",
   แก้ไข: "Edit",
   เข้าสู่โหมดแก้ไข: "Enter edit mode",
   เปิดแท็บใหม่: "Open in new tab",
@@ -94,7 +102,7 @@ export const EN: Record<string, string> = {
 };
 
 /** a Thai text in English, or unchanged when there is no translation */
-export const toEnglish = (text: string) => EN[text.trim()] ?? text;
+export const toEnglish = (text: string, own: Record<string, string> = {}) => own[text.trim()] || EN[text.trim()] || text;
 
 /** Buddhist-era years as Common Era ones, with the note on a year still to come */
 export const englishPeriod = (period: string) => period.replace(/25\d\d/g, (year) => String(Number(year) - 543)).replace("คาดว่าจบ", "expected");
