@@ -6,6 +6,7 @@ import { Reveal } from "@/components/Reveal";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { StaggerText } from "@/components/StaggerText";
 import { groupsOf, sectionOf, sections, works as defaults, type SectionId, type Work } from "@/content";
+import { EmptyArt } from "@/components/Graphics";
 import { FirstPage } from "@/components/PdfPages";
 import { Viewer, type Shown } from "@/components/Viewer";
 import { checkToken, deleteFile, fromBase64, readFile, writeFile } from "@/github";
@@ -225,7 +226,10 @@ export function Works() {
           {section.id === "education" ? (
             <Education project={inSection("is2").find(({ work }) => work.image)?.work} />
           ) : works && inSection(section.id).length === 0 ? (
-            <p className="work-empty">กำลังรวบรวม{section.title}</p>
+            <div className="work-empty">
+              <EmptyArt section={section.id} />
+              <p>กำลังรวบรวม{section.title}</p>
+            </div>
           ) : (
             // while loading, one empty list holds the space
             (works ? groupsOf(inSection(section.id), ({ work }) => work.group) : [{ name: "", items: [] }]).map((group) => (

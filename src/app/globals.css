@@ -1320,6 +1320,27 @@ div.viewer-body {
 .work-file--excel {
   --file: #15803d;
 }
+/* the drawing in an empty section */
+.empty-art {
+  margin: 0 auto 0.5rem;
+  color: #a1a1aa;
+}
+.empty-float {
+  animation: empty-float 3.5s ease-in-out infinite alternate;
+}
+.empty-spark {
+  animation: empty-blink 1.6s ease-in-out infinite alternate;
+}
+@keyframes empty-float {
+  to {
+    translate: 0 -6px;
+  }
+}
+@keyframes empty-blink {
+  from {
+    opacity: 0.15;
+  }
+}
 .work-empty {
   max-width: 28rem;
   margin: 0 auto;
